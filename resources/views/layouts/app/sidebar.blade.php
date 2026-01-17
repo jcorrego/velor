@@ -29,6 +29,9 @@
                     <flux:sidebar.item icon="building-office-2" :href="route('management.entities')" :current="request()->routeIs('management.entities')" wire:navigate>
                         {{ __('Entities') }}
                     </flux:sidebar.item>
+                    <flux:sidebar.item icon="calendar" :href="route('management.tax-years')" :current="request()->routeIs('management.tax-years')" wire:navigate>
+                        {{ __('Tax Years') }}
+                    </flux:sidebar.item>
                     <flux:sidebar.item icon="document-text" :href="route('management.filings')" :current="request()->routeIs('management.filings')" wire:navigate>
                         {{ __('Filings') }}
                     </flux:sidebar.item>
