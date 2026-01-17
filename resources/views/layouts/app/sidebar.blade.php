@@ -18,6 +18,23 @@
                 </flux:sidebar.group>
             </flux:sidebar.nav>
 
+            <flux:sidebar.nav>
+                <flux:sidebar.group :heading="__('Management')" class="grid">
+                    <flux:sidebar.item icon="user" :href="route('management.profiles')" :current="request()->routeIs('management.profiles')" wire:navigate>
+                        {{ __('Profiles') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="map" :href="route('management.residency-periods')" :current="request()->routeIs('management.residency-periods')" wire:navigate>
+                        {{ __('Residency') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="building-office-2" :href="route('management.entities')" :current="request()->routeIs('management.entities')" wire:navigate>
+                        {{ __('Entities') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="document-text" :href="route('management.filings')" :current="request()->routeIs('management.filings')" wire:navigate>
+                        {{ __('Filings') }}
+                    </flux:sidebar.item>
+                </flux:sidebar.group>
+            </flux:sidebar.nav>
+
             <flux:spacer />
 
             <flux:sidebar.nav>
