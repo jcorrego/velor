@@ -5,7 +5,7 @@ use App\Models\Entity;
 use App\Models\User;
 use App\Services\Finance\TransactionImportService;
 
-it('returns an empty set for PDF parsing until extraction is implemented', function () {
+it('throws when the PDF file is empty', function () {
     $user = User::factory()->create();
     $entity = Entity::factory()->for($user)->create();
     $account = Account::factory()->for($entity)->create();
@@ -15,9 +15,8 @@ it('returns an empty set for PDF parsing until extraction is implemented', funct
 
     $service = app(TransactionImportService::class);
 
-    $result = $service->parsePDF($filePath, $account->id);
-
-    expect($result)->toBe([]);
+    expect(fn () => $service->parsePDF($filePath, $account->id, 'santander'))
+        ->toThrow(RuntimeException::class);
 });
 
 it('throws when the PDF file cannot be read', function () {
@@ -27,6 +26,6 @@ it('throws when the PDF file cannot be read', function () {
 
     $service = app(TransactionImportService::class);
 
-    expect(fn () => $service->parsePDF('/tmp/missing.pdf', $account->id))
+    expect(fn () => $service->parsePDF('/tmp/missing.pdf', $account->id, 'santander'))
         ->toThrow(InvalidArgumentException::class);
 });

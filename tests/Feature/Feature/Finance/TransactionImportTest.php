@@ -167,7 +167,7 @@ it('validates parser type', function () {
 it('validates file type', function () {
     Storage::fake('local');
 
-    $file = UploadedFile::fake()->create('document.pdf', 100);
+    $file = UploadedFile::fake()->create('document.exe', 100);
 
     actingAs($this->user)
         ->postJson("/api/import/preview/{$this->account->id}", [
