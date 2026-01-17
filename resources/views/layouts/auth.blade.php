@@ -1,3 +1,1 @@
-<x-layouts::auth.card :title="$title ?? null">
-    {{ $slot }}
-</x-layouts::auth.card>
+@include('layouts.auth.split', ['title' => $title ?? null, 'slot' => $slot])
