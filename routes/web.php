@@ -10,6 +10,10 @@ Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
+Route::view('finance', 'finance')
+    ->middleware(['auth', 'verified'])
+    ->name('finance');
+
 require __DIR__.'/settings.php';
 require __DIR__.'/management.php';
 require __DIR__.'/finance.php';

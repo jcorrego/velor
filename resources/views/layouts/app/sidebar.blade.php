@@ -35,6 +35,14 @@
                 </flux:sidebar.group>
             </flux:sidebar.nav>
 
+            <flux:sidebar.nav>
+                <flux:sidebar.group :heading="__('Finance')" class="grid">
+                    <flux:sidebar.item icon="currency-dollar" :href="route('finance')" :current="request()->routeIs('finance')" wire:navigate>
+                        {{ __('Finance') }}
+                    </flux:sidebar.item>
+                </flux:sidebar.group>
+            </flux:sidebar.nav>
+
             <flux:spacer />
 
             <flux:sidebar.nav>
