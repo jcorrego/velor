@@ -24,7 +24,7 @@ class FxRateService
         $override = FxRate::query()
             ->where('currency_from_id', $fromCurrency->id)
             ->where('currency_to_id', $toCurrency->id)
-            ->where('rate_date', $date->toDateString())
+            ->where('rate_date', $date->format('Y-m-d'))
             ->where('source', 'override')
             ->first();
 
@@ -44,7 +44,7 @@ class FxRateService
         $rate = FxRate::query()
             ->where('currency_from_id', $fromCurrency->id)
             ->where('currency_to_id', $toCurrency->id)
-            ->where('rate_date', $date->toDateString())
+            ->where('rate_date', $date->format('Y-m-d'))
             ->where('source', 'ecb')
             ->first();
 
@@ -75,7 +75,7 @@ class FxRateService
                 [
                     'currency_from_id' => $fromCurrency->id,
                     'currency_to_id' => $toCurrency->id,
-                    'rate_date' => $date->toDateString(),
+                    'rate_date' => $date->format('Y-m-d'),
                 ],
                 [
                     'rate' => $rate,
@@ -133,7 +133,7 @@ class FxRateService
             [
                 'currency_from_id' => $fromCurrency->id,
                 'currency_to_id' => $toCurrency->id,
-                'rate_date' => $date->toDateString(),
+                'rate_date' => $date->format('Y-m-d'),
             ],
             [
                 'rate' => $rate,

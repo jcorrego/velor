@@ -48,6 +48,11 @@ class StoreTransactionRequest extends FormRequest
                 'integer',
                 'exists:currencies,id',
             ],
+            'converted_currency_id' => [
+                'nullable',
+                'integer',
+                'exists:currencies,id',
+            ],
             'category_id' => [
                 'nullable',
                 'integer',

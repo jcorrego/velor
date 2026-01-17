@@ -5,6 +5,7 @@ namespace App\Finance\Services;
 use App\Models\Asset;
 use App\Models\Transaction;
 use Carbon\Carbon;
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Collection;
 
 class RentalPropertyService
@@ -56,7 +57,7 @@ class RentalPropertyService
     /**
      * Calculate accumulated depreciation from acquisition to a given date.
      */
-    public function calculateAccumulatedDepreciation(Asset $asset, Carbon $asOfDate): float
+    public function calculateAccumulatedDepreciation(Asset $asset, CarbonInterface $asOfDate): float
     {
         if (! $asset->useful_life_years || ! $asset->annual_depreciation_amount) {
             return 0;

@@ -27,6 +27,9 @@ class StoreTransactionCategoryRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
+                Rule::unique('transaction_categories', 'name')
+                    ->where('jurisdiction_id', $this->input('jurisdiction_id'))
+                    ->where('entity_id', $this->input('entity_id')),
             ],
             'jurisdiction_id' => [
                 'required',

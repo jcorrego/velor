@@ -20,8 +20,14 @@ class TransactionFactory extends Factory
      */
     public function definition(): array
     {
-        $originalCurrency = Currency::factory();
-        $convertedCurrency = Currency::factory();
+        $originalCurrency = Currency::firstOrCreate(
+            ['code' => 'USD'],
+            ['name' => 'US Dollar', 'symbol' => '$', 'is_active' => true]
+        );
+        $convertedCurrency = Currency::firstOrCreate(
+            ['code' => 'EUR'],
+            ['name' => 'Euro', 'symbol' => '€', 'is_active' => true]
+        );
         $originalAmount = $this->faker->randomFloat(2, 10, 10000);
 
         return [
@@ -33,7 +39,7 @@ class TransactionFactory extends Factory
             'converted_amount' => $originalAmount * $this->faker->randomFloat(4, 0.8, 1.2),
             'converted_currency_id' => $convertedCurrency,
             'fx_rate' => $this->faker->randomFloat(4, 0.8, 1.2),
-            'fx_source' => $this->faker->randomElement(['ECB', 'XE', 'CUSTOM', null]),
+            'fx_source' => $this->faker->randomElement(['ecb', 'manual', 'override']),
             'category_id' => TransactionCategory::factory(),
             'counterparty_name' => $this->faker->company(),
             'description' => $this->faker->sentence(),

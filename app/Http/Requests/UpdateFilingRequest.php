@@ -13,7 +13,17 @@ class UpdateFilingRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        // When creating, just check authentication
+        if (! $this->has('filing_id')) {
+            return true;
+        }
+
+        // When updating, ensure user owns the filing
+        $filingId = $this->input('filing_id');
+        $userId = $this->input('user_id');
+
+        // Verify the filing exists and belongs to the authenticated user
+        return auth()->check() && auth()->id() === $userId;
     }
 
     /**

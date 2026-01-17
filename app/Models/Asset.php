@@ -4,12 +4,15 @@ namespace App\Models;
 
 use App\Enums\Finance\AssetType;
 use App\Enums\Finance\OwnershipStructure;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Asset extends Model
 {
+    use HasFactory;
+
     /**
      * @var array<string>
      */

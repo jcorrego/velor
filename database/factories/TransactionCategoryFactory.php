@@ -39,7 +39,7 @@ class TransactionCategoryFactory extends Factory
     public function propertyMaintenance(): static
     {
         return $this->state(fn (array $attributes) => [
-            'name' => 'Property Maintenance and Repairs',
+            'name' => 'Rental Property Maintenance and Repairs',
             'income_or_expense' => 'expense',
             'sort_order' => 20,
         ]);

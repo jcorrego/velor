@@ -24,7 +24,10 @@ class AccountFactory extends Factory
         return [
             'name' => $this->faker->words(3, true),
             'type' => $this->faker->randomElement(AccountType::cases()),
-            'currency_id' => Currency::factory(),
+            'currency_id' => Currency::firstOrCreate(
+                ['code' => 'USD'],
+                ['name' => 'US Dollar', 'symbol' => '$', 'is_active' => true]
+            )->id,
             'entity_id' => Entity::factory(),
             'opening_date' => $openingDate,
             'closing_date' => $this->faker->optional(0.2)->dateTimeBetween($openingDate),

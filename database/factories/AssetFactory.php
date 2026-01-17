@@ -31,7 +31,10 @@ class AssetFactory extends Factory
             'ownership_structure' => $this->faker->randomElement(OwnershipStructure::cases()),
             'acquisition_date' => $acquisitionDate,
             'acquisition_cost' => $this->faker->randomFloat(2, 50000, 500000),
-            'acquisition_currency_id' => Currency::factory(),
+            'acquisition_currency_id' => Currency::firstOrCreate(
+                ['code' => 'USD'],
+                ['name' => 'US Dollar', 'symbol' => '$', 'is_active' => true]
+            )->id,
             'depreciation_method' => $this->faker->randomElement(['straight_line', 'declining_balance']),
             'useful_life_years' => $this->faker->randomElement([15, 20, 27.5, 39]),
             'annual_depreciation_amount' => null,

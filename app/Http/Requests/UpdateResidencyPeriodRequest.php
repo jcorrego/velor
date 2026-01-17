@@ -12,7 +12,17 @@ class UpdateResidencyPeriodRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        // When creating, just check authentication
+        if (! $this->has('residency_period_id')) {
+            return true;
+        }
+
+        // When updating, ensure user owns the residency period
+        $residencyPeriodId = $this->input('residency_period_id');
+        $userId = $this->input('user_id');
+
+        // Verify the residency period exists and belongs to the authenticated user
+        return auth()->check() && auth()->id() === $userId;
     }
 
     /**

@@ -12,3 +12,4 @@ Route::view('dashboard', 'dashboard')
 
 require __DIR__.'/settings.php';
 require __DIR__.'/management.php';
+require __DIR__.'/finance.php';
