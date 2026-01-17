@@ -22,7 +22,9 @@ class UpdateUserProfileRequest extends FormRequest
      */
     public function rules(): array
     {
-        $profileId = $this->route('userProfile') ?? $this->route('user_profile');
+        $profileId = $this->route('userProfile')
+            ?? $this->route('user_profile')
+            ?? $this->input('user_profile_id');
 
         return [
             'user_id' => [
