@@ -13,7 +13,17 @@ class UpdateEntityRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        // When creating, just check authentication
+        if (! $this->has('entity_id')) {
+            return true;
+        }
+
+        // When updating, ensure user owns the entity
+        $entityId = $this->input('entity_id');
+        $userId = $this->input('user_id');
+
+        // Verify the entity exists and belongs to the authenticated user
+        return auth()->check() && auth()->id() === $userId;
     }
 
     /**

@@ -13,16 +13,18 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Seed jurisdictions and filing types
+        // Seed currencies, jurisdictions and filing types
         $this->call([
+            CurrencySeeder::class,
             JurisdictionSeeder::class,
             FilingTypeSeeder::class,
         ]);
 
         // Create test user
         $user = User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            'name' => 'Juan Carlos Orrego',
+            'email' => 'jcorrego@gmail.com',
+            'password' => bcrypt('password'),
         ]);
 
         // Create user profiles for Spain, USA, and Colombia
@@ -38,14 +40,14 @@ class DatabaseSeeder extends Seeder
         \App\Models\ResidencyPeriod::factory()->current()->fiscalResidence()->create([
             'user_id' => $user->id,
             'jurisdiction_id' => $spain->id,
-            'start_date' => '2024-01-01',
+            'start_date' => '2025-06-24',
         ]);
 
         // Create entities
         \App\Models\Entity::factory()->llc()->create([
             'user_id' => $user->id,
             'jurisdiction_id' => $usa->id,
-            'name' => 'Acme Development LLC',
+            'name' => 'JCO Services LLC',
         ]);
 
         // Create tax years for 2025
