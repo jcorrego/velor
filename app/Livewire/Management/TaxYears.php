@@ -2,9 +2,9 @@
 
 namespace App\Livewire\Management;
 
+use App\Http\Requests\StoreTaxYearRequest;
 use App\Models\Jurisdiction;
 use App\Models\TaxYear;
-use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -16,27 +16,12 @@ class TaxYears extends Component
 
     public function save(): void
     {
-        $validated = $this->validate([
-            'jurisdiction_id' => [
-                'required',
-                'exists:jurisdictions,id',
-            ],
-            'year' => [
-                'required',
-                'integer',
-                'min:2000',
-                'max:2100',
-                Rule::unique('tax_years', 'year')->where('jurisdiction_id', $this->jurisdiction_id),
-            ],
-        ], [
-            'jurisdiction_id.required' => 'The jurisdiction is required.',
-            'jurisdiction_id.exists' => 'The selected jurisdiction does not exist.',
-            'year.required' => 'The tax year is required.',
-            'year.integer' => 'The tax year must be a valid year.',
-            'year.min' => 'The tax year must be at least 2000.',
-            'year.max' => 'The tax year must be 2100 or earlier.',
-            'year.unique' => 'A tax year already exists for this jurisdiction.',
-        ]);
+        $data = $this->formData();
+        $validated = validator(
+            $data,
+            $this->rulesForSave($data),
+            $this->messagesForSave($data),
+        )->validate();
 
         TaxYear::create($validated);
 
@@ -59,5 +44,38 @@ class TaxYears extends Component
         ])->layout('layouts.app', [
             'title' => __('Tax Years'),
         ]);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function formData(): array
+    {
+        return [
+            'jurisdiction_id' => $this->jurisdiction_id,
+            'year' => $this->year,
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    private function rulesForSave(array $data): array
+    {
+        $request = StoreTaxYearRequest::create('/', 'POST', $data);
+
+        return $request->rules();
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array<string, string>
+     */
+    private function messagesForSave(array $data): array
+    {
+        $request = StoreTaxYearRequest::create('/', 'POST', $data);
+
+        return $request->messages();
     }
 }
