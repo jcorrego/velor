@@ -9,6 +9,7 @@ use App\Services\Finance\Parsers\BancolombiaCSVParser;
 use App\Services\Finance\Parsers\CSVParserContract;
 use App\Services\Finance\Parsers\MercuryCSVParser;
 use App\Services\Finance\Parsers\SantanderCSVParser;
+use Carbon\Carbon;
 
 class TransactionImportService
 {
@@ -166,13 +167,16 @@ class TransactionImportService
     private function transactionSignature($transaction): string
     {
         $date = $transaction->date ?? $transaction['date'];
+        $normalizedDate = $date instanceof \Carbon\CarbonInterface
+            ? $date->toDateString()
+            : Carbon::parse($date)->toDateString();
         $amount = $transaction->amount ?? $transaction['amount'];
         $description = $transaction->description ?? $transaction['description'] ?? '';
 
         // Normalize amount to 2 decimal places for consistent matching
         $normalizedAmount = number_format((float) $amount, 2, '.', '');
 
-        return "{$date}|{$normalizedAmount}|".substr(md5($description), 0, 8);
+        return "{$normalizedDate}|{$normalizedAmount}|".substr(md5($description), 0, 8);
     }
 
     /**

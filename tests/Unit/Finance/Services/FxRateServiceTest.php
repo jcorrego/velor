@@ -46,7 +46,7 @@ test('returns ECB rate from database', function () {
     \DB::table('fx_rates')
         ->where('currency_from_id', $eur->id)
         ->where('currency_to_id', $usd->id)
-        ->where('rate_date', '2024-01-01')
+        ->whereDate('rate_date', $date->toDateString())
         ->update(['rate' => 1.12]);
 
     // Clear cache

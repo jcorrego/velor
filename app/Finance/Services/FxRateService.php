@@ -24,7 +24,7 @@ class FxRateService
         $override = FxRate::query()
             ->where('currency_from_id', $fromCurrency->id)
             ->where('currency_to_id', $toCurrency->id)
-            ->where('rate_date', $date->format('Y-m-d'))
+            ->whereDate('rate_date', $date->toDateString())
             ->where('source', 'override')
             ->first();
 
@@ -44,7 +44,7 @@ class FxRateService
         $rate = FxRate::query()
             ->where('currency_from_id', $fromCurrency->id)
             ->where('currency_to_id', $toCurrency->id)
-            ->where('rate_date', $date->format('Y-m-d'))
+            ->whereDate('rate_date', $date->toDateString())
             ->where('source', 'ecb')
             ->first();
 
@@ -129,17 +129,26 @@ class FxRateService
      */
     public function setOverrideRate(Currency $fromCurrency, Currency $toCurrency, Carbon $date, float $rate): FxRate
     {
-        $fxRate = FxRate::updateOrCreate(
-            [
-                'currency_from_id' => $fromCurrency->id,
-                'currency_to_id' => $toCurrency->id,
-                'rate_date' => $date->format('Y-m-d'),
-            ],
-            [
+        $fxRate = FxRate::query()
+            ->where('currency_from_id', $fromCurrency->id)
+            ->where('currency_to_id', $toCurrency->id)
+            ->whereDate('rate_date', $date->toDateString())
+            ->first();
+
+        if ($fxRate) {
+            $fxRate->update([
                 'rate' => $rate,
                 'source' => 'override',
-            ]
-        );
+            ]);
+        } else {
+            $fxRate = FxRate::create([
+                'currency_from_id' => $fromCurrency->id,
+                'currency_to_id' => $toCurrency->id,
+                'rate_date' => $date->toDateString(),
+                'rate' => $rate,
+                'source' => 'override',
+            ]);
+        }
 
         // Invalidate cache
         $cacheKey = "fx_rate_{$fromCurrency->code}_{$toCurrency->code}_{$date->toDateString()}";
