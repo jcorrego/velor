@@ -13,8 +13,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Seed jurisdictions and filing types
+        // Seed currencies, jurisdictions and filing types
         $this->call([
+            CurrencySeeder::class,
             JurisdictionSeeder::class,
             FilingTypeSeeder::class,
         ]);
