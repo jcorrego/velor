@@ -60,3 +60,32 @@ it('matches categories using regex rules', function () {
 
     expect($resolved)->toBe($category->id);
 });
+
+it('uses configured rules when none are provided', function () {
+    $user = User::factory()->create();
+    $entity = Entity::factory()->for($user)->create();
+    $account = Account::factory()->for($entity)->create();
+
+    $category = TransactionCategory::factory()
+        ->forEntity($entity)
+        ->create([
+            'jurisdiction_id' => $entity->jurisdiction_id,
+            'name' => 'Consulting Income',
+        ]);
+
+    config()->set('finance.transaction_categorization_rules', [
+        [
+            'pattern' => '/payment received/i',
+            'category_name' => 'Consulting Income',
+            'fields' => ['description'],
+        ],
+    ]);
+
+    $service = app(TransactionCategorizationService::class);
+
+    $resolved = $service->resolveCategoryId([
+        'description' => 'Payment received from client',
+    ], $account);
+
+    expect($resolved)->toBe($category->id);
+});
