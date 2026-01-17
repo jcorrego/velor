@@ -139,3 +139,20 @@ The system SHALL normalize multi-currency transactions to EUR base currency for 
 - **THEN** total rental income in EUR: 11,064 + 4,564 = EUR 15,628 (all in EUR base currency)
 - **AND** Schedule E shows USD amounts, IRPF shows EUR amounts
 
+### Requirement: Manual Transaction Entry and Editing
+The system SHALL allow users to manually create and edit transactions from the Finance UI.
+
+#### Scenario: Manual transaction creation
+- **WHEN** a user enters a transaction with date, account, type, amount, currency, and description
+- **THEN** the system SHALL create the transaction and show it in the transaction list
+- **AND** the system SHALL validate required fields and ownership
+
+#### Scenario: Access manual transaction form
+- **WHEN** a user clicks the Add transaction button in the Finance UI
+- **THEN** the system SHALL open the manual transaction form
+
+#### Scenario: Manual transaction editing
+- **WHEN** a user edits an existing transaction they own
+- **THEN** the system SHALL persist the changes and update the transaction list
+- **AND** the system SHALL prevent edits to transactions owned by other users
+

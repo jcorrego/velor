@@ -41,7 +41,7 @@ class StoreTransactionRequest extends FormRequest
             'original_amount' => [
                 'required',
                 'decimal:0,2',
-                'min:0.01',
+                'not_in:0',
             ],
             'original_currency_id' => [
                 'required',
@@ -91,7 +91,7 @@ class StoreTransactionRequest extends FormRequest
             'type.in' => 'The selected transaction type is invalid.',
             'original_amount.required' => 'The amount is required.',
             'original_amount.decimal' => 'The amount must be a valid decimal with up to 2 decimal places.',
-            'original_amount.min' => 'The amount must be at least 0.01.',
+            'original_amount.not_in' => 'The amount must not be zero.',
             'original_currency_id.required' => 'The currency is required.',
             'original_currency_id.exists' => 'The selected currency does not exist.',
             'category_id.exists' => 'The selected category does not exist.',

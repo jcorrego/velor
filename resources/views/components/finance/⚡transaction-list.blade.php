@@ -1,10 +1,14 @@
 <?php
 
 use App\Enums\Finance\TransactionType;
+use App\Finance\Services\FxRateService as FinanceFxRateService;
 use App\Models\Account;
+use App\Models\Currency;
 use App\Models\Transaction;
 use App\Models\TransactionCategory;
-use App\Services\Finance\FxRateService;
+use App\Services\Finance\FxRateService as TransactionFxRateService;
+use Carbon\Carbon;
+use Illuminate\Validation\Rule;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -21,6 +25,16 @@ new class extends Component
     public $fxOverrideRate = '';
     public $fxOverrideReason = '';
     public $fxOverrideDescription = '';
+    public $showTransactionForm = false;
+    public $editingTransactionId = null;
+    public $transactionDate = '';
+    public $transactionAccountId = '';
+    public $transactionType = '';
+    public $transactionAmount = '';
+    public $transactionCurrencyId = '';
+    public $transactionCategoryId = '';
+    public $transactionCounterpartyName = '';
+    public $transactionDescription = '';
 
     public function updatingSearch()
     {
@@ -40,6 +54,157 @@ new class extends Component
     public function updatingFilterType()
     {
         $this->resetPage();
+    }
+
+    public function updatedTransactionAccountId(): void
+    {
+        if (! $this->transactionAccountId || $this->transactionCurrencyId) {
+            return;
+        }
+
+        $account = Account::query()->find($this->transactionAccountId);
+        if (! $account) {
+            return;
+        }
+
+        $this->transactionCurrencyId = (string) $account->currency_id;
+    }
+
+    public function openTransactionForm(): void
+    {
+        $this->resetTransactionForm();
+        $this->showTransactionForm = true;
+        $this->dispatch('modal-show', name: 'manual-transaction');
+    }
+
+    public function editTransaction(int $id): void
+    {
+        $transaction = Transaction::query()->with('account')->findOrFail($id);
+
+        if ($transaction->account->entity->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $this->editingTransactionId = $transaction->id;
+        $this->transactionDate = $transaction->transaction_date->format('Y-m-d');
+        $this->transactionAccountId = (string) $transaction->account_id;
+        $this->transactionType = $transaction->type->value;
+        $this->transactionAmount = (string) $transaction->original_amount;
+        $this->transactionCurrencyId = (string) $transaction->original_currency_id;
+        $this->transactionCategoryId = $transaction->category_id ? (string) $transaction->category_id : '';
+        $this->transactionCounterpartyName = $transaction->counterparty_name ?? '';
+        $this->transactionDescription = $transaction->description ?? '';
+        $this->showTransactionForm = true;
+        $this->dispatch('modal-show', name: 'manual-transaction');
+    }
+
+    public function closeTransactionForm(): void
+    {
+        $this->resetTransactionForm();
+        $this->dispatch('modal-close', name: 'manual-transaction');
+    }
+
+    public function saveTransaction(): void
+    {
+        $validated = $this->validate([
+            'transactionDate' => ['required', 'date'],
+            'transactionAccountId' => ['required', 'integer', 'exists:accounts,id'],
+            'transactionType' => ['required', 'string', Rule::in(array_map(fn ($case) => $case->value, TransactionType::cases()))],
+            'transactionAmount' => ['required', 'decimal:0,2', 'not_in:0'],
+            'transactionCurrencyId' => ['required', 'integer', 'exists:currencies,id'],
+            'transactionCategoryId' => ['nullable', 'integer', 'exists:transaction_categories,id'],
+            'transactionCounterpartyName' => ['nullable', 'string', 'max:255'],
+            'transactionDescription' => ['nullable', 'string', 'max:1000'],
+        ], [
+            'transactionDate.required' => 'The transaction date is required.',
+            'transactionDate.date' => 'The transaction date must be a valid date.',
+            'transactionAccountId.required' => 'The account is required.',
+            'transactionAccountId.exists' => 'The selected account does not exist.',
+            'transactionType.required' => 'The transaction type is required.',
+            'transactionType.in' => 'The selected transaction type is invalid.',
+            'transactionAmount.required' => 'The amount is required.',
+            'transactionAmount.decimal' => 'The amount must be a valid decimal with up to 2 decimal places.',
+            'transactionAmount.not_in' => 'The amount must not be zero.',
+            'transactionCurrencyId.required' => 'The currency is required.',
+            'transactionCurrencyId.exists' => 'The selected currency does not exist.',
+            'transactionCategoryId.exists' => 'The selected category does not exist.',
+            'transactionCounterpartyName.string' => 'The counterparty name must be a string.',
+            'transactionCounterpartyName.max' => 'The counterparty name must not exceed 255 characters.',
+            'transactionDescription.string' => 'The description must be a string.',
+            'transactionDescription.max' => 'The description must not exceed 1000 characters.',
+        ]);
+
+        $account = Account::query()->with('entity')->findOrFail($validated['transactionAccountId']);
+
+        if ($account->entity->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        if ($validated['transactionCategoryId']) {
+            $category = TransactionCategory::query()->with('entity')->findOrFail($validated['transactionCategoryId']);
+
+            if ($category->entity->user_id !== auth()->id()) {
+                abort(403);
+            }
+        }
+
+        $originalCurrency = Currency::query()->findOrFail($validated['transactionCurrencyId']);
+        $baseCurrency = Currency::query()->where('code', 'EUR')->first() ?? $originalCurrency;
+        $transactionDate = Carbon::parse($validated['transactionDate']);
+
+        $fxRate = app(FinanceFxRateService::class)->getRate($originalCurrency, $baseCurrency, $transactionDate);
+        $convertedAmount = (float) $validated['transactionAmount'] * $fxRate;
+
+        $payload = [
+            'transaction_date' => $validated['transactionDate'],
+            'account_id' => $validated['transactionAccountId'],
+            'type' => $validated['transactionType'],
+            'original_amount' => $validated['transactionAmount'],
+            'original_currency_id' => $originalCurrency->id,
+            'converted_amount' => $convertedAmount,
+            'converted_currency_id' => $baseCurrency->id,
+            'fx_rate' => $fxRate,
+            'fx_source' => 'ecb',
+            'category_id' => $validated['transactionCategoryId'] ?: null,
+            'counterparty_name' => $validated['transactionCounterpartyName'] ?: null,
+            'description' => $validated['transactionDescription'] ?: null,
+        ];
+
+        if ($this->editingTransactionId) {
+            $transaction = Transaction::query()->with('account.entity')->findOrFail($this->editingTransactionId);
+
+            if ($transaction->account->entity->user_id !== auth()->id()) {
+                abort(403);
+            }
+
+            $transaction->update($payload);
+            $message = 'Transaction updated successfully.';
+        } else {
+            $payload['import_source'] = 'manual';
+            Transaction::create($payload);
+            $message = 'Transaction created successfully.';
+        }
+
+        $this->resetTransactionForm();
+        $this->dispatch('modal-close', name: 'manual-transaction');
+        session()->flash('message', $message);
+    }
+
+    private function resetTransactionForm(): void
+    {
+        $this->reset([
+            'showTransactionForm',
+            'editingTransactionId',
+            'transactionDate',
+            'transactionAccountId',
+            'transactionType',
+            'transactionAmount',
+            'transactionCurrencyId',
+            'transactionCategoryId',
+            'transactionCounterpartyName',
+            'transactionDescription',
+        ]);
+        $this->resetValidation();
     }
 
     public function reconcile($id)
@@ -107,7 +272,7 @@ new class extends Component
             abort(403);
         }
 
-        app(FxRateService::class)->overrideRateForTransaction(
+        app(TransactionFxRateService::class)->overrideRateForTransaction(
             $transaction->id,
             (float) $this->fxOverrideRate,
             $this->fxOverrideReason
@@ -150,10 +315,15 @@ new class extends Component
             ->whereHas('entity', fn($q) => $q->where('user_id', auth()->id()))
             ->get();
 
+        $currencies = Currency::query()
+            ->where('is_active', true)
+            ->get();
+
         return [
             'transactions' => $query->latest('transaction_date')->paginate(20),
             'accounts' => $accounts,
             'categories' => $categories,
+            'currencies' => $currencies,
         ];
     }
 };
@@ -165,9 +335,14 @@ new class extends Component
             <flux:heading size="lg">{{ __('Transactions') }}</flux:heading>
             <flux:subheading>{{ __('Review and reconcile imported transactions.') }}</flux:subheading>
         </div>
-        <flux:button size="sm" variant="primary" href="{{ route('finance.import.index') }}">
-            {{ __('Import Transactions') }}
-        </flux:button>
+        <div class="flex items-center gap-2">
+            <flux:button size="sm" variant="ghost" wire:click="openTransactionForm">
+                {{ __('Add Transaction') }}
+            </flux:button>
+            <flux:button size="sm" variant="primary" href="{{ route('finance.import.index') }}">
+                {{ __('Import Transactions') }}
+            </flux:button>
+        </div>
     </div>
 
     <!-- Filters -->
@@ -279,6 +454,13 @@ new class extends Component
                                         </flux:button>
                                     @endif
                                     <flux:button
+                                        wire:click="editTransaction({{ $transaction->id }})"
+                                        size="xs"
+                                        variant="ghost"
+                                    >
+                                        Edit
+                                    </flux:button>
+                                    <flux:button
                                         wire:click="openFxOverride({{ $transaction->id }})"
                                         size="xs"
                                         variant="ghost"
@@ -346,6 +528,80 @@ new class extends Component
                     <flux:button variant="filled" wire:click="closeFxOverride">{{ __('Cancel') }}</flux:button>
                 </flux:modal.close>
                 <flux:button variant="primary" type="submit">{{ __('Save Override') }}</flux:button>
+            </div>
+        </form>
+    </flux:modal>
+
+    <flux:modal name="manual-transaction" focusable class="max-w-2xl">
+        <form wire:submit="saveTransaction" class="space-y-6">
+            <div>
+                <flux:heading size="lg">
+                    {{ $editingTransactionId ? __('Edit Transaction') : __('Add Transaction') }}
+                </flux:heading>
+                <flux:subheading>
+                    {{ __('Record a transaction with the required details.') }}
+                </flux:subheading>
+            </div>
+
+            <div class="grid gap-4 md:grid-cols-2">
+                <flux:input
+                    wire:model="transactionDate"
+                    label="{{ __('Date') }}"
+                    type="date"
+                />
+
+                <flux:select wire:model="transactionAccountId" label="{{ __('Account') }}" placeholder="{{ __('Select account') }}">
+                    @foreach($accounts as $account)
+                        <option value="{{ $account->id }}">{{ $account->name }}</option>
+                    @endforeach
+                </flux:select>
+
+                <flux:select wire:model="transactionType" label="{{ __('Type') }}" placeholder="{{ __('Select type') }}">
+                    @foreach(TransactionType::cases() as $type)
+                        <option value="{{ $type->value }}">{{ $type->label() }}</option>
+                    @endforeach
+                </flux:select>
+
+                <flux:input
+                    wire:model="transactionAmount"
+                    label="{{ __('Amount') }}"
+                    type="number"
+                    step="0.01"
+                />
+
+                <flux:select wire:model="transactionCurrencyId" label="{{ __('Currency') }}" placeholder="{{ __('Select currency') }}">
+                    @foreach($currencies as $currency)
+                        <option value="{{ $currency->id }}">{{ $currency->code }} - {{ $currency->name }}</option>
+                    @endforeach
+                </flux:select>
+
+                <flux:select wire:model="transactionCategoryId" label="{{ __('Category (Optional)') }}" placeholder="{{ __('Select category') }}">
+                    <option value="">{{ __('No category') }}</option>
+                    @foreach($categories as $category)
+                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                    @endforeach
+                </flux:select>
+            </div>
+
+            <flux:input
+                wire:model="transactionCounterpartyName"
+                label="{{ __('Counterparty (Optional)') }}"
+                type="text"
+            />
+
+            <flux:textarea
+                wire:model="transactionDescription"
+                label="{{ __('Description (Optional)') }}"
+                rows="3"
+            />
+
+            <div class="flex justify-end gap-2">
+                <flux:modal.close>
+                    <flux:button variant="filled" wire:click="closeTransactionForm">{{ __('Cancel') }}</flux:button>
+                </flux:modal.close>
+                <flux:button variant="primary" type="submit">
+                    {{ $editingTransactionId ? __('Update Transaction') : __('Create Transaction') }}
+                </flux:button>
             </div>
         </form>
     </flux:modal>

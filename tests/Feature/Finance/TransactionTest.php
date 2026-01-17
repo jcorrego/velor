@@ -94,7 +94,7 @@ test('create multi-currency transaction with FX conversion', function () {
         ->assertJsonPath('converted_amount', '1100.00');
 });
 
-test('validation fails with invalid amount negative', function () {
+test('validation fails with invalid amount zero', function () {
     $user = User::factory()->create();
     $entity = Entity::factory()->create(['user_id' => $user->id]);
     $account = Account::factory()->create(['entity_id' => $entity->id]);
@@ -104,7 +104,7 @@ test('validation fails with invalid amount negative', function () {
         'transaction_date' => '2024-01-15',
         'account_id' => $account->id,
         'type' => TransactionType::Income->value,
-        'original_amount' => -100.00,
+        'original_amount' => 0.00,
         'original_currency_id' => $account->currency_id,
         'category_id' => $category->id,
     ];
@@ -113,6 +113,35 @@ test('validation fails with invalid amount negative', function () {
 
     $response->assertStatus(422)
         ->assertJsonValidationErrors(['original_amount']);
+});
+
+test('allows negative transaction amount', function () {
+    $user = User::factory()->create();
+    $entity = Entity::factory()->create(['user_id' => $user->id]);
+    $eur = Currency::firstOrCreate(['code' => 'EUR'], [
+        'name' => 'Euro',
+        'symbol' => '€',
+        'is_active' => true,
+    ]);
+    $account = Account::factory()->create([
+        'entity_id' => $entity->id,
+        'currency_id' => $eur->id,
+    ]);
+
+    $data = [
+        'transaction_date' => '2024-01-15',
+        'account_id' => $account->id,
+        'type' => TransactionType::Expense->value,
+        'original_amount' => -50.00,
+        'original_currency_id' => $eur->id,
+        'description' => 'Refund adjustment',
+    ];
+
+    $response = $this->actingAs($user)->postJson('/api/transactions', $data);
+
+    $response->assertStatus(201)
+        ->assertJsonPath('original_amount', '-50.00')
+        ->assertJsonPath('converted_amount', '-50.00');
 });
 
 test('view transaction details', function () {
