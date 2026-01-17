@@ -78,6 +78,9 @@ jobs:
       - name: Run Migrations
         run: php artisan migrate --force
 
+      - name: Run Seeders
+        run: php artisan db:seed --force
+
       - name: Build Assets
         run: npm run build
 
