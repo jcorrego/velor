@@ -35,4 +35,3 @@ Route::get('finance/accounts/{account}/import', function (\App\Models\Account $a
 
 require __DIR__.'/settings.php';
 require __DIR__.'/management.php';
-require __DIR__.'/finance.php';
