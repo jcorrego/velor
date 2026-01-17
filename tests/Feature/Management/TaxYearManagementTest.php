@@ -44,3 +44,36 @@ it('prevents duplicate tax years for a jurisdiction', function () {
         ->call('save')
         ->assertHasErrors(['year' => 'unique']);
 });
+
+it('groups tax years by jurisdiction and orders years descending', function () {
+    $user = User::factory()->create();
+    $spain = Jurisdiction::factory()->create([
+        'name' => 'Spain',
+        'iso_code' => 'ESP',
+    ]);
+    $usa = Jurisdiction::factory()->create([
+        'name' => 'USA',
+        'iso_code' => 'USA',
+    ]);
+
+    TaxYear::create(['jurisdiction_id' => $spain->id, 'year' => 2026]);
+    TaxYear::create(['jurisdiction_id' => $spain->id, 'year' => 2024]);
+    TaxYear::create(['jurisdiction_id' => $spain->id, 'year' => 2025]);
+
+    TaxYear::create(['jurisdiction_id' => $usa->id, 'year' => 2023]);
+    TaxYear::create(['jurisdiction_id' => $usa->id, 'year' => 2025]);
+
+    $this->actingAs($user);
+
+    $component = Livewire::test('management.tax-years');
+    $groups = $component->viewData('taxYears');
+
+    expect($groups->keys()->all())->toContain('Spain')
+        ->and($groups->keys()->all())->toContain('USA');
+
+    $spainYears = $groups->get('Spain')->pluck('year')->values()->all();
+    $usaYears = $groups->get('USA')->pluck('year')->values()->all();
+
+    expect($spainYears)->toBe([2026, 2025, 2024])
+        ->and($usaYears)->toBe([2025, 2023]);
+});
