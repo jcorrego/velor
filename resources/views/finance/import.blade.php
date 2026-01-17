@@ -1,4 +1,4 @@
-<x-layouts.app>
+<x-layouts::app :title="__('Import Transactions')">
     <div class="max-w-4xl mx-auto py-8 px-4">
         <div class="mb-6">
             <flux:heading size="xl">Import Transactions</flux:heading>
@@ -7,7 +7,7 @@
             </flux:text>
         </div>
 
-        <⚡finance.transaction-import-form :account="$account" />
+        <livewire:finance.transaction-import-form :account="$account" />
 
         <div class="mt-8">
             <flux:button variant="ghost" href="{{ route('finance') }}">
@@ -15,4 +15,4 @@
             </flux:button>
         </div>
     </div>
-</x-layouts.app>
+</x-layouts::app>

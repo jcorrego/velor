@@ -8,8 +8,7 @@ class MercuryCSVParser implements CSVParserContract
 {
     /**
      * Parse Mercury (Mercury.com) CSV export format.
-     * Expected columns: Date,Description,Amount,Balance,Type
-     * Currency: USD
+     * Supports the default export and the "Date (UTC)" export.
      */
     public function parse(string $filePath): array
     {
@@ -17,17 +16,31 @@ class MercuryCSVParser implements CSVParserContract
         $rows = array_map('str_getcsv', file($filePath));
 
         // Skip header row and filter empty rows
+        $header = $rows[0] ?? [];
+        $headerMap = $this->normalizeHeader($header);
+
         foreach (array_slice($rows, 1) as $row) {
-            if (count($row) < 4 || empty(trim($row[0]))) {
+            if (count($row) < 4) {
                 continue;
             }
 
+            $dateRaw = $this->valueFromRow($row, $headerMap, ['date (utc)', 'date']);
+            if (! $dateRaw || empty(trim($dateRaw))) {
+                continue;
+            }
+
+            $description = $this->valueFromRow($row, $headerMap, ['description']) ?? '';
+            $amountRaw = $this->valueFromRow($row, $headerMap, ['amount']) ?? '0';
+            $counterparty = $this->valueFromRow($row, $headerMap, ['name on card']);
+
+            $date = $this->parseDate($dateRaw);
+
             $transactions[] = [
-                'date' => Carbon::createFromFormat('m/d/Y', trim($row[0]))->format('Y-m-d'),
-                'description' => trim($row[1]),
-                'amount' => (float) trim($row[2]),
+                'date' => $date->format('Y-m-d'),
+                'description' => trim($description),
+                'amount' => (float) str_replace(',', '', trim($amountRaw)),
                 'original_currency' => 'USD',
-                'counterparty' => null,
+                'counterparty' => $counterparty ? trim($counterparty) : null,
                 'tags' => [],
                 'import_source' => 'mercury',
             ];
@@ -42,5 +55,45 @@ class MercuryCSVParser implements CSVParserContract
     public function getName(): string
     {
         return 'Mercury';
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function normalizeHeader(array $header): array
+    {
+        return array_map(fn ($value) => strtolower(trim((string) $value)), $header);
+    }
+
+    /**
+     * @param  array<int, string>  $headerMap
+     * @param  array<int, string>  $keys
+     */
+    private function valueFromRow(array $row, array $headerMap, array $keys): ?string
+    {
+        foreach ($keys as $key) {
+            $index = array_search($key, $headerMap, true);
+
+            if ($index !== false && array_key_exists($index, $row)) {
+                return $row[$index];
+            }
+        }
+
+        return null;
+    }
+
+    private function parseDate(string $value): Carbon
+    {
+        $value = trim($value);
+
+        if (str_contains($value, '/')) {
+            return Carbon::createFromFormat('m/d/Y', $value);
+        }
+
+        if (str_contains($value, '-')) {
+            return Carbon::createFromFormat('m-d-Y', $value);
+        }
+
+        return Carbon::parse($value);
     }
 }

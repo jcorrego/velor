@@ -27,16 +27,16 @@ The system SHALL allow users to create and manage multiple financial accounts ac
 - Users MUST be able to create multiple financial accounts (checking, savings, digital wallet)
 - Each account MUST have: name, type (Checking, Savings, Digital), native currency, entity ownership
 - Each account MUST be associated with a single entity (Personal profile)
-- Each account MUST support optional integration metadata: CSV import format, API provider (future), last sync date
+- Each account MUST support optional integration metadata: CSV import format, last import date
 - Each account MUST have opening_date and optional closing_date
 - Accounts MUST be unique per entity (user cannot create duplicate accounts for same bank)
-- The system SHALL allow CSV/PDF upload for transaction imports with credentials stored encrypted (for future API sync)
+- The system SHALL allow CSV/PDF upload for transaction imports
 
 #### Scenario: Multiple accounts across jurisdictions with checking and savings
-- **WHEN** user creates accounts: Banco Santander checking (EUR, Spain), Bancolombia savings (COP, Colombia), Mercury checking (USD, USA)
+- **WHEN** user creates accounts: Banco Santander checking (EUR, Spain), Bancolombia savings (COP, Colombia), USA checking (USD, USA)
 - **THEN** each account SHALL be linked to respective jurisdiction and account type
 - **AND** system SHALL prevent creating second Banco Santander checking account in same entity
-- **AND** integration metadata (CSV format signature, last uploaded_at) SHALL be stored for future API sync
+- **AND** integration metadata (CSV format signature, last uploaded_at) SHALL be stored for import tracking
 - **AND** savings accounts tracked separately for interest income reconciliation
 
 ### Requirement: Asset Management

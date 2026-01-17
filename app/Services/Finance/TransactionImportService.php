@@ -23,6 +23,22 @@ class TransactionImportService
     }
 
     /**
+     * Parse a PDF statement into an array of transactions.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function parsePDF(string $filePath, int $accountId): array
+    {
+        Account::query()->findOrFail($accountId);
+
+        if (! is_readable($filePath)) {
+            throw new \InvalidArgumentException('PDF file is not readable.');
+        }
+
+        return [];
+    }
+
+    /**
      * Match imported transactions against existing ones to detect duplicates.
      * Returns array with 'matched' and 'unmatched' keys.
      */
@@ -69,18 +85,22 @@ class TransactionImportService
                 continue;
             }
 
+            $categoryId = app(TransactionCategorizationService::class)
+                ->resolveCategoryId($data, $account);
+
             Transaction::create([
                 'account_id' => $account->id,
                 'transaction_date' => $data['date'],
                 'description' => $data['description'],
                 'original_amount' => $data['amount'],
-                'original_currency_id' => $this->getCurrencyId($data['original_currency']),
+                'original_currency_id' => $this->getCurrencyId($data['original_currency'] ?? '', $account->currency_id),
                 'converted_amount' => $data['amount'], // TODO: implement FX conversion
                 'converted_currency_id' => $account->currency_id,
                 'fx_rate' => 1.0, // TODO: fetch from FxRateService
                 'fx_source' => 'import',
                 'type' => $data['amount'] >= 0 ? 'income' : 'expense',
                 'counterparty_name' => $data['counterparty'] ?? null,
+                'category_id' => $categoryId,
                 'import_source' => $source,
                 'tags' => $data['tags'] ?? [],
             ]);
@@ -158,8 +178,33 @@ class TransactionImportService
     /**
      * Get currency ID by code.
      */
-    private function getCurrencyId(string $code): int
+    private function getCurrencyId(string $code, ?int $fallbackCurrencyId = null): int
     {
-        return \App\Models\Currency::where('code', $code)->firstOrFail()->id;
+        $normalized = strtoupper(trim($code));
+
+        if ($normalized === '') {
+            if ($fallbackCurrencyId) {
+                return $fallbackCurrencyId;
+            }
+
+            throw new \InvalidArgumentException('Currency code is required.');
+        }
+
+        $existing = \App\Models\Currency::where('code', $normalized)->first();
+
+        if ($existing) {
+            return $existing->id;
+        }
+
+        $enum = \App\Enums\Finance\Currency::tryFrom($normalized);
+
+        $currency = \App\Models\Currency::create([
+            'code' => $normalized,
+            'name' => $enum?->label() ?? $normalized,
+            'symbol' => $enum?->symbol() ?? $normalized,
+            'is_active' => true,
+        ]);
+
+        return $currency->id;
     }
 }

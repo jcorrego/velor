@@ -14,26 +14,64 @@ new class extends Component
         <flux:subheading>{{ __('Manage accounts, transactions, assets, and financial reporting.') }}</flux:subheading>
     </div>
 
-    <flux:tabs wire:model.live="activeTab" class="space-y-6">
-        <flux:tab name="accounts">{{ __('Accounts') }}</flux:tab>
-        <flux:tab name="transactions">{{ __('Transactions') }}</flux:tab>
-        <flux:tab name="assets">{{ __('Assets') }}</flux:tab>
-        <flux:tab name="categories">{{ __('Categories') }}</flux:tab>
+    <div class="space-y-6">
+        <div class="flex flex-wrap gap-2 rounded-xl border border-zinc-200 bg-white p-3 shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
+            <flux:button
+                size="sm"
+                :variant="$activeTab === 'accounts' ? 'primary' : 'ghost'"
+                wire:click="$set('activeTab', 'accounts')"
+            >
+                {{ __('Accounts') }}
+            </flux:button>
+            <flux:button
+                size="sm"
+                :variant="$activeTab === 'transactions' ? 'primary' : 'ghost'"
+                wire:click="$set('activeTab', 'transactions')"
+            >
+                {{ __('Transactions') }}
+            </flux:button>
+            <flux:button
+                size="sm"
+                :variant="$activeTab === 'assets' ? 'primary' : 'ghost'"
+                wire:click="$set('activeTab', 'assets')"
+            >
+                {{ __('Assets') }}
+            </flux:button>
+            <flux:button
+                size="sm"
+                :variant="$activeTab === 'categories' ? 'primary' : 'ghost'"
+                wire:click="$set('activeTab', 'categories')"
+            >
+                {{ __('Categories') }}
+            </flux:button>
+            <flux:button
+                size="sm"
+                :variant="$activeTab === 'mappings' ? 'primary' : 'ghost'"
+                wire:click="$set('activeTab', 'mappings')"
+            >
+                {{ __('Mappings') }}
+            </flux:button>
+            <flux:button
+                size="sm"
+                :variant="$activeTab === 'reports' ? 'primary' : 'ghost'"
+                wire:click="$set('activeTab', 'reports')"
+            >
+                {{ __('Reports') }}
+            </flux:button>
+        </div>
 
-        <flux:tab.panel name="accounts">
-            <flux:⚡account-management />
-        </flux:tab.panel>
-
-        <flux:tab.panel name="transactions">
-            <flux:⚡transaction-list />
-        </flux:tab.panel>
-
-        <flux:tab.panel name="assets">
-            <flux:⚡asset-management />
-        </flux:tab.panel>
-
-        <flux:tab.panel name="categories">
-            <flux:⚡category-management />
-        </flux:tab.panel>
-    </flux:tabs>
+        @if ($activeTab === 'accounts')
+            <livewire:finance.account-management />
+        @elseif ($activeTab === 'transactions')
+            <livewire:finance.transaction-list />
+        @elseif ($activeTab === 'assets')
+            <livewire:finance.asset-management />
+        @elseif ($activeTab === 'categories')
+            <livewire:finance.category-management />
+        @elseif ($activeTab === 'mappings')
+            <livewire:finance.category-mapping />
+        @elseif ($activeTab === 'reports')
+            <livewire:finance.rental-property-report />
+        @endif
+    </div>
 </div>

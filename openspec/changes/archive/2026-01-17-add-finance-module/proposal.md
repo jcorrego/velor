@@ -12,7 +12,7 @@ Tax filing requires comprehensive financial tracking across multiple accounts, j
 ## What Changes
 - Add **multi-currency support** across accounts and transactions with daily FX rate storage, source preferences (ECB, etc.), and per-transaction override capability
 - Add **transaction import** from CSV and PDF formats (Mercury bank statements, Banco Santander extracts, etc.) with intelligent parsing and categorization
-- Add **accounts management** supporting Banco Santander, Bancolombia, Mercury, and other sources with account type, entity ownership, and future API sync metadata
+- Add **accounts management** supporting Banco Santander, Bancolombia, Mercury, and other sources with account type and entity ownership
 - Add **assets management** for real estate (Florida apartment, Colombian properties) tracking jurisdiction, ownership structure, acquisition cost, current valuation, and depreciation
 - Add **transactions** with date, description, original currency/amount, account, counterparty, tags, and user-defined categories; auto-normalize to EUR base currency for Spanish tax reporting
 - Add **categories and tax concept mappings** allowing users to define categories (e.g., "SPA_Rental_Income", "SPA_Personal_Employment", "Property_Expenses_US") and map them to jurisdiction-specific tax forms and line items
@@ -24,8 +24,7 @@ Tax filing requires comprehensive financial tracking across multiple accounts, j
   - New migrations: `currencies`, `fx_rates`, `accounts`, `assets`, `asset_valuations`, `transactions`, `transaction_categories`, `category_tax_mappings`, `related_party_transactions`
   - New models: `Currency`, `FxRate`, `Account`, `Asset`, `AssetValuation`, `Transaction`, `TransactionCategory`, `CategoryTaxMapping`, `RelatedPartyTransaction`
   - New enums: `CurrencyCode`, `AccountType`, `AssetType`, `TransactionType`, `OwnershipStructure`, `RelatedPartyType`
-  - Database schema for encrypted account credentials, fx rate caching, asset valuations, transaction reconciliation
-- Integration hooks: Account linking (Mercury API, Plaid, OpenBanking), FX rate sourcing (ECB, Fixer.io, OpenExchangeRates)
+  - Database schema for fx rate caching, asset valuations, transaction reconciliation
 - **New core concept**: Financial transactions are the source of truth for tax reporting; categories bridge financial reality to tax compliance
 
 ## Dependencies

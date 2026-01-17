@@ -10,7 +10,7 @@
 - FX source preferences: ECB (default and primary source for EUR), per-transaction override for bank-specific rates
 
 ### Account Types
-- **Checking accounts**: Banco Santander checking (EUR), Mercury checking (USD), Bancolombia checking (COP)
+- **Checking accounts**: Banco Santander checking (EUR), US checking (USD), Bancolombia checking (COP)
 - **Savings accounts**: High-yield savings, fixed deposits, money market accounts
 - **Digital wallets**: PayPal, Stripe, crypto platforms (future)
 - **Real estate holdings**: Asset depreciation tracking
@@ -18,7 +18,7 @@
 
 Account fields:
 - Account name, type, currency, entity ownership (personal vs LLC)
-- Integration metadata: API keys (encrypted), last sync date, next sync
+- Integration metadata: CSV format signature, last import date
 - Opening/closing dates, account number (last 4 digits)
 
 ### Assets (Real Estate)
@@ -89,7 +89,6 @@ Related-party types:
 3. Create Transaction record with account + original currency
 4. Auto-tag or categorize based on description matching (future: ML-based categorization)
 5. Reconcile against bank statement (mark reconciled_at)
-6. Future: API sync with Mercury, Plaid, OpenBanking
 
 ### FX Conversion
 1. At transaction creation: fetch FX rate for (original_currency → EUR) for transaction date
@@ -111,12 +110,10 @@ Related-party types:
 3. **CSV/PDF import first**: Manual statement upload is primary entry point; API sync deferred to Phase 2
 4. **FX rates cached**: Avoid repeated ECB API calls; store daily rates in DB
 5. **Multi-level categorization**: User categories → Tax concept mappings allows flexibility
-6. **Encrypted credentials**: API keys for future account sync stored encrypted in DB
 7. **Asset valuations separate from transactions**: Assets tracked separately from operational transactions
 8. **Schedule E focus**: Rental property income/expense is primary use case; self-employment tax (Schedule SE) not required
 
 ## Future Extensions
-- Real-time account sync (Plaid API, bank webhooks)
 - Machine learning-based transaction categorization
 - Multi-entity support (separate ledgers per jurisdiction)
 - Cryptocurrency account support

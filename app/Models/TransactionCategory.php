@@ -64,4 +64,12 @@ class TransactionCategory extends Model
     {
         return $this->hasMany(CategoryTaxMapping::class, 'category_id');
     }
+
+    /**
+     * Alias for tax mappings to match Livewire expectations.
+     */
+    public function categoryTaxMappings(): HasMany
+    {
+        return $this->hasMany(CategoryTaxMapping::class, 'category_id');
+    }
 }

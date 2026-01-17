@@ -22,7 +22,7 @@ class FxRateFactory extends Factory
             'currency_to_id' => Currency::factory(),
             'rate' => $this->faker->randomFloat(4, 0.5, 2.5),
             'rate_date' => $this->faker->dateTimeBetween('-2 years', 'now'),
-            'source' => $this->faker->randomElement(['ECB', 'BOE', 'BANCO_SANTANDER', 'XE']),
+            'source' => $this->faker->randomElement(['ecb', 'manual', 'override']),
         ];
     }
 

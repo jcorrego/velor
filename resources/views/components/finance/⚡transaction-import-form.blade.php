@@ -1,10 +1,12 @@
-@php
-use Livewire\WithFileUploads;
-use Livewire\Component;
-use App\Services\Finance\TransactionImportService;
-use App\Models\Account;
+<?php
 
-new class extends Component {
+use App\Models\Account;
+use App\Services\Finance\TransactionImportService;
+use Livewire\Component;
+use Livewire\WithFileUploads;
+
+new class extends Component
+{
     use WithFileUploads;
 
     public Account $account;
@@ -16,7 +18,10 @@ new class extends Component {
 
     public function mount(Account $account): void
     {
-        $this->authorize('update', $account);
+        if ($account->entity->user_id !== auth()->id()) {
+            abort(403);
+        }
+
         $this->account = $account;
     }
 
@@ -34,35 +39,34 @@ new class extends Component {
 
         try {
             $service = app(TransactionImportService::class);
-            
-            // Save temporary file
-            $tempPath = $this->file->store('temp');
-            $fullPath = storage_path('app/' . $tempPath);
+            $fullPath = $this->file->getRealPath();
 
-            // Parse and match transactions
+            if (! $fullPath || ! is_readable($fullPath)) {
+                $this->addError('file', 'Uploaded file is unavailable. Please try again.');
+
+                return;
+            }
+
             $parsed = $service->parseCSV($fullPath, $this->parserType);
             $matchResult = $service->matchTransactions($parsed, $this->account);
 
             $this->previewData = $matchResult;
-
-            // Clean up temp file
-            unlink($fullPath);
         } catch (\Exception $e) {
-            $this->addError('file', 'Error parsing CSV: ' . $e->getMessage());
+            $this->addError('file', 'Error parsing CSV: '.$e->getMessage());
         }
     }
 
     public function import(): void
     {
-        if (!$this->previewData) {
+        if (! $this->previewData) {
             $this->addError('file', 'Please preview the file first.');
+
             return;
         }
 
         try {
             $service = app(TransactionImportService::class);
-            
-            // Import only new transactions
+
             $count = $service->importTransactions(
                 $this->previewData['unmatched'],
                 $this->account,
@@ -73,10 +77,9 @@ new class extends Component {
             $this->showSuccess = true;
             $this->reset(['file', 'parserType', 'previewData']);
 
-            // Dispatch browser event to refresh transactions list
             $this->dispatch('transactions-imported');
         } catch (\Exception $e) {
-            $this->addError('file', 'Error importing transactions: ' . $e->getMessage());
+            $this->addError('file', 'Error importing transactions: '.$e->getMessage());
         }
     }
 
@@ -85,7 +88,7 @@ new class extends Component {
         $this->reset(['file', 'parserType', 'previewData', 'importedCount', 'showSuccess']);
     }
 };
-@endphp
+?>
 
 <div>
     @if($showSuccess)

@@ -4,6 +4,7 @@ use App\Enums\Finance\TransactionType;
 use App\Models\Account;
 use App\Models\Transaction;
 use App\Models\TransactionCategory;
+use App\Services\Finance\FxRateService;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -15,6 +16,11 @@ new class extends Component
     public $filterCategoryId = '';
     public $filterType = '';
     public $search = '';
+    public $showFxOverrideModal = false;
+    public $fxOverrideTransactionId = null;
+    public $fxOverrideRate = '';
+    public $fxOverrideReason = '';
+    public $fxOverrideDescription = '';
 
     public function updatingSearch()
     {
@@ -64,6 +70,53 @@ new class extends Component
         session()->flash('message', 'Transaction deleted successfully.');
     }
 
+    public function openFxOverride($id)
+    {
+        $transaction = Transaction::findOrFail($id);
+
+        if ($transaction->account->entity->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $this->fxOverrideTransactionId = $transaction->id;
+        $this->fxOverrideRate = (string) $transaction->fx_rate;
+        $this->fxOverrideReason = '';
+        $this->fxOverrideDescription = $transaction->description ?? 'Transaction #'.$transaction->id;
+        $this->showFxOverrideModal = true;
+        $this->dispatch('modal-show', name: 'fx-rate-override');
+    }
+
+    public function closeFxOverride()
+    {
+        $this->reset(['showFxOverrideModal', 'fxOverrideTransactionId', 'fxOverrideRate', 'fxOverrideReason', 'fxOverrideDescription']);
+        $this->resetValidation();
+        $this->dispatch('modal-close', name: 'fx-rate-override');
+    }
+
+    public function saveFxOverride()
+    {
+        $this->validate([
+            'fxOverrideTransactionId' => ['required', 'integer', 'exists:transactions,id'],
+            'fxOverrideRate' => ['required', 'numeric', 'min:0.000001'],
+            'fxOverrideReason' => ['required', 'string', 'max:255'],
+        ]);
+
+        $transaction = Transaction::findOrFail($this->fxOverrideTransactionId);
+
+        if ($transaction->account->entity->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        app(FxRateService::class)->overrideRateForTransaction(
+            $transaction->id,
+            (float) $this->fxOverrideRate,
+            $this->fxOverrideReason
+        );
+
+        $this->closeFxOverride();
+        session()->flash('message', 'FX rate override saved.');
+    }
+
     public function with()
     {
         $query = Transaction::query()
@@ -107,6 +160,16 @@ new class extends Component
 ?>
 
 <div class="space-y-6">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+            <flux:heading size="lg">{{ __('Transactions') }}</flux:heading>
+            <flux:subheading>{{ __('Review and reconcile imported transactions.') }}</flux:subheading>
+        </div>
+        <flux:button size="sm" variant="primary" href="{{ route('finance.import.index') }}">
+            {{ __('Import Transactions') }}
+        </flux:button>
+    </div>
+
     <!-- Filters -->
     <div class="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
         <div class="grid gap-4 md:grid-cols-4">
@@ -215,6 +278,13 @@ new class extends Component
                                             Reconcile
                                         </flux:button>
                                     @endif
+                                    <flux:button
+                                        wire:click="openFxOverride({{ $transaction->id }})"
+                                        size="xs"
+                                        variant="ghost"
+                                    >
+                                        Override FX Rate
+                                    </flux:button>
                                     <flux:button 
                                         wire:click="delete({{ $transaction->id }})" 
                                         wire:confirm="Are you sure you want to delete this transaction?"
@@ -243,4 +313,40 @@ new class extends Component
             </div>
         @endif
     </div>
+
+    <flux:modal name="fx-rate-override" focusable class="max-w-lg">
+        <form wire:submit="saveFxOverride" class="space-y-6">
+            <div>
+                <flux:heading size="lg">{{ __('Override FX Rate') }}</flux:heading>
+                <flux:subheading>
+                    {{ __('Update the FX rate used for this transaction.') }}
+                </flux:subheading>
+                <div class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+                    {{ $fxOverrideDescription }}
+                </div>
+            </div>
+
+            <flux:input
+                wire:model="fxOverrideRate"
+                label="{{ __('FX Rate') }}"
+                type="number"
+                step="0.000001"
+                min="0.000001"
+            />
+
+            <flux:input
+                wire:model="fxOverrideReason"
+                label="{{ __('Reason') }}"
+                type="text"
+                placeholder="{{ __('Bank conversion rate') }}"
+            />
+
+            <div class="flex justify-end gap-2">
+                <flux:modal.close>
+                    <flux:button variant="filled" wire:click="closeFxOverride">{{ __('Cancel') }}</flux:button>
+                </flux:modal.close>
+                <flux:button variant="primary" type="submit">{{ __('Save Override') }}</flux:button>
+            </div>
+        </form>
+    </flux:modal>
 </div>

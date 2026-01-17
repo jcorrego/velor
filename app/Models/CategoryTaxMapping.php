@@ -3,11 +3,14 @@
 namespace App\Models;
 
 use App\Enums\Finance\TaxFormCode;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class CategoryTaxMapping extends Model
 {
+    use HasFactory;
+
     /**
      * @var array<string>
      */

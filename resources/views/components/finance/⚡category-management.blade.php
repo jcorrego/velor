@@ -1,11 +1,10 @@
 <?php
 
-use App\Enums\Finance\TransactionType;
 use App\Models\Entity;
 use App\Models\Jurisdiction;
 use App\Models\TransactionCategory;
+use Illuminate\Validation\Rule;
 use Livewire\Component;
-use Livewire\Attributes\Validate;
 
 new class extends Component
 {
@@ -16,19 +15,14 @@ new class extends Component
     public $filterJurisdictionId = '';
     public $editingId = null;
     
-    #[Validate('required|string|max:255')]
     public $name = '';
     
-    #[Validate('required|exists:jurisdictions,id')]
     public $jurisdiction_id = '';
     
-    #[Validate('nullable|exists:entities,id')]
     public $entity_id = null;
     
-    #[Validate('required')]
-    public $type = '';
+    public $income_or_expense = '';
     
-    #[Validate('nullable|integer|min:0')]
     public $sort_order = 0;
 
     public function mount()
@@ -62,13 +56,33 @@ new class extends Component
 
     public function save()
     {
-        $this->validate();
+        $entityId = $this->entity_id ?: null;
+
+        $this->validate([
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('transaction_categories', 'name')
+                    ->where(fn ($query) => $query
+                        ->where('jurisdiction_id', $this->jurisdiction_id)
+                        ->where('entity_id', $entityId)
+                    )
+                    ->ignore($this->editingId),
+            ],
+            'jurisdiction_id' => ['required', 'exists:jurisdictions,id'],
+            'entity_id' => ['nullable', 'exists:entities,id'],
+            'income_or_expense' => ['required', Rule::in(['income', 'expense'])],
+            'sort_order' => ['nullable', 'integer', 'min:0'],
+        ], [
+            'name.unique' => 'A category with this name already exists for the selected jurisdiction and entity.',
+        ]);
 
         $data = [
             'name' => $this->name,
             'jurisdiction_id' => $this->jurisdiction_id,
-            'entity_id' => $this->entity_id,
-            'type' => $this->type,
+            'entity_id' => $entityId,
+            'income_or_expense' => $this->income_or_expense,
             'sort_order' => $this->sort_order ?? 0,
         ];
 
@@ -87,7 +101,7 @@ new class extends Component
             $message = 'Category created successfully.';
         }
 
-        $this->reset(['name', 'jurisdiction_id', 'entity_id', 'type', 'sort_order', 'editingId']);
+        $this->reset(['name', 'jurisdiction_id', 'entity_id', 'income_or_expense', 'sort_order', 'editingId']);
         $this->loadData();
         
         session()->flash('message', $message);
@@ -106,13 +120,13 @@ new class extends Component
         $this->name = $category->name;
         $this->jurisdiction_id = $category->jurisdiction_id;
         $this->entity_id = $category->entity_id;
-        $this->type = $category->type->value;
+        $this->income_or_expense = $category->income_or_expense;
         $this->sort_order = $category->sort_order;
     }
 
     public function cancel()
     {
-        $this->reset(['name', 'jurisdiction_id', 'entity_id', 'type', 'sort_order', 'editingId']);
+        $this->reset(['name', 'jurisdiction_id', 'entity_id', 'income_or_expense', 'sort_order', 'editingId']);
         $this->resetValidation();
     }
 
@@ -173,10 +187,9 @@ new class extends Component
                 @endforeach
             </flux:select>
 
-            <flux:select wire:model="type" label="{{ __('Transaction Type') }}" placeholder="{{ __('Select type') }}">
-                @foreach(TransactionType::cases() as $type)
-                    <option value="{{ $type->value }}">{{ $type->label() }}</option>
-                @endforeach
+            <flux:select wire:model="income_or_expense" label="{{ __('Transaction Type') }}" placeholder="{{ __('Select type') }}">
+                <option value="income">{{ __('Income') }}</option>
+                <option value="expense">{{ __('Expense') }}</option>
             </flux:select>
 
             <flux:input wire:model="sort_order" label="{{ __('Sort Order') }}" type="number" />
@@ -223,8 +236,8 @@ new class extends Component
                         <div class="flex-1">
                             <div class="flex items-center gap-2">
                                 <h3 class="font-medium text-zinc-900 dark:text-zinc-100">{{ $category->name }}</h3>
-                                <flux:badge size="sm" :color="$category->type->value === 'income' ? 'green' : ($category->type->value === 'expense' ? 'red' : 'zinc')">
-                                    {{ $category->type->label() }}
+                                <flux:badge size="sm" :color="$category->income_or_expense === 'income' ? 'green' : ($category->income_or_expense === 'expense' ? 'red' : 'zinc')">
+                                    {{ ucfirst($category->income_or_expense) }}
                                 </flux:badge>
                                 @if($category->entity_id)
                                     <flux:badge size="sm" color="blue">{{ $category->entity->name }}</flux:badge>
