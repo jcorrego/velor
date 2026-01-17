@@ -71,4 +71,28 @@ class Asset extends Model
     {
         return $this->hasMany(AssetValuation::class);
     }
+
+    /**
+     * Get transaction categories related to rental income for this asset.
+     */
+    public function getRentalIncomeCategories()
+    {
+        return TransactionCategory::query()
+            ->where('entity_id', $this->entity_id)
+            ->where('income_or_expense', 'income')
+            ->where('name', 'like', '%rental%')
+            ->get();
+    }
+
+    /**
+     * Get transaction categories related to rental expenses for this asset.
+     */
+    public function getRentalExpenseCategories()
+    {
+        return TransactionCategory::query()
+            ->where('entity_id', $this->entity_id)
+            ->where('income_or_expense', 'expense')
+            ->where('name', 'like', '%rental%')
+            ->get();
+    }
 }
