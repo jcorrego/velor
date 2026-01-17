@@ -6,9 +6,13 @@ use App\Models\Account;
 use App\Models\Transaction;
 use App\Models\TransactionImport;
 use App\Services\Finance\Parsers\BancolombiaCSVParser;
+use App\Services\Finance\Parsers\BancolombiaPDFParser;
 use App\Services\Finance\Parsers\CSVParserContract;
 use App\Services\Finance\Parsers\MercuryCSVParser;
+use App\Services\Finance\Parsers\MercuryPDFParser;
+use App\Services\Finance\Parsers\PDFParserContract;
 use App\Services\Finance\Parsers\SantanderCSVParser;
+use App\Services\Finance\Parsers\SantanderPDFParser;
 use Carbon\Carbon;
 
 class TransactionImportService
@@ -28,7 +32,7 @@ class TransactionImportService
      *
      * @return array<int, array<string, mixed>>
      */
-    public function parsePDF(string $filePath, int $accountId): array
+    public function parsePDF(string $filePath, int $accountId, string $parserType): array
     {
         Account::query()->findOrFail($accountId);
 
@@ -36,7 +40,9 @@ class TransactionImportService
             throw new \InvalidArgumentException('PDF file is not readable.');
         }
 
-        return [];
+        $parser = $this->resolvePdfParser($parserType);
+
+        return $parser->parse($filePath);
     }
 
     /**
@@ -135,6 +141,18 @@ class TransactionImportService
     }
 
     /**
+     * Get available PDF parsers.
+     */
+    public function getAvailablePdfParsers(): array
+    {
+        return [
+            'santander' => SantanderPDFParser::class,
+            'mercury' => MercuryPDFParser::class,
+            'bancolombia' => BancolombiaPDFParser::class,
+        ];
+    }
+
+    /**
      * Resolve parser class by type.
      */
     private function resolveParser(string $type): CSVParserContract
@@ -143,6 +161,20 @@ class TransactionImportService
 
         if (! isset($parsers[$type])) {
             throw new \InvalidArgumentException("Unknown parser type: {$type}");
+        }
+
+        return app($parsers[$type]);
+    }
+
+    /**
+     * Resolve PDF parser class by type.
+     */
+    private function resolvePdfParser(string $type): PDFParserContract
+    {
+        $parsers = $this->getAvailablePdfParsers();
+
+        if (! isset($parsers[$type])) {
+            throw new \InvalidArgumentException("Unknown PDF parser type: {$type}");
         }
 
         return app($parsers[$type]);

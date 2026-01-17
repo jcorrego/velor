@@ -79,6 +79,123 @@ CSV;
     }
 });
 
+it('parses santander pdf correctly', function () {
+    $service = app(TransactionImportService::class);
+
+    $user = User::factory()->create();
+    $entity = Entity::factory()->for($user)->create();
+    $currency = Currency::factory()->create(['code' => 'EUR']);
+    $account = Account::factory()->create([
+        'name' => 'Test Account',
+        'currency_id' => $currency->id,
+        'entity_id' => $entity->id,
+    ]);
+
+    $pdfContent = <<<'PDF'
+2025-01-17 Payment received 1500.00
+2025-01-16 Bank fee -5.00
+PDF;
+
+    $file = tempnam(sys_get_temp_dir(), 'test_pdf_');
+    file_put_contents($file, $pdfContent);
+
+    try {
+        $parsed = $service->parsePDF($file, $account->id, 'santander');
+
+        expect($parsed)->toHaveCount(2);
+        expect($parsed[0]['date'])->toBe('2025-01-17');
+        expect($parsed[0]['amount'])->toBe(1500.00);
+        expect($parsed[1]['amount'])->toBe(-5.00);
+        expect($parsed[0]['original_currency'])->toBe('EUR');
+    } finally {
+        unlink($file);
+    }
+});
+
+it('parses mercury pdf correctly', function () {
+    $service = app(TransactionImportService::class);
+
+    $user = User::factory()->create();
+    $entity = Entity::factory()->for($user)->create();
+    $currency = Currency::factory()->create(['code' => 'USD']);
+    $account = Account::factory()->create([
+        'name' => 'Test Account',
+        'currency_id' => $currency->id,
+        'entity_id' => $entity->id,
+    ]);
+
+    $pdfContent = <<<'PDF'
+2025-01-17 Payment received 1500.00
+2025-01-16 Software subscription -29.99
+PDF;
+
+    $file = tempnam(sys_get_temp_dir(), 'test_pdf_');
+    file_put_contents($file, $pdfContent);
+
+    try {
+        $parsed = $service->parsePDF($file, $account->id, 'mercury');
+
+        expect($parsed)->toHaveCount(2);
+        expect($parsed[0]['date'])->toBe('2025-01-17');
+        expect($parsed[0]['amount'])->toBe(1500.00);
+        expect($parsed[1]['amount'])->toBe(-29.99);
+        expect($parsed[0]['original_currency'])->toBe('USD');
+    } finally {
+        unlink($file);
+    }
+});
+
+it('parses bancolombia pdf correctly', function () {
+    $service = app(TransactionImportService::class);
+
+    $user = User::factory()->create();
+    $entity = Entity::factory()->for($user)->create();
+    $currency = Currency::factory()->create(['code' => 'COP']);
+    $account = Account::factory()->create([
+        'name' => 'Test Account',
+        'currency_id' => $currency->id,
+        'entity_id' => $entity->id,
+    ]);
+
+    $pdfContent = <<<'PDF'
+2025-01-17 Deposit 2000000.00
+2025-01-16 ATM Withdrawal -150000.00
+PDF;
+
+    $file = tempnam(sys_get_temp_dir(), 'test_pdf_');
+    file_put_contents($file, $pdfContent);
+
+    try {
+        $parsed = $service->parsePDF($file, $account->id, 'bancolombia');
+
+        expect($parsed)->toHaveCount(2);
+        expect($parsed[0]['date'])->toBe('2025-01-17');
+        expect($parsed[0]['amount'])->toBe(2000000.00);
+        expect($parsed[1]['amount'])->toBe(-150000.00);
+        expect($parsed[0]['original_currency'])->toBe('COP');
+    } finally {
+        unlink($file);
+    }
+});
+
+it('throws error for unknown pdf parser', function () {
+    $service = app(TransactionImportService::class);
+
+    $user = User::factory()->create();
+    $entity = Entity::factory()->for($user)->create();
+    $account = Account::factory()->for($entity)->create();
+
+    $file = tempnam(sys_get_temp_dir(), 'test_pdf_');
+    file_put_contents($file, '2025-01-17 Payment received 1500.00');
+
+    try {
+        $this->expectException(\InvalidArgumentException::class);
+        $service->parsePDF($file, $account->id, 'unknown');
+    } finally {
+        unlink($file);
+    }
+});
+
 it('detects duplicate transactions correctly', function () {
     $service = app(TransactionImportService::class);
 

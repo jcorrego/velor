@@ -22,7 +22,7 @@ class ImportTransactionsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'file' => 'required|file|mimes:csv,txt|max:5120', // 5MB max
+            'file' => 'required|file|mimes:csv,txt,pdf|max:5120', // 5MB max
             'parser_type' => 'required|in:santander,mercury,bancolombia',
         ];
     }
@@ -33,8 +33,8 @@ class ImportTransactionsRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'file.required' => 'Please select a CSV file to import.',
-            'file.mimes' => 'The file must be a CSV or text file.',
+            'file.required' => 'Please select a CSV or PDF file to import.',
+            'file.mimes' => 'The file must be a CSV, text, or PDF file.',
             'file.max' => 'The file size cannot exceed 5MB.',
             'parser_type.required' => 'Please select which bank the file is from.',
             'parser_type.in' => 'Invalid bank selected.',

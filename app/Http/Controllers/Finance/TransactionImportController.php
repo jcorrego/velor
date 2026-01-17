@@ -21,8 +21,14 @@ class TransactionImportController extends Controller
         $file = $request->file('file');
         $parserType = $request->input('parser_type', 'santander');
 
-        // Parse the CSV using the uploaded file path directly
-        $parsed = $this->importService->parseCSV($file->getRealPath(), $parserType);
+        try {
+            $parsed = $this->parseTransactions($file->getRealPath(), $account->id, $parserType);
+        } catch (\Throwable $exception) {
+            return response()->json([
+                'message' => $exception->getMessage(),
+            ], 422);
+        }
+
         $matched = $this->importService->matchTransactions($parsed, $account);
 
         return response()->json($matched);
@@ -34,15 +40,21 @@ class TransactionImportController extends Controller
     public function store(Request $request, Account $account): JsonResponse
     {
         $validated = $request->validate([
-            'file' => 'required|file|mimes:csv,txt|max:5120',
+            'file' => 'required|file|mimes:csv,txt,pdf|max:5120',
             'parser_type' => 'required|string|in:santander,mercury,bancolombia',
         ]);
 
         $file = $request->file('file');
         $parserType = $request->input('parser_type');
 
-        // Parse CSV using the uploaded file path directly
-        $parsed = $this->importService->parseCSV($file->getRealPath(), $parserType);
+        try {
+            $parsed = $this->parseTransactions($file->getRealPath(), $account->id, $parserType);
+        } catch (\Throwable $exception) {
+            return response()->json([
+                'message' => $exception->getMessage(),
+            ], 422);
+        }
+
         $matchResult = $this->importService->matchTransactions($parsed, $account);
 
         // Import only non-duplicate transactions
@@ -64,6 +76,24 @@ class TransactionImportController extends Controller
     {
         return response()->json([
             'parsers' => $this->importService->getAvailableParsers(),
+            'pdf_parsers' => $this->importService->getAvailablePdfParsers(),
         ]);
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function parseTransactions(string $filePath, int $accountId, string $parserType): array
+    {
+        if ($this->isPdfFile($filePath)) {
+            return $this->importService->parsePDF($filePath, $accountId, $parserType);
+        }
+
+        return $this->importService->parseCSV($filePath, $parserType);
+    }
+
+    private function isPdfFile(string $filePath): bool
+    {
+        return strtolower(pathinfo($filePath, PATHINFO_EXTENSION)) === 'pdf';
     }
 }
