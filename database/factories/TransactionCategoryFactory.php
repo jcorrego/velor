@@ -83,8 +83,8 @@ class TransactionCategoryFactory extends Factory
 
     public function inSpain(): static
     {
-        $spainJurisdiction = Jurisdiction::where('country_code', 'ES')->first()
-            ?? Jurisdiction::factory()->create(['country_code' => 'ES', 'name' => 'Spain']);
+        $spainJurisdiction = Jurisdiction::where('iso_code', 'ESP')->first()
+            ?? Jurisdiction::factory()->create(['iso_code' => 'ESP', 'name' => 'Spain']);
 
         return $this->state(fn (array $attributes) => [
             'jurisdiction_id' => $spainJurisdiction->id,
@@ -93,8 +93,8 @@ class TransactionCategoryFactory extends Factory
 
     public function inColombia(): static
     {
-        $colombiaJurisdiction = Jurisdiction::where('country_code', 'CO')->first()
-            ?? Jurisdiction::factory()->create(['country_code' => 'CO', 'name' => 'Colombia']);
+        $colombiaJurisdiction = Jurisdiction::where('iso_code', 'COL')->first()
+            ?? Jurisdiction::factory()->create(['iso_code' => 'COL', 'name' => 'Colombia']);
 
         return $this->state(fn (array $attributes) => [
             'jurisdiction_id' => $colombiaJurisdiction->id,
