@@ -22,9 +22,11 @@ Keep this managed block so 'openspec update' can refresh the instructions.
 
 # Git Workflow
 
-- Use a branch per proposed change (align with OpenSpec change IDs when possible)
-- Open a PR for each change branch
+- Always use a new branch per proposed change (align with OpenSpec change IDs when possible)
+- git pull from main, and create branch from main before starting to implement the change
+- After archiving the proposal, commit, push and create PR to main using gh cli.
 - Keep commits small and focused; avoid amending unless requested
+- Dont include any co-author information in the commits
 
 === .ai/laravel rules ===
 
