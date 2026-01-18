@@ -30,6 +30,11 @@ class MercuryCSVParser implements CSVParserContract
             }
 
             $description = $this->valueFromRow($row, $headerMap, ['description']) ?? '';
+            $category = $this->valueFromRow($row, $headerMap, ['mercury category']);
+
+            if (! $category || trim($category) === '') {
+                $category = $this->valueFromRow($row, $headerMap, ['category']);
+            }
             $amountRaw = $this->valueFromRow($row, $headerMap, ['amount']) ?? '0';
             $counterparty = $this->valueFromRow($row, $headerMap, ['name on card']);
 
@@ -37,7 +42,7 @@ class MercuryCSVParser implements CSVParserContract
 
             $transactions[] = [
                 'date' => $date->format('Y-m-d'),
-                'description' => trim($description),
+                'description' => $this->formatDescription($description, $category),
                 'amount' => (float) str_replace(',', '', trim($amountRaw)),
                 'original_currency' => 'USD',
                 'counterparty' => $counterparty ? trim($counterparty) : null,
@@ -95,5 +100,22 @@ class MercuryCSVParser implements CSVParserContract
         }
 
         return Carbon::parse($value);
+    }
+
+    private function formatDescription(string $description, ?string $category): string
+    {
+        $description = trim($description);
+
+        if (! $category || trim($category) === '') {
+            return $description;
+        }
+
+        $categoryLine = 'Category: '.trim($category);
+
+        if ($description === '') {
+            return $categoryLine;
+        }
+
+        return $description."\n".$categoryLine;
     }
 }

@@ -22,6 +22,25 @@ class SantanderPDFParser implements PDFParserContract
             throw new \RuntimeException('PDF appears to be empty.');
         }
 
+        $transactions = $this->parseContents($contents);
+
+        if ($transactions === []) {
+            $ocrContents = app(OcrTextExtractor::class)->extract($filePath);
+            $transactions = $this->parseContents($ocrContents);
+        }
+
+        if ($transactions === []) {
+            throw new \RuntimeException('No transactions found in PDF.');
+        }
+
+        return $transactions;
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function parseContents(string $contents): array
+    {
         $lines = array_values(array_filter(array_map('trim', explode("\n", $contents))));
         $transactions = [];
         $currentDate = null;
@@ -72,7 +91,7 @@ class SantanderPDFParser implements PDFParserContract
         preg_match_all($pattern, $contents, $matches, PREG_SET_ORDER);
 
         if ($matches === []) {
-            throw new \RuntimeException('No transactions found in PDF.');
+            return [];
         }
 
         foreach ($matches as $match) {
