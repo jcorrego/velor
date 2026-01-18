@@ -6,6 +6,7 @@ use App\Enums\Finance\TransactionType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 class Transaction extends Model
 {
@@ -78,5 +79,13 @@ class Transaction extends Model
     public function convertedCurrency(): BelongsTo
     {
         return $this->belongsTo(Currency::class, 'converted_currency_id');
+    }
+
+    /**
+     * Get the documents linked to this transaction.
+     */
+    public function documents(): MorphToMany
+    {
+        return $this->morphToMany(Document::class, 'documentable')->withTimestamps();
     }
 }

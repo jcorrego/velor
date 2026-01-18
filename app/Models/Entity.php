@@ -6,6 +6,7 @@ use App\EntityType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 class Entity extends Model
 {
@@ -51,5 +52,13 @@ class Entity extends Model
     public function jurisdiction(): BelongsTo
     {
         return $this->belongsTo(Jurisdiction::class);
+    }
+
+    /**
+     * Get the documents linked to this entity.
+     */
+    public function documents(): MorphToMany
+    {
+        return $this->morphToMany(Document::class, 'documentable')->withTimestamps();
     }
 }

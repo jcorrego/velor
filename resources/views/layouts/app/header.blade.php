@@ -25,6 +25,9 @@
                 <flux:navbar.item icon="building-office-2" :href="route('management.entities')" :current="request()->routeIs('management.entities')" wire:navigate>
                     {{ __('Entities') }}
                 </flux:navbar.item>
+                <flux:navbar.item icon="folder-open" :href="route('management.documents')" :current="request()->routeIs('management.documents')" wire:navigate>
+                    {{ __('Documents') }}
+                </flux:navbar.item>
                 <flux:navbar.item icon="document-text" :href="route('management.filings')" :current="request()->routeIs('management.filings')" wire:navigate>
                     {{ __('Filings') }}
                 </flux:navbar.item>
@@ -87,6 +90,9 @@
                     </flux:sidebar.item>
                     <flux:sidebar.item icon="building-office-2" :href="route('management.entities')" :current="request()->routeIs('management.entities')" wire:navigate>
                         {{ __('Entities') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="folder-open" :href="route('management.documents')" :current="request()->routeIs('management.documents')" wire:navigate>
+                        {{ __('Documents') }}
                     </flux:sidebar.item>
                     <flux:sidebar.item icon="document-text" :href="route('management.filings')" :current="request()->routeIs('management.filings')" wire:navigate>
                         {{ __('Filings') }}
