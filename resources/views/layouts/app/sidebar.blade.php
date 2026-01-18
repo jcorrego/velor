@@ -41,6 +41,12 @@
                     <flux:sidebar.item icon="document-text" :href="route('management.filings')" :current="request()->routeIs('management.filings')" wire:navigate>
                         {{ __('Filings') }}
                     </flux:sidebar.item>
+                    <flux:sidebar.item icon="inbox-in" :href="route('management.import-review')" :current="request()->routeIs('management.import-review')" wire:navigate>
+                        {{ __('Import Review') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="bars-3-center-left" :href="route('management.import-mapping-profiles')" :current="request()->routeIs('management.import-mapping-profiles')" wire:navigate>
+                        {{ __('Import Profiles') }}
+                    </flux:sidebar.item>
                 </flux:sidebar.group>
             </flux:sidebar.nav>
 

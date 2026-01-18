@@ -1,5 +1,7 @@
 <?php
 
+use App\Livewire\Finance\ImportMappingProfiles;
+use App\Livewire\Finance\ImportReviewQueue;
 use App\Livewire\Management\Currencies;
 use App\Livewire\Management\Entities;
 use App\Livewire\Management\Filings;
@@ -18,4 +20,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::livewire('manage/tax-years', TaxYears::class)->name('management.tax-years');
     Route::livewire('manage/documents', 'management.documents')->name('management.documents');
     Route::livewire('manage/filings', Filings::class)->name('management.filings');
+
+    // Import Management
+    Route::livewire('manage/import-review', ImportReviewQueue::class)->name('management.import-review');
+    Route::livewire('manage/import-mapping-profiles', ImportMappingProfiles::class)->name('management.import-mapping-profiles');
 });
