@@ -4,6 +4,7 @@ use App\Models\Account;
 use App\Models\Currency;
 use App\Models\Entity;
 use App\Models\User;
+use App\Services\Finance\Parsers\OcrTextExtractor;
 use App\Services\Finance\Parsers\PdfTextExtractor;
 use App\Services\Finance\TransactionImportService;
 
@@ -37,9 +38,9 @@ it('parses mercury csv correctly', function () {
     $service = app(TransactionImportService::class);
 
     $csvContent = <<<'CSV'
-Date,Description,Amount,Balance,Type
-01/17/2025,Payment received,1500.00,7500.00,CREDIT
-01/15/2025,Software subscription,-29.99,6000.00,DEBIT
+Date,Description,Amount,Balance,Type,Mercury Category
+01/17/2025,Payment received,1500.00,7500.00,CREDIT,Income
+01/15/2025,Software subscription,-29.99,6000.00,DEBIT,Software
 CSV;
 
     $file = tempnam(sys_get_temp_dir(), 'test_csv_');
@@ -51,6 +52,8 @@ CSV;
         expect($parsed)->toHaveCount(2);
         expect($parsed[0]['date'])->toBe('2025-01-17');
         expect($parsed[0]['amount'])->toBe(1500.00);
+        expect($parsed[0]['description'])->toBe("Payment received\nCategory: Income");
+        expect($parsed[1]['description'])->toBe("Software subscription\nCategory: Software");
     } finally {
         unlink($file);
     }
@@ -168,6 +171,74 @@ PDF;
     }
 });
 
+it('parses mercury pdf from OCR column layout', function () {
+    $service = app(TransactionImportService::class);
+
+    $user = User::factory()->create();
+    $entity = Entity::factory()->for($user)->create();
+    $currency = Currency::factory()->create(['code' => 'USD']);
+    $account = Account::factory()->create([
+        'name' => 'Test Account',
+        'currency_id' => $currency->id,
+        'entity_id' => $entity->id,
+    ]);
+
+    $pdfContent = 'Statement header without transactions';
+    $ocrContent = <<<'PDF'
+All Transactions /
+
+Date (UTC)
+Jan 01
+Jan 02
+
+Description
+PayPal
+DigitalOcean
+
+Type
+$ -6561
+$ 4644
+PDF;
+
+    $filePath = tempnam(sys_get_temp_dir(), 'test_pdf_');
+    file_put_contents($filePath, 'placeholder');
+
+    app()->instance(PdfTextExtractor::class, new class($pdfContent) extends PdfTextExtractor
+    {
+        public function __construct(private string $text) {}
+
+        public function extract(string $filePath): string
+        {
+            return $this->text;
+        }
+    });
+
+    app()->instance(OcrTextExtractor::class, new class($ocrContent) extends OcrTextExtractor
+    {
+        public function __construct(private string $text) {}
+
+        public function extract(string $filePath): string
+        {
+            return $this->text;
+        }
+    });
+
+    try {
+        $parsed = $service->parsePDF($filePath, $account->id, 'mercury');
+
+        $year = now()->year;
+
+        expect($parsed)->toHaveCount(2);
+        expect($parsed[0]['date'])->toBe("{$year}-01-01");
+        expect($parsed[0]['amount'])->toBe(-65.61);
+        expect($parsed[1]['amount'])->toBe(46.44);
+    } finally {
+        unlink($filePath);
+        app()->forgetInstance(PdfTextExtractor::class);
+        app()->forgetInstance(OcrTextExtractor::class);
+    }
+});
+
 it('parses bancolombia pdf correctly', function () {
     $service = app(TransactionImportService::class);
 
@@ -228,6 +299,60 @@ PDF;
     } finally {
         unlink($filePath);
         app()->forgetInstance(PdfTextExtractor::class);
+    }
+});
+
+it('falls back to OCR when PDF text has no transactions', function () {
+    $service = app(TransactionImportService::class);
+
+    $user = User::factory()->create();
+    $entity = Entity::factory()->for($user)->create();
+    $currency = Currency::factory()->create(['code' => 'USD']);
+    $account = Account::factory()->create([
+        'name' => 'Test Account',
+        'currency_id' => $currency->id,
+        'entity_id' => $entity->id,
+    ]);
+
+    $pdfContent = 'Statement header without transactions';
+    $ocrContent = <<<'PDF'
+2025-01-17 Payment received 1500.00
+2025-01-16 Software subscription -29.99
+PDF;
+
+    $filePath = tempnam(sys_get_temp_dir(), 'test_pdf_');
+    file_put_contents($filePath, 'placeholder');
+
+    app()->instance(PdfTextExtractor::class, new class($pdfContent) extends PdfTextExtractor
+    {
+        public function __construct(private string $text) {}
+
+        public function extract(string $filePath): string
+        {
+            return $this->text;
+        }
+    });
+
+    app()->instance(OcrTextExtractor::class, new class($ocrContent) extends OcrTextExtractor
+    {
+        public function __construct(private string $text) {}
+
+        public function extract(string $filePath): string
+        {
+            return $this->text;
+        }
+    });
+
+    try {
+        $parsed = $service->parsePDF($filePath, $account->id, 'mercury');
+
+        expect($parsed)->toHaveCount(2);
+        expect($parsed[0]['date'])->toBe('2025-01-17');
+        expect($parsed[0]['amount'])->toBe(1500.00);
+    } finally {
+        unlink($filePath);
+        app()->forgetInstance(PdfTextExtractor::class);
+        app()->forgetInstance(OcrTextExtractor::class);
     }
 });
 

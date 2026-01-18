@@ -246,7 +246,7 @@ new class extends Component
                             @foreach($previewData['unmatched'] as $transaction)
                                 <div class="flex justify-between items-center p-3 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
                                     <div class="flex-1">
-                                        <div class="font-medium">{{ $transaction['description'] }}</div>
+                                        <div class="font-medium whitespace-pre-line">{{ $transaction['description'] }}</div>
                                         <div class="text-sm text-zinc-500">
                                             {{ \Carbon\Carbon::parse($transaction['date'])->format('M d, Y') }}
                                             @if($transaction['counterparty'])
@@ -273,7 +273,7 @@ new class extends Component
                             @foreach($previewData['matched'] as $transaction)
                                 <div class="flex justify-between items-center p-3 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 opacity-60">
                                     <div class="flex-1">
-                                        <div class="font-medium">{{ $transaction['description'] }}</div>
+                                        <div class="font-medium whitespace-pre-line">{{ $transaction['description'] }}</div>
                                         <div class="text-sm text-zinc-500">
                                             {{ \Carbon\Carbon::parse($transaction['date'])->format('M d, Y') }}
                                         </div>

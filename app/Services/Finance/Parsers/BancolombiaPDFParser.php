@@ -19,17 +19,11 @@ class BancolombiaPDFParser implements PDFParserContract
             throw new \RuntimeException('PDF appears to be empty.');
         }
 
-        $period = $this->extractStatementPeriod($contents);
-        $lines = array_values(array_filter(array_map('trim', preg_split('/\\R/', $contents)), fn ($line) => $line !== ''));
+        $transactions = $this->parseContents($contents);
 
-        $transactions = [];
-        $sections = $this->extractTransactionSections($lines);
-
-        foreach ($sections as $sectionLines) {
-            $transactions = array_merge(
-                $transactions,
-                $this->parseSection($sectionLines, $period['start'] ?? null, $period['end'] ?? null)
-            );
+        if ($transactions === []) {
+            $ocrContents = app(OcrTextExtractor::class)->extract($filePath);
+            $transactions = $this->parseContents($ocrContents);
         }
 
         if ($transactions === []) {
@@ -45,6 +39,27 @@ class BancolombiaPDFParser implements PDFParserContract
     public function getName(): string
     {
         return 'Bancolombia (PDF)';
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function parseContents(string $contents): array
+    {
+        $period = $this->extractStatementPeriod($contents);
+        $lines = array_values(array_filter(array_map('trim', preg_split('/\\R/', $contents)), fn ($line) => $line !== ''));
+
+        $transactions = [];
+        $sections = $this->extractTransactionSections($lines);
+
+        foreach ($sections as $sectionLines) {
+            $transactions = array_merge(
+                $transactions,
+                $this->parseSection($sectionLines, $period['start'] ?? null, $period['end'] ?? null)
+            );
+        }
+
+        return $transactions;
     }
 
     /**

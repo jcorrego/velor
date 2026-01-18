@@ -3,6 +3,7 @@
 use App\Models\Account;
 use App\Models\Entity;
 use App\Models\User;
+use App\Services\Finance\Parsers\OcrTextExtractor;
 use App\Services\Finance\Parsers\PdfTextExtractor;
 use App\Services\Finance\TransactionImportService;
 
@@ -42,4 +43,40 @@ it('throws when the PDF file cannot be read', function () {
 
     expect(fn () => $service->parsePDF('/tmp/missing.pdf', $account->id, 'santander'))
         ->toThrow(InvalidArgumentException::class);
+});
+
+it('throws when OCR fails during PDF parsing', function () {
+    $user = User::factory()->create();
+    $entity = Entity::factory()->for($user)->create();
+    $account = Account::factory()->for($entity)->create();
+
+    $service = app(TransactionImportService::class);
+
+    $filePath = tempnam(sys_get_temp_dir(), 'pdf-test-');
+    file_put_contents($filePath, 'placeholder');
+
+    app()->instance(PdfTextExtractor::class, new class extends PdfTextExtractor
+    {
+        public function extract(string $filePath): string
+        {
+            return 'Statement header without transactions';
+        }
+    });
+
+    app()->instance(OcrTextExtractor::class, new class extends OcrTextExtractor
+    {
+        public function extract(string $filePath): string
+        {
+            throw new RuntimeException('OCR failed.');
+        }
+    });
+
+    try {
+        expect(fn () => $service->parsePDF($filePath, $account->id, 'santander'))
+            ->toThrow(RuntimeException::class);
+    } finally {
+        unlink($filePath);
+        app()->forgetInstance(PdfTextExtractor::class);
+        app()->forgetInstance(OcrTextExtractor::class);
+    }
 });
