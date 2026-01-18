@@ -4,6 +4,7 @@ namespace App\Livewire\Finance;
 
 use App\Enums\Finance\ImportBatchStatus;
 use App\Models\ImportBatch;
+use App\Services\Finance\TransactionImportService;
 use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -42,6 +43,9 @@ class ImportReviewQueue extends Component
             'approved_by' => auth()->id(),
             'approved_at' => now(),
         ]);
+
+        // Finalize the transactions by importing them
+        $this->finalizeBatch($batch);
 
         $this->resetErrorBag();
         $this->resetPage();
@@ -94,5 +98,21 @@ class ImportReviewQueue extends Component
         ])->layout('layouts.app', [
             'title' => __('Import Review Queue'),
         ]);
+    }
+
+    private function finalizeBatch(ImportBatch $batch): void
+    {
+        if (! $batch->proposed_transactions) {
+            return;
+        }
+
+        $transactionService = app(TransactionImportService::class);
+
+        // Import the transactions from the batch
+        $transactionService->importTransactions(
+            $batch->proposed_transactions,
+            $batch->account,
+            'import-batch-'.$batch->id
+        );
     }
 }
