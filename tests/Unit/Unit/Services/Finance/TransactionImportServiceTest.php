@@ -4,6 +4,7 @@ use App\Models\Account;
 use App\Models\Currency;
 use App\Models\Entity;
 use App\Models\User;
+use App\Services\Finance\Parsers\PdfTextExtractor;
 use App\Services\Finance\TransactionImportService;
 
 it('parses santander csv correctly', function () {
@@ -96,11 +97,21 @@ it('parses santander pdf correctly', function () {
 2025-01-16 Bank fee -5.00
 PDF;
 
-    $file = tempnam(sys_get_temp_dir(), 'test_pdf_');
-    file_put_contents($file, $pdfContent);
+    $filePath = tempnam(sys_get_temp_dir(), 'test_pdf_');
+    file_put_contents($filePath, 'placeholder');
+
+    app()->instance(PdfTextExtractor::class, new class($pdfContent) extends PdfTextExtractor
+    {
+        public function __construct(private string $text) {}
+
+        public function extract(string $filePath): string
+        {
+            return $this->text;
+        }
+    });
 
     try {
-        $parsed = $service->parsePDF($file, $account->id, 'santander');
+        $parsed = $service->parsePDF($filePath, $account->id, 'santander');
 
         expect($parsed)->toHaveCount(2);
         expect($parsed[0]['date'])->toBe('2025-01-17');
@@ -108,7 +119,8 @@ PDF;
         expect($parsed[1]['amount'])->toBe(-5.00);
         expect($parsed[0]['original_currency'])->toBe('EUR');
     } finally {
-        unlink($file);
+        unlink($filePath);
+        app()->forgetInstance(PdfTextExtractor::class);
     }
 });
 
@@ -129,11 +141,21 @@ it('parses mercury pdf correctly', function () {
 2025-01-16 Software subscription -29.99
 PDF;
 
-    $file = tempnam(sys_get_temp_dir(), 'test_pdf_');
-    file_put_contents($file, $pdfContent);
+    $filePath = tempnam(sys_get_temp_dir(), 'test_pdf_');
+    file_put_contents($filePath, 'placeholder');
+
+    app()->instance(PdfTextExtractor::class, new class($pdfContent) extends PdfTextExtractor
+    {
+        public function __construct(private string $text) {}
+
+        public function extract(string $filePath): string
+        {
+            return $this->text;
+        }
+    });
 
     try {
-        $parsed = $service->parsePDF($file, $account->id, 'mercury');
+        $parsed = $service->parsePDF($filePath, $account->id, 'mercury');
 
         expect($parsed)->toHaveCount(2);
         expect($parsed[0]['date'])->toBe('2025-01-17');
@@ -141,7 +163,8 @@ PDF;
         expect($parsed[1]['amount'])->toBe(-29.99);
         expect($parsed[0]['original_currency'])->toBe('USD');
     } finally {
-        unlink($file);
+        unlink($filePath);
+        app()->forgetInstance(PdfTextExtractor::class);
     }
 });
 
@@ -158,23 +181,53 @@ it('parses bancolombia pdf correctly', function () {
     ]);
 
     $pdfContent = <<<'PDF'
-2025-01-17 Deposit 2000000.00
-2025-01-16 ATM Withdrawal -150000.00
+DESDE:2025/09/30 HASTA:2025/12/31
+FECHA	DESCRIPCIÓN	SUCURSAL DCTO. VALOR	SALDO
+1/10 PAGO DE PROV CONINSA S.A.S	2,294,492.00 3,425,444.83
+2/10 PAGO AUTOM TC VISA	-78,180.00 3,291,810.90
+ESTADO DE CUENTA
+FECHA	DESCRIPCIÓN	SUCURSAL DCTO. VALOR	SALDO
+11/11
+15/11
+TRANSFERENCIA CTA SUC VIRTUAL
+ABONO INTERESES AHORROS
+FIN ESTADO DE CUENTA
+ANTIGUO COUNTRY
+-125,000.00
+380.53
+5,567,076.99
+5,567,457.52
 PDF;
 
-    $file = tempnam(sys_get_temp_dir(), 'test_pdf_');
-    file_put_contents($file, $pdfContent);
+    $filePath = tempnam(sys_get_temp_dir(), 'test_pdf_');
+    file_put_contents($filePath, 'placeholder');
+
+    app()->instance(PdfTextExtractor::class, new class($pdfContent) extends PdfTextExtractor
+    {
+        public function __construct(private string $text) {}
+
+        public function extract(string $filePath): string
+        {
+            return $this->text;
+        }
+    });
 
     try {
-        $parsed = $service->parsePDF($file, $account->id, 'bancolombia');
+        $parsed = $service->parsePDF($filePath, $account->id, 'bancolombia');
 
-        expect($parsed)->toHaveCount(2);
-        expect($parsed[0]['date'])->toBe('2025-01-17');
-        expect($parsed[0]['amount'])->toBe(2000000.00);
-        expect($parsed[1]['amount'])->toBe(-150000.00);
+        expect($parsed)->toHaveCount(4);
+        expect($parsed[0]['date'])->toBe('2025-10-01');
+        expect($parsed[0]['amount'])->toBe(2294492.00);
+        expect($parsed[1]['date'])->toBe('2025-10-02');
+        expect($parsed[1]['amount'])->toBe(-78180.00);
+        expect($parsed[2]['date'])->toBe('2025-11-11');
+        expect($parsed[2]['amount'])->toBe(-125000.00);
+        expect($parsed[3]['date'])->toBe('2025-11-15');
+        expect($parsed[3]['amount'])->toBe(380.53);
         expect($parsed[0]['original_currency'])->toBe('COP');
     } finally {
-        unlink($file);
+        unlink($filePath);
+        app()->forgetInstance(PdfTextExtractor::class);
     }
 });
 
