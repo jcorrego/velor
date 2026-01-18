@@ -16,6 +16,9 @@
                 <flux:navbar.item icon="user" :href="route('management.profiles')" :current="request()->routeIs('management.profiles')" wire:navigate>
                     {{ __('Profiles') }}
                 </flux:navbar.item>
+                <flux:navbar.item icon="currency-dollar" :href="route('management.currencies')" :current="request()->routeIs('management.currencies')" wire:navigate>
+                    {{ __('Currencies') }}
+                </flux:navbar.item>
                 <flux:navbar.item icon="map" :href="route('management.residency-periods')" :current="request()->routeIs('management.residency-periods')" wire:navigate>
                     {{ __('Residency') }}
                 </flux:navbar.item>
@@ -75,6 +78,9 @@
                 <flux:sidebar.group :heading="__('Management')">
                     <flux:sidebar.item icon="user" :href="route('management.profiles')" :current="request()->routeIs('management.profiles')" wire:navigate>
                         {{ __('Profiles') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="currency-dollar" :href="route('management.currencies')" :current="request()->routeIs('management.currencies')" wire:navigate>
+                        {{ __('Currencies') }}
                     </flux:sidebar.item>
                     <flux:sidebar.item icon="map" :href="route('management.residency-periods')" :current="request()->routeIs('management.residency-periods')" wire:navigate>
                         {{ __('Residency') }}

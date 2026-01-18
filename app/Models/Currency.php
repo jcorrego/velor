@@ -55,10 +55,44 @@ class Currency extends Model
     }
 
     /**
+     * Get all assets acquired in this currency.
+     */
+    public function assets(): HasMany
+    {
+        return $this->hasMany(Asset::class, 'acquisition_currency_id');
+    }
+
+    /**
+     * Get all transactions that use this currency as the original currency.
+     */
+    public function originalTransactions(): HasMany
+    {
+        return $this->hasMany(Transaction::class, 'original_currency_id');
+    }
+
+    /**
+     * Get all transactions that use this currency as the converted currency.
+     */
+    public function convertedTransactions(): HasMany
+    {
+        return $this->hasMany(Transaction::class, 'converted_currency_id');
+    }
+
+    /**
      * Get all asset valuations in this currency.
      */
     public function assetValuations(): HasMany
     {
         return $this->hasMany(AssetValuation::class);
+    }
+
+    public function isInUse(): bool
+    {
+        return $this->accounts()->exists()
+            || $this->assets()->exists()
+            || $this->originalTransactions()->exists()
+            || $this->convertedTransactions()->exists()
+            || $this->fxRatesFrom()->exists()
+            || $this->fxRatesTo()->exists();
     }
 }
