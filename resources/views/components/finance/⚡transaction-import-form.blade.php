@@ -111,28 +111,36 @@ new class extends Component
 
     public function import(): void
     {
-        if (! $this->previewData) {
+        if (! $this->previewData || ! $this->file) {
             $this->addError('file', 'Please preview the file first.');
 
             return;
         }
 
         try {
-            $service = app(TransactionImportService::class);
-
-            $count = $service->importTransactions(
-                $this->previewData['unmatched'],
-                $this->account,
-                $this->parserType
+            // Use the API endpoint to create a batch for review
+            $response = \Illuminate\Support\Facades\Http::post(
+                "/api/import/confirm/{$this->account->id}",
+                [
+                    'file' => $this->file,
+                    'parser_type' => $this->parserType,
+                ]
             );
 
-            $this->importedCount = $count;
+            if ($response->failed()) {
+                $this->addError('file', 'Error creating import batch: '.$response->json('message'));
+
+                return;
+            }
+
+            $data = $response->json();
+            $this->importedCount = $data['transaction_count'];
             $this->showSuccess = true;
             $this->reset(['file', 'parserType', 'previewData']);
 
             $this->dispatch('transactions-imported');
         } catch (\Exception $e) {
-            $this->addError('file', 'Error importing transactions: '.$e->getMessage());
+            $this->addError('file', 'Error creating import batch: '.$e->getMessage());
         }
     }
 
