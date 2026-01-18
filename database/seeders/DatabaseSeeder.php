@@ -149,5 +149,9 @@ class DatabaseSeeder extends Seeder
             );
         }
 
+        // Seed import batches and mapping profiles
+        $this->call([
+            ImportBatchSeeder::class,
+        ]);
     }
 }
