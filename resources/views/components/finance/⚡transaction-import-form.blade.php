@@ -2,6 +2,7 @@
 
 use App\Models\Account;
 use App\Services\Finance\TransactionImportService;
+use Illuminate\Validation\Rule;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -11,10 +12,12 @@ new class extends Component
 
     public Account $account;
     public $file;
+    public $fileType = 'csv';
     public $parserType = '';
     public $previewData = null;
     public $importedCount = 0;
     public $showSuccess = false;
+    public $importDescription = '';
 
     public function mount(Account $account): void
     {
@@ -23,6 +26,7 @@ new class extends Component
         }
 
         $this->account = $account;
+        $this->configureImportSettings();
     }
 
     public function getParsersProperty(): array
@@ -30,12 +34,46 @@ new class extends Component
         return app(TransactionImportService::class)->getAvailableParsers();
     }
 
+    public function getCsvParsersProperty(): array
+    {
+        $allowed = ['mercury'];
+
+        return array_intersect_key($this->parsers, array_flip($allowed));
+    }
+
+    public function getPdfParsersProperty(): array
+    {
+        $allowed = ['santander', 'bancolombia'];
+
+        return array_intersect_key(
+            app(TransactionImportService::class)->getAvailablePdfParsers(),
+            array_flip($allowed)
+        );
+    }
+
+    public function getActiveParsersProperty(): array
+    {
+        if ($this->fileType === 'pdf') {
+            return $this->pdfParsers;
+        }
+
+        return $this->csvParsers;
+    }
+
     public function preview(): void
     {
-        $this->validate([
-            'file' => 'required|file|mimes:csv,txt|max:5120',
-            'parserType' => 'required|in:santander,mercury,bancolombia',
-        ]);
+        $rules = [
+            'file' => ['required', 'file', 'max:5120'],
+            'parserType' => ['required', Rule::in(array_keys($this->activeParsers))],
+        ];
+
+        if ($this->fileType === 'pdf') {
+            $rules['file'][] = 'mimes:pdf';
+        } else {
+            $rules['file'][] = 'mimes:csv,txt';
+        }
+
+        $this->validate($rules);
 
         try {
             $service = app(TransactionImportService::class);
@@ -47,12 +85,27 @@ new class extends Component
                 return;
             }
 
-            $parsed = $service->parseCSV($fullPath, $this->parserType);
+            $extension = strtolower($this->file->getClientOriginalExtension());
+            if ($this->fileType === 'pdf' && $extension !== 'pdf') {
+                $this->addError('file', 'Please select a PDF file for PDF imports.');
+
+                return;
+            }
+
+            if ($this->fileType === 'csv' && ! in_array($extension, ['csv', 'txt'], true)) {
+                $this->addError('file', 'Please select a CSV file for CSV imports.');
+
+                return;
+            }
+
+            $parsed = $this->fileType === 'pdf'
+                ? $service->parsePDF($fullPath, $this->account->id, $this->parserType)
+                : $service->parseCSV($fullPath, $this->parserType);
             $matchResult = $service->matchTransactions($parsed, $this->account);
 
             $this->previewData = $matchResult;
         } catch (\Exception $e) {
-            $this->addError('file', 'Error parsing CSV: '.$e->getMessage());
+            $this->addError('file', 'Error parsing file: '.$e->getMessage());
         }
     }
 
@@ -86,6 +139,30 @@ new class extends Component
     public function resetForm(): void
     {
         $this->reset(['file', 'parserType', 'previewData', 'importedCount', 'showSuccess']);
+        $this->configureImportSettings();
+    }
+
+    private function configureImportSettings(): void
+    {
+        $accountName = mb_strtolower($this->account->name);
+
+        if (str_contains($accountName, 'mercury')) {
+            $this->fileType = 'csv';
+            $this->parserType = 'mercury';
+            $this->importDescription = 'Expected file: Mercury CSV export.';
+        } elseif (str_contains($accountName, 'santander')) {
+            $this->fileType = 'pdf';
+            $this->parserType = 'santander';
+            $this->importDescription = 'Expected file: Banco Santander PDF statement.';
+        } elseif (str_contains($accountName, 'bancolombia')) {
+            $this->fileType = 'pdf';
+            $this->parserType = 'bancolombia';
+            $this->importDescription = 'Expected file: Bancolombia PDF statement.';
+        } else {
+            $this->fileType = 'csv';
+            $this->parserType = '';
+            $this->importDescription = 'No import format configured for this account.';
+        }
     }
 };
 ?>
@@ -102,24 +179,17 @@ new class extends Component
         <flux:heading size="lg" class="mb-4">Import Transactions</flux:heading>
         
         <form wire:submit="preview" class="space-y-6">
-            <!-- Bank Selection -->
-            <flux:field>
-                <flux:label>Bank / Parser</flux:label>
-                <flux:select wire:model="parserType" placeholder="Select your bank...">
-                    @foreach($this->parsers as $key => $name)
-                        <option value="{{ $key }}">{{ $name }}</option>
-                    @endforeach
-                </flux:select>
-                <flux:error name="parserType" />
-            </flux:field>
+            <div class="text-sm text-zinc-600 dark:text-zinc-400">
+                {{ $importDescription }}
+            </div>
 
             <!-- File Upload -->
             <flux:field>
-                <flux:label>CSV File</flux:label>
+                <flux:label>Import File</flux:label>
                 <input 
                     type="file" 
                     wire:model="file"
-                    accept=".csv,.txt"
+                    accept="{{ $fileType === 'pdf' ? '.pdf' : '.csv,.txt' }}"
                     class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-zinc-100 file:text-zinc-700 hover:file:bg-zinc-200 dark:file:bg-zinc-800 dark:file:text-zinc-300 dark:hover:file:bg-zinc-700"
                 />
                 <flux:error name="file" />

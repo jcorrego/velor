@@ -16,13 +16,9 @@ class MercuryPDFParser implements PDFParserContract
      */
     public function parse(string $filePath): array
     {
-        if (! is_readable($filePath)) {
-            throw new \InvalidArgumentException('PDF file is not readable.');
-        }
+        $contents = app(PdfTextExtractor::class)->extract($filePath);
 
-        $contents = file_get_contents($filePath);
-
-        if ($contents === false || trim($contents) === '') {
+        if (trim($contents) === '') {
             throw new \RuntimeException('PDF appears to be empty.');
         }
 

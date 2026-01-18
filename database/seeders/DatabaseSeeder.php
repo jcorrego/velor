@@ -54,12 +54,21 @@ class DatabaseSeeder extends Seeder
         \App\Models\Account::factory()
             ->for($entity)
             ->bancoSantander()
+            ->checking()
             ->active()
             ->create();
 
         \App\Models\Account::factory()
             ->for($entity)
             ->mercury()
+            ->checking()
+            ->active()
+            ->create();
+
+        \App\Models\Account::factory()
+            ->for($entity)
+            ->bancolombia()
+            ->checking()
             ->active()
             ->create();
 
