@@ -1,6 +1,8 @@
 <?php
 
+use App\Enums\Finance\ImportBatchStatus;
 use App\Models\Account;
+use App\Models\ImportBatch;
 use App\Services\Finance\TransactionImportService;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
@@ -111,30 +113,22 @@ new class extends Component
 
     public function import(): void
     {
-        if (! $this->previewData || ! $this->file) {
+        if (! $this->previewData) {
             $this->addError('file', 'Please preview the file first.');
 
             return;
         }
 
         try {
-            // Use the API endpoint to create a batch for review
-            $response = \Illuminate\Support\Facades\Http::post(
-                "/api/import/confirm/{$this->account->id}",
-                [
-                    'file' => $this->file,
-                    'parser_type' => $this->parserType,
-                ]
-            );
+            // Create import batch for review instead of directly importing
+            $batch = ImportBatch::create([
+                'account_id' => $this->account->id,
+                'status' => ImportBatchStatus::Pending,
+                'proposed_transactions' => $this->previewData['unmatched'],
+                'transaction_count' => count($this->previewData['unmatched']),
+            ]);
 
-            if ($response->failed()) {
-                $this->addError('file', 'Error creating import batch: '.$response->json('message'));
-
-                return;
-            }
-
-            $data = $response->json();
-            $this->importedCount = $data['transaction_count'];
+            $this->importedCount = $batch->transaction_count;
             $this->showSuccess = true;
             $this->reset(['file', 'parserType', 'previewData']);
 
