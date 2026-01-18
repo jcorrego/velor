@@ -6,6 +6,7 @@ use App\FilingStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 class Filing extends Model
 {
@@ -59,5 +60,13 @@ class Filing extends Model
     public function filingType(): BelongsTo
     {
         return $this->belongsTo(FilingType::class);
+    }
+
+    /**
+     * Get the documents linked to this filing.
+     */
+    public function documents(): MorphToMany
+    {
+        return $this->morphToMany(Document::class, 'documentable')->withTimestamps();
     }
 }

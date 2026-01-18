@@ -35,6 +35,9 @@
                     <flux:sidebar.item icon="calendar" :href="route('management.tax-years')" :current="request()->routeIs('management.tax-years')" wire:navigate>
                         {{ __('Tax Years') }}
                     </flux:sidebar.item>
+                    <flux:sidebar.item icon="folder-open" :href="route('management.documents')" :current="request()->routeIs('management.documents')" wire:navigate>
+                        {{ __('Documents') }}
+                    </flux:sidebar.item>
                     <flux:sidebar.item icon="document-text" :href="route('management.filings')" :current="request()->routeIs('management.filings')" wire:navigate>
                         {{ __('Filings') }}
                     </flux:sidebar.item>

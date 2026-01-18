@@ -12,6 +12,15 @@ class DocumentTextExtractor
         public OcrTextExtractor $ocrTextExtractor,
     ) {}
 
+    public function extractText(string $filePath): string
+    {
+        if ($this->isPdf($filePath)) {
+            return $this->extractPdfText($filePath);
+        }
+
+        return $this->ocrTextExtractor->extract($filePath);
+    }
+
     public function extractPdfText(string $filePath): string
     {
         $text = $this->pdfTextExtractor->extract($filePath);
@@ -25,5 +34,10 @@ class DocumentTextExtractor
         }
 
         return $text;
+    }
+
+    private function isPdf(string $filePath): bool
+    {
+        return strtolower(pathinfo($filePath, PATHINFO_EXTENSION)) === 'pdf';
     }
 }

@@ -286,7 +286,7 @@ new class extends Component
     {
         $query = Transaction::query()
             ->whereHas('account.entity', fn($q) => $q->where('user_id', auth()->id()))
-            ->with(['account', 'category', 'originalCurrency', 'convertedCurrency']);
+            ->with(['account', 'category', 'originalCurrency', 'convertedCurrency', 'documents']);
 
         if ($this->filterAccountId) {
             $query->where('account_id', $this->filterAccountId);
@@ -409,6 +409,16 @@ new class extends Component
                                 <div class="text-sm text-zinc-900 dark:text-zinc-100">{{ $transaction->description ?? '—' }}</div>
                                 @if($transaction->counterparty_name)
                                     <div class="text-xs text-zinc-500 dark:text-zinc-400">{{ $transaction->counterparty_name }}</div>
+                                @endif
+                                @if($transaction->documents->isNotEmpty())
+                                    <div class="mt-2 flex flex-wrap items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
+                                        <span>{{ __('Docs:') }}</span>
+                                        @foreach ($transaction->documents as $document)
+                                            <flux:badge size="sm" color="zinc">
+                                                {{ $document->title ?? $document->original_name }}
+                                            </flux:badge>
+                                        @endforeach
+                                    </div>
                                 @endif
                             </td>
                             <td class="whitespace-nowrap px-4 py-3 text-sm text-zinc-600 dark:text-zinc-400">
