@@ -8,7 +8,7 @@ The system SHALL provide a PDF parsing framework to normalize bank statement PDF
 - **AND** the system SHALL surface parsing errors without importing data
 
 #### Scenario: OCR fallback when PDF has no text rows
-- **WHEN** a user uploads a bank statement PDF and text extraction yields no transaction rows
+- **WHEN** a user uploads a bank statement or legal document PDF and text extraction yields no transaction rows
 - **AND** the selected parser supports OCR fallback
 - **THEN** the system SHALL attempt OCR-based text extraction for the statement pages
 - **AND** the system SHALL parse transactions from the OCR output if present
