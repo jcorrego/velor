@@ -77,7 +77,7 @@ test('getOwnerFlowSummary calculates draws for tax year', function () {
         'account_id' => $account->id,
         'category_id' => $drawCategory->id,
         'transaction_date' => '2024-03-10',
-        'original_amount' => 2000.00,
+        'original_amount' => -2000.00,
         'original_currency_id' => $account->currency_id,
     ]);
 
@@ -85,7 +85,7 @@ test('getOwnerFlowSummary calculates draws for tax year', function () {
         'account_id' => $account->id,
         'category_id' => $drawCategory->id,
         'transaction_date' => '2024-09-15',
-        'original_amount' => 3000.00,
+        'original_amount' => -3000.00,
         'original_currency_id' => $account->currency_id,
     ]);
 
@@ -152,7 +152,7 @@ test('getOwnerFlowSummary calculates total related party transactions', function
         'account_id' => $account->id,
         'category_id' => $drawCategory->id,
         'transaction_date' => '2024-06-15',
-        'original_amount' => 3000.00,
+        'original_amount' => -3000.00,
         'original_currency_id' => $account->currency_id,
     ]);
 
@@ -298,9 +298,9 @@ test('getScheduleERentalSummary groups expenses by category', function () {
         'account_id' => $account->id,
         'category_id' => $maintenanceCategory->id,
         'transaction_date' => '2024-03-10',
-        'original_amount' => 500.00,
+        'original_amount' => -500.00,
         'original_currency_id' => $usd->id,
-        'converted_amount' => 454.50,
+        'converted_amount' => -454.50,
         'converted_currency_id' => $eur->id,
         'fx_rate' => 0.909,
     ]);
@@ -309,9 +309,9 @@ test('getScheduleERentalSummary groups expenses by category', function () {
         'account_id' => $account->id,
         'category_id' => $utilitiesCategory->id,
         'transaction_date' => '2024-04-15',
-        'original_amount' => 300.00,
+        'original_amount' => -300.00,
         'original_currency_id' => $usd->id,
-        'converted_amount' => 272.70,
+        'converted_amount' => -272.70,
         'converted_currency_id' => $eur->id,
         'fx_rate' => 0.909,
     ]);
@@ -348,9 +348,9 @@ test('getScheduleERentalSummary calculates total expenses', function () {
         'account_id' => $account->id,
         'category_id' => $expenseCategory->id,
         'transaction_date' => '2024-03-10',
-        'original_amount' => 1200.00,
+        'original_amount' => -1200.00,
         'original_currency_id' => $usd->id,
-        'converted_amount' => 1090.80,
+        'converted_amount' => -1090.80,
         'converted_currency_id' => $eur->id,
         'fx_rate' => 0.909,
     ]);
@@ -359,9 +359,9 @@ test('getScheduleERentalSummary calculates total expenses', function () {
         'account_id' => $account->id,
         'category_id' => $expenseCategory->id,
         'transaction_date' => '2024-08-20',
-        'original_amount' => 800.00,
+        'original_amount' => -800.00,
         'original_currency_id' => $usd->id,
-        'converted_amount' => 727.20,
+        'converted_amount' => -727.20,
         'converted_currency_id' => $eur->id,
         'fx_rate' => 0.909,
     ]);
@@ -419,9 +419,9 @@ test('getScheduleERentalSummary calculates net income', function () {
         'account_id' => $account->id,
         'category_id' => $expenseCategory->id,
         'transaction_date' => '2024-03-10',
-        'original_amount' => 2000.00,
+        'original_amount' => -2000.00,
         'original_currency_id' => $usd->id,
-        'converted_amount' => 1818.00,
+        'converted_amount' => -1818.00,
         'converted_currency_id' => $eur->id,
         'fx_rate' => 0.909,
     ]);
@@ -514,9 +514,9 @@ test('getScheduleERentalSummary filters expenses by asset entity', function () {
         'account_id' => $account1->id,
         'category_id' => $expenseCategory->id,
         'transaction_date' => '2024-03-10',
-        'original_amount' => 1000.00,
+        'original_amount' => -1000.00,
         'original_currency_id' => $usd->id,
-        'converted_amount' => 909.00,
+        'converted_amount' => -909.00,
         'converted_currency_id' => $eur->id,
         'fx_rate' => 0.909,
     ]);
@@ -526,9 +526,9 @@ test('getScheduleERentalSummary filters expenses by asset entity', function () {
         'account_id' => $account2->id,
         'category_id' => $expenseCategory->id,
         'transaction_date' => '2024-04-15',
-        'original_amount' => 3000.00,
+        'original_amount' => -3000.00,
         'original_currency_id' => $usd->id,
-        'converted_amount' => 2727.00,
+        'converted_amount' => -2727.00,
         'converted_currency_id' => $eur->id,
         'fx_rate' => 0.909,
     ]);
