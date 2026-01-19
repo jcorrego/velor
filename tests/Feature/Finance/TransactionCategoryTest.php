@@ -2,7 +2,6 @@
 
 use App\Models\Account;
 use App\Models\Entity;
-use App\Models\Jurisdiction;
 use App\Models\Transaction;
 use App\Models\TransactionCategory;
 use App\Models\User;
@@ -12,50 +11,23 @@ uses(RefreshDatabase::class);
 
 test('list categories', function () {
     $user = User::factory()->create();
-    $entity = Entity::factory()->create(['user_id' => $user->id]);
-
+    
+    $existingCount = TransactionCategory::count();
+    
     TransactionCategory::factory()
-        ->count(10)
-        ->create(['jurisdiction_id' => $entity->jurisdiction_id]);
+        ->count(5)
+        ->create();
 
     $response = $this->actingAs($user)->getJson('/api/transaction-categories');
 
     $response->assertSuccessful()
-        ->assertJsonCount(10, 'data');
+        ->assertJsonCount($existingCount + 5, 'data');
 });
 
-test('filter by jurisdiction_id', function () {
+test('create category', function () {
     $user = User::factory()->create();
-    $entity = Entity::factory()->create(['user_id' => $user->id]);
-    $jurisdiction1 = Jurisdiction::factory()->create();
-    $jurisdiction2 = Jurisdiction::factory()->create();
-
-    TransactionCategory::factory()
-        ->count(5)
-        ->create([
-            'jurisdiction_id' => $jurisdiction1->id,
-        ]);
-
-    TransactionCategory::factory()
-        ->count(3)
-        ->create([
-            'jurisdiction_id' => $jurisdiction2->id,
-        ]);
-
-    $response = $this->actingAs($user)->getJson("/api/transaction-categories?jurisdiction_id={$jurisdiction1->id}");
-
-    $response->assertSuccessful()
-        ->assertJsonCount(5, 'data');
-});
-
-test('create category with valid jurisdiction and entity', function () {
-    $user = User::factory()->create();
-    $entity = Entity::factory()->create(['user_id' => $user->id]);
-    $jurisdiction = Jurisdiction::factory()->create();
-
     $data = [
         'name' => 'Business Expenses',
-        'jurisdiction_id' => $jurisdiction->id,
         'income_or_expense' => 'expense',
         'sort_order' => 10,
     ];
@@ -68,19 +40,14 @@ test('create category with valid jurisdiction and entity', function () {
         ->assertJsonPath('sort_order', 10);
 });
 
-test('validation fails with duplicate name for same jurisdiction entity', function () {
+test('validation fails with duplicate name', function () {
     $user = User::factory()->create();
-    $entity = Entity::factory()->create(['user_id' => $user->id]);
-    $jurisdiction = Jurisdiction::factory()->create();
-
     TransactionCategory::factory()->create([
         'name' => 'Rental Income',
-        'jurisdiction_id' => $jurisdiction->id,
     ]);
 
     $data = [
         'name' => 'Rental Income',
-        'jurisdiction_id' => $jurisdiction->id,
         'income_or_expense' => 'income',
     ];
 
@@ -93,7 +60,7 @@ test('validation fails with duplicate name for same jurisdiction entity', functi
 test('view category with tax mappings', function () {
     $user = User::factory()->create();
     $entity = Entity::factory()->create(['user_id' => $user->id]);
-    $category = TransactionCategory::factory()->create(['jurisdiction_id' => $entity->jurisdiction_id]);
+    $category = TransactionCategory::factory()->create();
 
     $response = $this->actingAs($user)->getJson("/api/transaction-categories/{$category->id}");
 
@@ -103,7 +70,6 @@ test('view category with tax mappings', function () {
         ->assertJsonStructure([
             'id',
             'name',
-            'jurisdiction_id',
             'taxMappings',
         ]);
 });
@@ -112,7 +78,6 @@ test('update category', function () {
     $user = User::factory()->create();
     $entity = Entity::factory()->create(['user_id' => $user->id]);
     $category = TransactionCategory::factory()->create([
-        'jurisdiction_id' => $entity->jurisdiction_id,
         'name' => 'Old Category Name',
         'sort_order' => 5,
     ]);
@@ -134,7 +99,7 @@ test('update category', function () {
 test('cannot delete category if transactions exist', function () {
     $user = User::factory()->create();
     $entity = Entity::factory()->create(['user_id' => $user->id]);
-    $category = TransactionCategory::factory()->create(['jurisdiction_id' => $entity->jurisdiction_id]);
+    $category = TransactionCategory::factory()->create();
     $account = Account::factory()->create(['entity_id' => $entity->id]);
 
     Transaction::factory()->create([
@@ -155,7 +120,7 @@ test('cannot delete category if transactions exist', function () {
 test('can delete category without transactions', function () {
     $user = User::factory()->create();
     $entity = Entity::factory()->create(['user_id' => $user->id]);
-    $category = TransactionCategory::factory()->create(['jurisdiction_id' => $entity->jurisdiction_id]);
+    $category = TransactionCategory::factory()->create();
 
     $response = $this->actingAs($user)->deleteJson("/api/transaction-categories/{$category->id}");
 
