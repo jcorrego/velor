@@ -2,11 +2,9 @@
 
 namespace App\Finance\Services;
 
-use App\Enums\Finance\RelatedPartyType;
 use App\Models\Asset;
 use App\Models\Currency;
 use App\Models\Entity;
-use App\Models\RelatedPartyTransaction;
 use App\Models\Transaction;
 use App\Models\User;
 
@@ -27,49 +25,9 @@ class UsTaxReportingService
         $entities = Entity::where('user_id', $user->id)->pluck('id');
         $usdCurrency = Currency::where('code', 'USD')->firstOrFail();
 
-        $contributions = $this->convertRelatedPartyTransactionsToUSD(
-            RelatedPartyTransaction::query()
-                ->whereIn('account_id', function ($query) use ($entities) {
-                    $query->select('id')
-                        ->from('accounts')
-                        ->whereIn('entity_id', $entities);
-                })
-                ->where('owner_id', $user->id)
-                ->where('type', RelatedPartyType::OwnerContribution)
-                ->whereYear('transaction_date', $taxYear)
-                ->with('account.currency')
-                ->get(),
-            $usdCurrency
-        );
-
-        $draws = $this->convertRelatedPartyTransactionsToUSD(
-            RelatedPartyTransaction::query()
-                ->whereIn('account_id', function ($query) use ($entities) {
-                    $query->select('id')
-                        ->from('accounts')
-                        ->whereIn('entity_id', $entities);
-                })
-                ->where('owner_id', $user->id)
-                ->where('type', RelatedPartyType::OwnerDraw)
-                ->whereYear('transaction_date', $taxYear)
-                ->with('account.currency')
-                ->get(),
-            $usdCurrency
-        );
-
-        $relatedPartyTotals = $this->convertRelatedPartyTransactionsToUSD(
-            RelatedPartyTransaction::query()
-                ->whereIn('account_id', function ($query) use ($entities) {
-                    $query->select('id')
-                        ->from('accounts')
-                        ->whereIn('entity_id', $entities);
-                })
-                ->where('owner_id', $user->id)
-                ->whereYear('transaction_date', $taxYear)
-                ->with('account.currency')
-                ->get(),
-            $usdCurrency
-        );
+        $contributions = $this->getForm5472Transactions($entities, $taxYear, 'owner_contribution', $usdCurrency);
+        $draws = $this->getForm5472Transactions($entities, $taxYear, 'owner_draw', $usdCurrency);
+        $relatedPartyTotals = $this->getForm5472Transactions($entities, $taxYear, null, $usdCurrency);
 
         return [
             'contributions' => $contributions,
@@ -90,10 +48,9 @@ class UsTaxReportingService
 
         // Get rental income transactions
         $incomeTransactions = Transaction::query()
-            ->whereIn('category_id', function ($query) use ($asset) {
+            ->whereIn('category_id', function ($query) {
                 $query->select('id')
                     ->from('transaction_categories')
-                    ->where('jurisdiction_id', $asset->entity->jurisdiction_id)
                     ->where('income_or_expense', 'income')
                     ->where('name', 'like', '%rental%');
             })
@@ -112,10 +69,9 @@ class UsTaxReportingService
         // Get expenses grouped by category
         $expenses = Transaction::query()
             ->join('transaction_categories', 'transactions.category_id', '=', 'transaction_categories.id')
-            ->whereIn('transactions.category_id', function ($query) use ($asset) {
+            ->whereIn('transactions.category_id', function ($query) {
                 $query->select('id')
                     ->from('transaction_categories')
-                    ->where('jurisdiction_id', $asset->entity->jurisdiction_id)
                     ->where('income_or_expense', 'expense')
                     ->where('name', 'like', '%rental%');
             })
@@ -164,23 +120,35 @@ class UsTaxReportingService
     }
 
     /**
-     * Convert a collection of RelatedPartyTransactions to USD.
+     * Get Form 5472 transactions by querying via category tax mappings.
+     *
+     * @param  \Illuminate\Support\Collection  $entities
+     * @param  string|null  $lineItem  Specific line_item to filter (e.g., 'owner_contribution'), or null for all Form 5472 transactions
      */
-    private function convertRelatedPartyTransactionsToUSD($transactions, Currency $usdCurrency): float
+    private function getForm5472Transactions($entities, int $taxYear, ?string $lineItem, Currency $usdCurrency): float
     {
-        $total = 0;
+        $query = Transaction::query()
+            ->whereIn('account_id', function ($subQuery) use ($entities) {
+                $subQuery->select('id')
+                    ->from('accounts')
+                    ->whereIn('entity_id', $entities);
+            })
+            ->whereExists(function ($subQuery) use ($lineItem) {
+                $subQuery->select('id')
+                    ->from('category_tax_mappings')
+                    ->whereColumn('category_tax_mappings.category_id', 'transactions.category_id')
+                    ->where('category_tax_mappings.tax_form_code', 'form_5472');
+                
+                if ($lineItem) {
+                    $subQuery->where('category_tax_mappings.line_item', $lineItem);
+                }
+            })
+            ->whereYear('transaction_date', $taxYear)
+            ->with('originalCurrency');
 
-        foreach ($transactions as $transaction) {
-            $convertedAmount = $this->fxRateService->convert(
-                $transaction->amount,
-                $transaction->account->currency,
-                $usdCurrency,
-                $transaction->transaction_date
-            );
-            $total += $convertedAmount;
-        }
+        $transactions = $query->get();
 
-        return $total;
+        return $this->convertTransactionsToUSD($transactions, $usdCurrency);
     }
 
     /**

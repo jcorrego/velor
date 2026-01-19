@@ -159,4 +159,3 @@ test('delete asset', function () {
     $response->assertStatus(204);
     expect(Asset::find($asset->id))->toBeNull();
 });
-

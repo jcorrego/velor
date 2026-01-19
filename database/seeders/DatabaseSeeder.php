@@ -99,7 +99,6 @@ class DatabaseSeeder extends Seeder
             \App\Models\TransactionCategory::firstOrCreate(
                 [
                     'name' => $category['name'],
-                    'jurisdiction_id' => $usa->id,
                 ],
                 [
                     'income_or_expense' => $category['income_or_expense'],
@@ -112,7 +111,6 @@ class DatabaseSeeder extends Seeder
         $taxesCategory = \App\Models\TransactionCategory::firstOrCreate(
             [
                 'name' => 'Taxes',
-                'jurisdiction_id' => $spain->id,
             ],
             [
                 'income_or_expense' => 'expense',
@@ -190,20 +188,58 @@ class DatabaseSeeder extends Seeder
         }
 
         // Create US transactions for tax reporting
-        $rentalIncomeCategory = \App\Models\TransactionCategory::where('jurisdiction_id', $usa->id)
-            ->where('name', 'Rental Income')
+        $rentalIncomeCategory = \App\Models\TransactionCategory::where('name', 'Rental Income')
             ->first();
 
         // Create rental-specific maintenance category for Schedule E
         $rentalMaintenanceCategory = \App\Models\TransactionCategory::firstOrCreate(
             [
                 'name' => 'Rental Property Maintenance',
-                'jurisdiction_id' => $usa->id,
             ],
             [
                 'income_or_expense' => 'expense',
                 'sort_order' => 55,
             ]
+        );
+
+        // Create Form 5472 categories
+        $ownerContributionCategory = \App\Models\TransactionCategory::firstOrCreate(
+            ['name' => 'Owner Contribution'],
+            ['income_or_expense' => 'income', 'sort_order' => 100]
+        );
+        $ownerDrawCategory = \App\Models\TransactionCategory::firstOrCreate(
+            ['name' => 'Owner Draw'],
+            ['income_or_expense' => 'expense', 'sort_order' => 101]
+        );
+        $reimbursementCategory = \App\Models\TransactionCategory::firstOrCreate(
+            ['name' => 'Reimbursement'],
+            ['income_or_expense' => 'income', 'sort_order' => 102]
+        );
+
+        // Create Form 5472 tax mappings
+        \App\Models\CategoryTaxMapping::firstOrCreate(
+            [
+                'category_id' => $ownerContributionCategory->id,
+                'tax_form_code' => \App\Enums\Finance\TaxFormCode::Form5472,
+                'line_item' => 'owner_contribution',
+            ],
+            ['country' => 'USA']
+        );
+        \App\Models\CategoryTaxMapping::firstOrCreate(
+            [
+                'category_id' => $ownerDrawCategory->id,
+                'tax_form_code' => \App\Enums\Finance\TaxFormCode::Form5472,
+                'line_item' => 'owner_draw',
+            ],
+            ['country' => 'USA']
+        );
+        \App\Models\CategoryTaxMapping::firstOrCreate(
+            [
+                'category_id' => $reimbursementCategory->id,
+                'tax_form_code' => \App\Enums\Finance\TaxFormCode::Form5472,
+                'line_item' => 'reimbursement',
+            ],
+            ['country' => 'USA']
         );
 
         // Create rental income transaction for 2025
@@ -239,33 +275,51 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // Create owner contribution for Form 5472
-        \App\Models\RelatedPartyTransaction::create([
+        \App\Models\Transaction::create([
             'account_id' => $usAccount->id,
-            'owner_id' => $user->id,
             'transaction_date' => '2025-01-05',
-            'amount' => 10000.00,
-            'type' => \App\Enums\Finance\RelatedPartyType::OwnerContribution,
+            'type' => \App\Enums\Finance\TransactionType::Income,
+            'original_amount' => 10000.00,
+            'original_currency_id' => $usCurrencyId,
+            'converted_amount' => 9090.00,
+            'converted_currency_id' => $eurCurrencyId,
+            'fx_rate' => 0.909,
+            'fx_source' => 'ecb',
+            'category_id' => $ownerContributionCategory->id,
             'description' => 'Initial capital contribution to LLC',
+            'tags' => json_encode(['owner_id' => $user->id]),
         ]);
 
         // Create owner draw for Form 5472
-        \App\Models\RelatedPartyTransaction::create([
+        \App\Models\Transaction::create([
             'account_id' => $usAccount->id,
-            'owner_id' => $user->id,
             'transaction_date' => '2025-02-10',
-            'amount' => 1500.00,
-            'type' => \App\Enums\Finance\RelatedPartyType::OwnerDraw,
+            'type' => \App\Enums\Finance\TransactionType::Expense,
+            'original_amount' => 1500.00,
+            'original_currency_id' => $usCurrencyId,
+            'converted_amount' => 1363.50,
+            'converted_currency_id' => $eurCurrencyId,
+            'fx_rate' => 0.909,
+            'fx_source' => 'ecb',
+            'category_id' => $ownerDrawCategory->id,
             'description' => 'Owner distribution',
+            'tags' => json_encode(['owner_id' => $user->id]),
         ]);
 
         // Create reimbursement for Form 5472
-        \App\Models\RelatedPartyTransaction::create([
+        \App\Models\Transaction::create([
             'account_id' => $usAccount->id,
-            'owner_id' => $user->id,
             'transaction_date' => '2025-03-05',
-            'amount' => 250.00,
-            'type' => \App\Enums\Finance\RelatedPartyType::Reimbursement,
+            'type' => \App\Enums\Finance\TransactionType::Income,
+            'original_amount' => 250.00,
+            'original_currency_id' => $usCurrencyId,
+            'converted_amount' => 227.25,
+            'converted_currency_id' => $eurCurrencyId,
+            'fx_rate' => 0.909,
+            'fx_source' => 'ecb',
+            'category_id' => $reimbursementCategory->id,
             'description' => 'Reimbursement for business expenses paid personally',
+            'tags' => json_encode(['owner_id' => $user->id]),
         ]);
     }
 }

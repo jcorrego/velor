@@ -18,7 +18,7 @@ it('creates a manual transaction from the list', function () {
     $usd = Currency::factory()->usd()->create();
     $eur = Currency::factory()->euro()->create();
     $account = Account::factory()->for($entity)->create(['currency_id' => $usd->id]);
-    $category = TransactionCategory::factory()->create(['jurisdiction_id' => $entity->jurisdiction_id]);
+    $category = TransactionCategory::factory()->create();
 
     $this->actingAs($user);
 
@@ -75,7 +75,7 @@ it('edits a manual transaction from the list', function () {
     $entity = Entity::factory()->for($user)->create();
     $eur = Currency::factory()->euro()->create();
     $account = Account::factory()->for($entity)->create(['currency_id' => $eur->id]);
-    $category = TransactionCategory::factory()->create(['jurisdiction_id' => $entity->jurisdiction_id]);
+    $category = TransactionCategory::factory()->create();
     $transaction = Transaction::factory()
         ->forAccount($account)
         ->state([

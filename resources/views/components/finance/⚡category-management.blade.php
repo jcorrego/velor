@@ -10,14 +10,10 @@ new class extends Component
 {
     public $categories;
     public $entities;
-    public $jurisdictions;
     
-    public $filterJurisdictionId = '';
     public $editingId = null;
     
     public $name = '';
-    
-    public $jurisdiction_id = '';
     
     public $income_or_expense = '';
     
@@ -31,21 +27,12 @@ new class extends Component
     public function loadData()
     {
         $this->entities = Entity::where('user_id', auth()->id())->get();
-        $this->jurisdictions = Jurisdiction::all();
         
-        $query = TransactionCategory::query()
-            ->with(['jurisdiction', 'categoryTaxMappings']);
-        
-        if ($this->filterJurisdictionId) {
-            $query->where('jurisdiction_id', $this->filterJurisdictionId);
-        }
-        
-        $this->categories = $query->orderBy('sort_order')->orderBy('name')->get();
-    }
-
-    public function updatedFilterJurisdictionId()
-    {
-        $this->loadData();
+        $this->categories = TransactionCategory::query()
+            ->with(['categoryTaxMappings'])
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
     }
 
     public function save()
@@ -56,19 +43,16 @@ new class extends Component
                 'string',
                 'max:255',
                 Rule::unique('transaction_categories', 'name')
-                    ->where('jurisdiction_id', $this->jurisdiction_id)
                     ->ignore($this->editingId),
             ],
-            'jurisdiction_id' => ['required', 'exists:jurisdictions,id'],
             'income_or_expense' => ['required', Rule::in(['income', 'expense'])],
             'sort_order' => ['nullable', 'integer', 'min:0'],
         ], [
-            'name.unique' => 'A category with this name already exists for the selected jurisdiction.',
+            'name.unique' => 'A category with this name already exists.',
         ]);
 
         $data = [
             'name' => $this->name,
-            'jurisdiction_id' => $this->jurisdiction_id,
             'income_or_expense' => $this->income_or_expense,
             'sort_order' => $this->sort_order ?? 0,
         ];
@@ -82,7 +66,7 @@ new class extends Component
             $message = 'Category created successfully.';
         }
 
-        $this->reset(['name', 'jurisdiction_id', 'income_or_expense', 'sort_order', 'editingId']);
+        $this->reset(['name', 'income_or_expense', 'sort_order', 'editingId']);
         $this->loadData();
         
         session()->flash('message', $message);
@@ -94,14 +78,13 @@ new class extends Component
 
         $this->editingId = $category->id;
         $this->name = $category->name;
-        $this->jurisdiction_id = $category->jurisdiction_id;
         $this->income_or_expense = $category->income_or_expense;
         $this->sort_order = $category->sort_order;
     }
 
     public function cancel()
     {
-        $this->reset(['name', 'jurisdiction_id', 'income_or_expense', 'sort_order', 'editingId']);
+        $this->reset(['name', 'income_or_expense', 'sort_order', 'editingId']);
         $this->resetValidation();
     }
 
@@ -144,13 +127,6 @@ new class extends Component
         <form wire:submit="save" class="mt-5 space-y-4">
             <flux:input wire:model="name" label="{{ __('Category Name') }}" type="text" />
 
-            <flux:select wire:model="jurisdiction_id" label="{{ __('Jurisdiction') }}" placeholder="{{ __('Select jurisdiction') }}">
-                @foreach($jurisdictions as $jurisdiction)
-                    <option value="{{ $jurisdiction->id }}">{{ $jurisdiction->name }}</option>
-                @endforeach
-            </flux:select>
-
-
             <flux:select wire:model="income_or_expense" label="{{ __('Transaction Type') }}" placeholder="{{ __('Select type') }}">
                 <option value="income">{{ __('Income') }}</option>
                 <option value="expense">{{ __('Expense') }}</option>
@@ -175,18 +151,8 @@ new class extends Component
         <div class="mb-6 flex items-center justify-between">
             <div>
                 <flux:heading size="lg">{{ __('Transaction Categories') }}</flux:heading>
-                <flux:subheading>{{ __('Manage your income and expense categories.') }}</flux:subheading>
+                <flux:subheading>{{ __('Global categories for all jurisdictions.') }}</flux:subheading>
             </div>
-        </div>
-
-        <!-- Filter -->
-        <div class="mb-6">
-            <flux:select wire:model.live="filterJurisdictionId" label="{{ __('Filter by Jurisdiction') }}" placeholder="{{ __('All jurisdictions') }}">
-                <option value="">{{ __('All jurisdictions') }}</option>
-                @foreach($jurisdictions as $jurisdiction)
-                    <option value="{{ $jurisdiction->id }}">{{ $jurisdiction->name }}</option>
-                @endforeach
-            </flux:select>
         </div>
 
         @if($categories->isEmpty())
@@ -205,13 +171,13 @@ new class extends Component
                                 </flux:badge>
                             </div>
                             <div class="mt-1 flex items-center gap-4 text-sm text-zinc-600 dark:text-zinc-400">
-                                <span>{{ $category->jurisdiction->name }}</span>
                                 @if($category->sort_order > 0)
-                                    <span>•</span>
                                     <span>Order: {{ $category->sort_order }}</span>
                                 @endif
                                 @if($category->categoryTaxMappings->isNotEmpty())
-                                    <span>•</span>
+                                    @if($category->sort_order > 0)
+                                        <span>•</span>
+                                    @endif
                                     <span>{{ $category->categoryTaxMappings->count() }} tax mapping(s)</span>
                                 @endif
                             </div>

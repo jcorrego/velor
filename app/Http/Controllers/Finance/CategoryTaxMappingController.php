@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Finance\StoreCategoryTaxMappingRequest;
 use App\Http\Resources\CategoryTaxMappingResource;
 use App\Models\CategoryTaxMapping;
-use App\Models\TransactionCategory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;

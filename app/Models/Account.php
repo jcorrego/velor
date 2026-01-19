@@ -69,12 +69,4 @@ class Account extends Model
     {
         return $this->hasMany(TransactionImport::class);
     }
-
-    /**
-     * Get all related party transactions for this account.
-     */
-    public function relatedPartyTransactions(): HasMany
-    {
-        return $this->hasMany(RelatedPartyTransaction::class);
-    }
 }

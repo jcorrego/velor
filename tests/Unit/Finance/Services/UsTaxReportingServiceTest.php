@@ -1,11 +1,10 @@
 <?php
 
-use App\Enums\Finance\RelatedPartyType;
 use App\Finance\Services\UsTaxReportingService;
 use App\Models\Account;
 use App\Models\Asset;
+use App\Models\CategoryTaxMapping;
 use App\Models\Entity;
-use App\Models\RelatedPartyTransaction;
 use App\Models\Transaction;
 use App\Models\TransactionCategory;
 use App\Models\User;
@@ -18,20 +17,34 @@ test('getOwnerFlowSummary calculates contributions for tax year', function () {
     $entity = Entity::factory()->create(['user_id' => $user->id]);
     $account = Account::factory()->create(['entity_id' => $entity->id]);
 
-    RelatedPartyTransaction::factory()->create([
-        'owner_id' => $user->id,
+    // Create category and Form 5472 mapping for owner contributions
+    $contributionCategory = TransactionCategory::firstOrCreate(
+        ['name' => 'Owner Contribution'],
+        ['income_or_expense' => 'income', 'sort_order' => 100]
+    );
+    CategoryTaxMapping::firstOrCreate(
+        [
+            'category_id' => $contributionCategory->id,
+            'tax_form_code' => 'form_5472',
+            'line_item' => 'owner_contribution',
+        ],
+        ['country' => 'USA']
+    );
+
+    Transaction::factory()->income()->create([
         'account_id' => $account->id,
-        'type' => RelatedPartyType::OwnerContribution,
+        'category_id' => $contributionCategory->id,
         'transaction_date' => '2024-02-15',
-        'amount' => 10000.00,
+        'original_amount' => 10000.00,
+        'original_currency_id' => $account->currency_id,
     ]);
 
-    RelatedPartyTransaction::factory()->create([
-        'owner_id' => $user->id,
+    Transaction::factory()->income()->create([
         'account_id' => $account->id,
-        'type' => RelatedPartyType::OwnerContribution,
+        'category_id' => $contributionCategory->id,
         'transaction_date' => '2024-08-20',
-        'amount' => 5000.00,
+        'original_amount' => 5000.00,
+        'original_currency_id' => $account->currency_id,
     ]);
 
     $service = app(UsTaxReportingService::class);
@@ -45,20 +58,34 @@ test('getOwnerFlowSummary calculates draws for tax year', function () {
     $entity = Entity::factory()->create(['user_id' => $user->id]);
     $account = Account::factory()->create(['entity_id' => $entity->id]);
 
-    RelatedPartyTransaction::factory()->create([
-        'owner_id' => $user->id,
+    // Create category and Form 5472 mapping for owner draws
+    $drawCategory = TransactionCategory::firstOrCreate(
+        ['name' => 'Owner Draw'],
+        ['income_or_expense' => 'expense', 'sort_order' => 101]
+    );
+    CategoryTaxMapping::firstOrCreate(
+        [
+            'category_id' => $drawCategory->id,
+            'tax_form_code' => 'form_5472',
+            'line_item' => 'owner_draw',
+        ],
+        ['country' => 'USA']
+    );
+
+    Transaction::factory()->expense()->create([
         'account_id' => $account->id,
-        'type' => RelatedPartyType::OwnerDraw,
+        'category_id' => $drawCategory->id,
         'transaction_date' => '2024-03-10',
-        'amount' => 2000.00,
+        'original_amount' => 2000.00,
+        'original_currency_id' => $account->currency_id,
     ]);
 
-    RelatedPartyTransaction::factory()->create([
-        'owner_id' => $user->id,
+    Transaction::factory()->expense()->create([
         'account_id' => $account->id,
-        'type' => RelatedPartyType::OwnerDraw,
+        'category_id' => $drawCategory->id,
         'transaction_date' => '2024-09-15',
-        'amount' => 3000.00,
+        'original_amount' => 3000.00,
+        'original_currency_id' => $account->currency_id,
     ]);
 
     $service = app(UsTaxReportingService::class);
@@ -72,28 +99,68 @@ test('getOwnerFlowSummary calculates total related party transactions', function
     $entity = Entity::factory()->create(['user_id' => $user->id]);
     $account = Account::factory()->create(['entity_id' => $entity->id]);
 
-    RelatedPartyTransaction::factory()->create([
-        'owner_id' => $user->id,
+    // Create categories and Form 5472 mappings
+    $contributionCategory = TransactionCategory::firstOrCreate(
+        ['name' => 'Owner Contribution'],
+        ['income_or_expense' => 'income', 'sort_order' => 100]
+    );
+    CategoryTaxMapping::firstOrCreate(
+        [
+            'category_id' => $contributionCategory->id,
+            'tax_form_code' => 'form_5472',
+            'line_item' => 'owner_contribution',
+        ],
+        ['country' => 'USA']
+    );
+
+    $drawCategory = TransactionCategory::firstOrCreate(
+        ['name' => 'Owner Draw'],
+        ['income_or_expense' => 'expense', 'sort_order' => 101]
+    );
+    CategoryTaxMapping::firstOrCreate(
+        [
+            'category_id' => $drawCategory->id,
+            'tax_form_code' => 'form_5472',
+            'line_item' => 'owner_draw',
+        ],
+        ['country' => 'USA']
+    );
+
+    $reimbursementCategory = TransactionCategory::firstOrCreate(
+        ['name' => 'Reimbursement'],
+        ['income_or_expense' => 'income', 'sort_order' => 102]
+    );
+    CategoryTaxMapping::firstOrCreate(
+        [
+            'category_id' => $reimbursementCategory->id,
+            'tax_form_code' => 'form_5472',
+            'line_item' => 'reimbursement',
+        ],
+        ['country' => 'USA']
+    );
+
+    Transaction::factory()->income()->create([
         'account_id' => $account->id,
-        'type' => RelatedPartyType::OwnerContribution,
+        'category_id' => $contributionCategory->id,
         'transaction_date' => '2024-01-10',
-        'amount' => 10000.00,
+        'original_amount' => 10000.00,
+        'original_currency_id' => $account->currency_id,
     ]);
 
-    RelatedPartyTransaction::factory()->create([
-        'owner_id' => $user->id,
+    Transaction::factory()->expense()->create([
         'account_id' => $account->id,
-        'type' => RelatedPartyType::OwnerDraw,
+        'category_id' => $drawCategory->id,
         'transaction_date' => '2024-06-15',
-        'amount' => 3000.00,
+        'original_amount' => 3000.00,
+        'original_currency_id' => $account->currency_id,
     ]);
 
-    RelatedPartyTransaction::factory()->create([
-        'owner_id' => $user->id,
+    Transaction::factory()->income()->create([
         'account_id' => $account->id,
-        'type' => RelatedPartyType::Reimbursement,
+        'category_id' => $reimbursementCategory->id,
         'transaction_date' => '2024-08-20',
-        'amount' => 500.00,
+        'original_amount' => 500.00,
+        'original_currency_id' => $account->currency_id,
     ]);
 
     $service = app(UsTaxReportingService::class);
@@ -107,20 +174,34 @@ test('getOwnerFlowSummary filters by tax year', function () {
     $entity = Entity::factory()->create(['user_id' => $user->id]);
     $account = Account::factory()->create(['entity_id' => $entity->id]);
 
-    RelatedPartyTransaction::factory()->create([
-        'owner_id' => $user->id,
+    // Create category and Form 5472 mapping
+    $contributionCategory = TransactionCategory::firstOrCreate(
+        ['name' => 'Owner Contribution'],
+        ['income_or_expense' => 'income', 'sort_order' => 100]
+    );
+    CategoryTaxMapping::firstOrCreate(
+        [
+            'category_id' => $contributionCategory->id,
+            'tax_form_code' => 'form_5472',
+            'line_item' => 'owner_contribution',
+        ],
+        ['country' => 'USA']
+    );
+
+    Transaction::factory()->income()->create([
         'account_id' => $account->id,
-        'type' => RelatedPartyType::OwnerContribution,
+        'category_id' => $contributionCategory->id,
         'transaction_date' => '2023-12-15',
-        'amount' => 5000.00,
+        'original_amount' => 5000.00,
+        'original_currency_id' => $account->currency_id,
     ]);
 
-    RelatedPartyTransaction::factory()->create([
-        'owner_id' => $user->id,
+    Transaction::factory()->income()->create([
         'account_id' => $account->id,
-        'type' => RelatedPartyType::OwnerContribution,
+        'category_id' => $contributionCategory->id,
         'transaction_date' => '2024-01-15',
-        'amount' => 10000.00,
+        'original_amount' => 10000.00,
+        'original_currency_id' => $account->currency_id,
     ]);
 
     $service = app(UsTaxReportingService::class);
@@ -139,7 +220,7 @@ test('getScheduleERentalSummary calculates rental income', function () {
 
     $rentalIncomeCategory = TransactionCategory::factory()
         ->rentalIncome()
-        ->create(['jurisdiction_id' => $entity->jurisdiction_id]);
+        ->create();
 
     Transaction::factory()->income()->create([
         'account_id' => $account->id,
@@ -181,14 +262,12 @@ test('getScheduleERentalSummary groups expenses by category', function () {
 
     $maintenanceCategory = TransactionCategory::factory()
         ->create([
-            'jurisdiction_id' => $entity->jurisdiction_id,
             'name' => 'Rental Property Maintenance',
             'income_or_expense' => 'expense',
         ]);
 
     $utilitiesCategory = TransactionCategory::factory()
         ->create([
-            'jurisdiction_id' => $entity->jurisdiction_id,
             'name' => 'Rental Utilities',
             'income_or_expense' => 'expense',
         ]);
@@ -234,7 +313,7 @@ test('getScheduleERentalSummary calculates total expenses', function () {
 
     $expenseCategory = TransactionCategory::factory()
         ->propertyMaintenance()
-        ->create(['jurisdiction_id' => $entity->jurisdiction_id]);
+        ->create();
 
     Transaction::factory()->expense()->create([
         'account_id' => $account->id,
@@ -276,11 +355,11 @@ test('getScheduleERentalSummary calculates net income', function () {
 
     $incomeCategory = TransactionCategory::factory()
         ->rentalIncome()
-        ->create(['jurisdiction_id' => $entity->jurisdiction_id]);
+        ->create();
 
     $expenseCategory = TransactionCategory::factory()
         ->propertyMaintenance()
-        ->create(['jurisdiction_id' => $entity->jurisdiction_id]);
+        ->create();
 
     Transaction::factory()->income()->create([
         'account_id' => $account->id,
@@ -325,7 +404,7 @@ test('getScheduleERentalSummary filters income by asset entity', function () {
 
     $incomeCategory = TransactionCategory::factory()
         ->rentalIncome()
-        ->create(['jurisdiction_id' => $entity1->jurisdiction_id]);
+        ->create();
 
     // Income from asset's entity - should be included
     Transaction::factory()->income()->create([
@@ -371,7 +450,7 @@ test('getScheduleERentalSummary filters expenses by asset entity', function () {
 
     $expenseCategory = TransactionCategory::factory()
         ->propertyMaintenance()
-        ->create(['jurisdiction_id' => $entity1->jurisdiction_id]);
+        ->create();
 
     // Expense from asset's entity - should be included
     Transaction::factory()->expense()->create([

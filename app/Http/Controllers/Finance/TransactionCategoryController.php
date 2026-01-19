@@ -18,14 +18,8 @@ class TransactionCategoryController extends Controller
      */
     public function index(Request $request): AnonymousResourceCollection
     {
-        $query = TransactionCategory::query();
-
-        if ($request->has('jurisdiction_id')) {
-            $query->where('jurisdiction_id', $request->input('jurisdiction_id'));
-        }
-
-        $categories = $query
-            ->with(['jurisdiction', 'taxMappings'])
+        $categories = TransactionCategory::query()
+            ->with(['taxMappings'])
             ->paginate(20);
 
         return TransactionCategoryResource::collection($categories);
@@ -39,7 +33,7 @@ class TransactionCategoryController extends Controller
         $category = TransactionCategory::create($request->validated());
 
         return response()->json(
-            new TransactionCategoryResource($category->load(['jurisdiction', 'taxMappings'])),
+            new TransactionCategoryResource($category->load(['taxMappings'])),
             201
         );
     }
@@ -50,7 +44,7 @@ class TransactionCategoryController extends Controller
     public function show(TransactionCategory $transactionCategory): JsonResponse
     {
         return response()->json(
-            new TransactionCategoryResource($transactionCategory->load(['jurisdiction', 'taxMappings']))
+            new TransactionCategoryResource($transactionCategory->load(['taxMappings']))
         );
     }
 
@@ -62,7 +56,7 @@ class TransactionCategoryController extends Controller
         $transactionCategory->update($request->validated());
 
         return response()->json(
-            new TransactionCategoryResource($transactionCategory->load(['jurisdiction', 'taxMappings']))
+            new TransactionCategoryResource($transactionCategory->load(['taxMappings']))
         );
     }
 

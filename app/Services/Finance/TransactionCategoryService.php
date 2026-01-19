@@ -10,14 +10,13 @@ use App\Models\TransactionCategory;
 class TransactionCategoryService
 {
     /**
-     * Aggregate transaction totals by category for a tax year and jurisdiction.
+     * Aggregate transaction totals by category for a tax year.
      *
      * @return array<int, array<string, mixed>>
      */
-    public function aggregateByCategory(int $taxYear, int $jurisdictionId): array
+    public function aggregateByCategory(int $taxYear): array
     {
         $categories = TransactionCategory::query()
-            ->where('jurisdiction_id', $jurisdictionId)
             ->withCount('taxMappings')
             ->get();
 
@@ -59,7 +58,6 @@ class TransactionCategoryService
         $jurisdictionId = $filing->taxYear->jurisdiction_id;
 
         $categories = TransactionCategory::query()
-            ->where('jurisdiction_id', $jurisdictionId)
             ->with('taxMappings')
             ->get();
 

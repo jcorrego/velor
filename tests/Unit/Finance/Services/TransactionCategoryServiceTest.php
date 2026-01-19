@@ -26,13 +26,11 @@ it('aggregates totals by category for a tax year and jurisdiction', function () 
     $account = Account::factory()->create(['entity_id' => $entity->id]);
 
     $incomeCategory = TransactionCategory::factory()->create([
-        'jurisdiction_id' => $jurisdiction->id,
         'income_or_expense' => 'income',
         'name' => 'Rental Income',
     ]);
 
     $expenseCategory = TransactionCategory::factory()->create([
-        'jurisdiction_id' => $jurisdiction->id,
         'income_or_expense' => 'expense',
         'name' => 'Rental Expenses',
     ]);
@@ -52,7 +50,7 @@ it('aggregates totals by category for a tax year and jurisdiction', function () 
     ]);
 
     $service = new TransactionCategoryService;
-    $result = $service->aggregateByCategory(2024, $jurisdiction->id);
+    $result = $service->aggregateByCategory(2024);
 
     expect($result)->toHaveCount(2)
         ->and(collect($result)->pluck('total')->sum())->toBe(1500.0);
@@ -80,7 +78,6 @@ it('computes tax form amounts for a filing', function () {
     ]);
 
     $category = TransactionCategory::factory()->create([
-        'jurisdiction_id' => $jurisdiction->id,
         'income_or_expense' => 'income',
     ]);
 
