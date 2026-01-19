@@ -12,8 +12,8 @@
                 No accounts found. Create an account first, then return here to import transactions.
             </div>
             <div class="mt-6">
-                <flux:button variant="primary" href="{{ route('finance') }}">
-                    Go to Finance
+                <flux:button variant="primary" href="{{ route('finance.accounts') }}">
+                    Go to Accounts
                 </flux:button>
             </div>
         @else
@@ -37,8 +37,8 @@
         @endif
 
         <div class="mt-8">
-            <flux:button variant="ghost" href="{{ route('finance') }}">
-                ← Back to Finance
+            <flux:button variant="ghost" href="{{ route('finance.transactions') }}">
+                ← Back to Transactions
             </flux:button>
         </div>
     </div>

@@ -10,8 +10,8 @@
         <livewire:finance.transaction-import-form :account="$account" />
 
         <div class="mt-8">
-            <flux:button variant="ghost" href="{{ route('finance') }}">
-                ← Back to Finance
+            <flux:button variant="ghost" href="{{ route('finance.transactions') }}">
+                ← Back to Transactions
             </flux:button>
         </div>
     </div>

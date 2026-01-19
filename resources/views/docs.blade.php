@@ -35,8 +35,8 @@
                 <div class="space-y-2">
                     <div class="text-sm font-semibold text-zinc-700 dark:text-zinc-200">{{ __('How to Import') }}</div>
                     <ol class="list-decimal space-y-1 pl-5 text-sm text-zinc-700 dark:text-zinc-200">
-                        <li>{{ __('Go to Finance.') }}</li>
-                        <li>{{ __('Open the Transactions tab and click "Import Transactions".') }}</li>
+                        <li>{{ __('Open Transactions in the Finance sidebar.') }}</li>
+                        <li>{{ __('Click "Import Transactions".') }}</li>
                         <li>{{ __('Select the account to import into.') }}</li>
                         <li>{{ __('Choose your bank parser.') }}</li>
                         <li>{{ __('Upload the CSV file.') }}</li>
@@ -87,8 +87,7 @@
                 <div class="space-y-2">
                     <div class="text-sm font-semibold text-zinc-700 dark:text-zinc-200">{{ __('Create Categories') }}</div>
                     <ol class="list-decimal space-y-1 pl-5 text-sm text-zinc-700 dark:text-zinc-200">
-                        <li>{{ __('Go to Finance.') }}</li>
-                        <li>{{ __('Open the Categories tab.') }}</li>
+                        <li>{{ __('Open Categories in the Finance sidebar.') }}</li>
                         <li>{{ __('Add a category with:') }}</li>
                     </ol>
                     <ul class="list-disc space-y-1 pl-10 text-sm text-zinc-700 dark:text-zinc-200">
@@ -106,8 +105,7 @@
                 <div class="space-y-2">
                     <div class="text-sm font-semibold text-zinc-700 dark:text-zinc-200">{{ __('Create Tax Mappings') }}</div>
                     <ol class="list-decimal space-y-1 pl-5 text-sm text-zinc-700 dark:text-zinc-200">
-                        <li>{{ __('Go to Finance.') }}</li>
-                        <li>{{ __('Open the Mappings tab.') }}</li>
+                        <li>{{ __('Open Mappings in the Finance sidebar.') }}</li>
                         <li>{{ __('Select a category.') }}</li>
                         <li>{{ __('Choose a tax form (e.g., Schedule E or IRPF).') }}</li>
                         <li>{{ __('Set the line item and country.') }}</li>
@@ -189,7 +187,7 @@
                 <div class="space-y-2">
                     <div class="text-sm font-semibold text-zinc-700 dark:text-zinc-200">{{ __('Setup') }}</div>
                     <ol class="list-decimal space-y-1 pl-5 text-sm text-zinc-700 dark:text-zinc-200">
-                        <li>{{ __('Create assets in the Assets tab.') }}</li>
+                        <li>{{ __('Open Assets in the Finance sidebar and create assets.') }}</li>
                         <li>{{ __('Ensure transactions are categorized as rental income or rental expenses.') }}</li>
                         <li>{{ __('Map categories to tax form line items if needed.') }}</li>
                     </ol>
@@ -198,8 +196,7 @@
                 <div class="space-y-2">
                     <div class="text-sm font-semibold text-zinc-700 dark:text-zinc-200">{{ __('View the Report') }}</div>
                     <ol class="list-decimal space-y-1 pl-5 text-sm text-zinc-700 dark:text-zinc-200">
-                        <li>{{ __('Go to Finance.') }}</li>
-                        <li>{{ __('Open the Reports tab.') }}</li>
+                        <li>{{ __('Open Schedule E in the Finance sidebar.') }}</li>
                         <li>{{ __('Select a rental property asset.') }}</li>
                         <li>{{ __('Set the tax year.') }}</li>
                     </ol>
@@ -239,8 +236,7 @@
                 <div class="space-y-2">
                     <div class="text-sm font-semibold text-zinc-700 dark:text-zinc-200">{{ __('Override a Transaction Rate') }}</div>
                     <ol class="list-decimal space-y-1 pl-5 text-sm text-zinc-700 dark:text-zinc-200">
-                        <li>{{ __('Go to Finance.') }}</li>
-                        <li>{{ __('Open the Transactions tab.') }}</li>
+                        <li>{{ __('Open Transactions in the Finance sidebar.') }}</li>
                         <li>{{ __('Click "Override FX Rate" on a transaction.') }}</li>
                         <li>{{ __('Enter the new rate and a reason.') }}</li>
                         <li>{{ __('Save the override.') }}</li>

@@ -18,9 +18,25 @@ Route::view('docs', 'docs')
     ->middleware(['auth', 'verified'])
     ->name('docs');
 
-Route::view('finance', 'finance')
+Route::view('finance/accounts', 'finance.accounts')
     ->middleware(['auth', 'verified'])
-    ->name('finance');
+    ->name('finance.accounts');
+
+Route::view('finance/transactions', 'finance.transactions')
+    ->middleware(['auth', 'verified'])
+    ->name('finance.transactions');
+
+Route::view('finance/assets', 'finance.assets')
+    ->middleware(['auth', 'verified'])
+    ->name('finance.assets');
+
+Route::view('finance/categories', 'finance.categories')
+    ->middleware(['auth', 'verified'])
+    ->name('finance.categories');
+
+Route::view('finance/mappings', 'finance.mappings')
+    ->middleware(['auth', 'verified'])
+    ->name('finance.mappings');
 
 Route::get('finance/import', function () {
     $accounts = \App\Models\Account::query()

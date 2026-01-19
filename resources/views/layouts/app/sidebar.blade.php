@@ -52,8 +52,20 @@
 
             <flux:sidebar.nav>
                 <flux:sidebar.group :heading="__('Finance')" class="grid">
-                    <flux:sidebar.item icon="currency-dollar" :href="route('finance')" :current="request()->routeIs('finance')" wire:navigate>
-                        {{ __('Finance') }}
+                    <flux:sidebar.item icon="currency-dollar" :href="route('finance.accounts')" :current="request()->routeIs('finance.accounts')" wire:navigate>
+                        {{ __('Accounts') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="document-text" :href="route('finance.transactions')" :current="request()->routeIs('finance.transactions')" wire:navigate>
+                        {{ __('Transactions') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="home" :href="route('finance.assets')" :current="request()->routeIs('finance.assets')" wire:navigate>
+                        {{ __('Assets') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="tag" :href="route('finance.categories')" :current="request()->routeIs('finance.categories')" wire:navigate>
+                        {{ __('Categories') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="map" :href="route('finance.mappings')" :current="request()->routeIs('finance.mappings')" wire:navigate>
+                        {{ __('Mappings') }}
                     </flux:sidebar.item>
                     <flux:sidebar.item icon="document-text" :href="route('finance.us-tax.owner-flow')" :current="request()->routeIs('finance.us-tax.owner-flow')" wire:navigate>
                         {{ __('Owner Flow (5472)') }}
