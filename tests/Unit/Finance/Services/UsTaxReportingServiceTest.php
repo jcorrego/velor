@@ -268,3 +268,73 @@ test('getScheduleERentalSummary calculates net income', function () {
 
     expect($summary['net_income'])->toBe(3000.00);
 });
+
+test('getScheduleERentalSummary filters income by asset entity', function () {
+    $entity1 = Entity::factory()->create();
+    $entity2 = Entity::factory()->create();
+    $asset = Asset::factory()->residential()->create(['entity_id' => $entity1->id]);
+    $account1 = Account::factory()->create(['entity_id' => $entity1->id]);
+    $account2 = Account::factory()->create(['entity_id' => $entity2->id]);
+
+    $incomeCategory = TransactionCategory::factory()
+        ->rentalIncome()
+        ->create(['jurisdiction_id' => $entity1->jurisdiction_id]);
+
+    // Income from asset's entity - should be included
+    Transaction::factory()->income()->create([
+        'account_id' => $account1->id,
+        'category_id' => $incomeCategory->id,
+        'transaction_date' => '2024-01-15',
+        'converted_amount' => 2000.00,
+    ]);
+
+    // Income from different entity - should be excluded
+    Transaction::factory()->income()->create([
+        'account_id' => $account2->id,
+        'category_id' => $incomeCategory->id,
+        'transaction_date' => '2024-02-15',
+        'converted_amount' => 5000.00,
+    ]);
+
+    $asset->rentalIncomeCategories = [$incomeCategory->id];
+
+    $service = new UsTaxReportingService;
+    $summary = $service->getScheduleERentalSummary($asset, 2024);
+
+    expect($summary['rental_income'])->toBe(2000.00);
+});
+
+test('getScheduleERentalSummary filters expenses by asset entity', function () {
+    $entity1 = Entity::factory()->create();
+    $entity2 = Entity::factory()->create();
+    $asset = Asset::factory()->residential()->create(['entity_id' => $entity1->id]);
+    $account1 = Account::factory()->create(['entity_id' => $entity1->id]);
+    $account2 = Account::factory()->create(['entity_id' => $entity2->id]);
+
+    $expenseCategory = TransactionCategory::factory()
+        ->propertyMaintenance()
+        ->create(['jurisdiction_id' => $entity1->jurisdiction_id]);
+
+    // Expense from asset's entity - should be included
+    Transaction::factory()->expense()->create([
+        'account_id' => $account1->id,
+        'category_id' => $expenseCategory->id,
+        'transaction_date' => '2024-03-10',
+        'converted_amount' => 1000.00,
+    ]);
+
+    // Expense from different entity - should be excluded
+    Transaction::factory()->expense()->create([
+        'account_id' => $account2->id,
+        'category_id' => $expenseCategory->id,
+        'transaction_date' => '2024-04-15',
+        'converted_amount' => 3000.00,
+    ]);
+
+    $asset->rentalExpenseCategories = [$expenseCategory->id];
+
+    $service = new UsTaxReportingService;
+    $summary = $service->getScheduleERentalSummary($asset, 2024);
+
+    expect($summary['total_expenses'])->toBe(1000.00);
+});
