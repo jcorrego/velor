@@ -3,6 +3,7 @@
 namespace App\Services\Finance;
 
 use App\Models\Account;
+use App\Models\DescriptionCategoryRule;
 use App\Models\Transaction;
 use App\Models\TransactionImport;
 use App\Services\Finance\Parsers\BancolombiaCSVParser;
@@ -85,6 +86,7 @@ class TransactionImportService
     public function importTransactions(array $transactions, Account $account, string $source): int
     {
         $imported = 0;
+        $rules = $this->buildCategorizationRules($account);
 
         foreach ($transactions as $data) {
             // Skip if it's marked as duplicate
@@ -93,7 +95,7 @@ class TransactionImportService
             }
 
             $categoryId = app(TransactionCategorizationService::class)
-                ->resolveCategoryId($data, $account);
+                ->resolveCategoryId($data, $account, $rules);
 
             Transaction::create([
                 'account_id' => $account->id,
@@ -242,5 +244,28 @@ class TransactionImportService
         ]);
 
         return $currency->id;
+    }
+
+    /**
+     * Build categorization rules from database rules.
+     * Converts database rules to regex patterns for the categorization service.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function buildCategorizationRules(Account $account): array
+    {
+        $rules = DescriptionCategoryRule::query()
+            ->where('jurisdiction_id', $account->entity->jurisdiction_id)
+            ->where('is_active', true)
+            ->orderBy('id')
+            ->get();
+
+        return $rules->map(function (DescriptionCategoryRule $rule) {
+            return [
+                'pattern' => '/^'.preg_quote($rule->description_pattern, '/').'/i',
+                'fields' => ['description'],
+                'category_id' => $rule->category_id,
+            ];
+        })->values()->all();
     }
 }

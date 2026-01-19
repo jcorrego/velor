@@ -44,9 +44,6 @@
                     <flux:sidebar.item icon="arrow-down-tray" :href="route('management.import-review')" :current="request()->routeIs('management.import-review')" wire:navigate>
                         {{ __('Import Review') }}
                     </flux:sidebar.item>
-                    <flux:sidebar.item icon="list-bullet" :href="route('management.import-mapping-profiles')" :current="request()->routeIs('management.import-mapping-profiles')" wire:navigate>
-                        {{ __('Import Profiles') }}
-                    </flux:sidebar.item>
                 </flux:sidebar.group>
             </flux:sidebar.nav>
 

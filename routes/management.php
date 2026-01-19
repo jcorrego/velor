@@ -1,6 +1,5 @@
 <?php
 
-use App\Livewire\Finance\ImportMappingProfiles;
 use App\Livewire\Finance\ImportReviewQueue;
 use App\Livewire\Management\Currencies;
 use App\Livewire\Management\Entities;
@@ -23,5 +22,4 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Import Management
     Route::livewire('manage/import-review', ImportReviewQueue::class)->name('management.import-review');
-    Route::livewire('manage/import-mapping-profiles', ImportMappingProfiles::class)->name('management.import-mapping-profiles');
 });
