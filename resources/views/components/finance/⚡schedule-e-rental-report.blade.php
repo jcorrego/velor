@@ -12,6 +12,17 @@ new class extends Component
     public function mount(): void
     {
         $this->year = now()->year;
+        
+        // Auto-select first US asset if available
+        $firstAsset = Asset::query()
+            ->whereHas('entity', fn ($query) => $query->where('user_id', auth()->id()))
+            ->whereHas('jurisdiction', fn ($query) => $query->where('iso_code', 'US'))
+            ->orderBy('name')
+            ->first();
+            
+        if ($firstAsset) {
+            $this->assetId = $firstAsset->id;
+        }
     }
 
     public function with(): array
