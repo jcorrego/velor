@@ -98,7 +98,7 @@ test('validation fails with invalid amount zero', function () {
     $user = User::factory()->create();
     $entity = Entity::factory()->create(['user_id' => $user->id]);
     $account = Account::factory()->create(['entity_id' => $entity->id]);
-    $category = TransactionCategory::factory()->create(['jurisdiction_id' => $entity->jurisdiction_id]);
+    $category = TransactionCategory::factory()->create();
 
     $data = [
         'transaction_date' => '2024-01-15',
@@ -161,8 +161,8 @@ test('update transaction category', function () {
     $user = User::factory()->create();
     $entity = Entity::factory()->create(['user_id' => $user->id]);
     $account = Account::factory()->create(['entity_id' => $entity->id]);
-    $category1 = TransactionCategory::factory()->create(['jurisdiction_id' => $entity->jurisdiction_id]);
-    $category2 = TransactionCategory::factory()->create(['jurisdiction_id' => $entity->jurisdiction_id]);
+    $category1 = TransactionCategory::factory()->create();
+    $category2 = TransactionCategory::factory()->create();
     $transaction = Transaction::factory()->create([
         'account_id' => $account->id,
         'category_id' => $category1->id,
