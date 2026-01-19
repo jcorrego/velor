@@ -19,8 +19,6 @@ new class extends Component
     
     public $jurisdiction_id = '';
     
-    public $entity_id = null;
-    
     public $income_or_expense = '';
     
     public $sort_order = 0;
@@ -36,11 +34,7 @@ new class extends Component
         $this->jurisdictions = Jurisdiction::all();
         
         $query = TransactionCategory::query()
-            ->where(function($q) {
-                $q->whereHas('entity', fn($query) => $query->where('user_id', auth()->id()))
-                  ->orWhereNull('entity_id');
-            })
-            ->with(['entity', 'jurisdiction', 'categoryTaxMappings']);
+            ->with(['jurisdiction', 'categoryTaxMappings']);
         
         if ($this->filterJurisdictionId) {
             $query->where('jurisdiction_id', $this->filterJurisdictionId);
@@ -56,44 +50,31 @@ new class extends Component
 
     public function save()
     {
-        $entityId = $this->entity_id ?: null;
-
         $this->validate([
             'name' => [
                 'required',
                 'string',
                 'max:255',
                 Rule::unique('transaction_categories', 'name')
-                    ->where(fn ($query) => $query
-                        ->where('jurisdiction_id', $this->jurisdiction_id)
-                        ->where('entity_id', $entityId)
-                    )
+                    ->where('jurisdiction_id', $this->jurisdiction_id)
                     ->ignore($this->editingId),
             ],
             'jurisdiction_id' => ['required', 'exists:jurisdictions,id'],
-            'entity_id' => ['nullable', 'exists:entities,id'],
             'income_or_expense' => ['required', Rule::in(['income', 'expense'])],
             'sort_order' => ['nullable', 'integer', 'min:0'],
         ], [
-            'name.unique' => 'A category with this name already exists for the selected jurisdiction and entity.',
+            'name.unique' => 'A category with this name already exists for the selected jurisdiction.',
         ]);
 
         $data = [
             'name' => $this->name,
             'jurisdiction_id' => $this->jurisdiction_id,
-            'entity_id' => $entityId,
             'income_or_expense' => $this->income_or_expense,
             'sort_order' => $this->sort_order ?? 0,
         ];
 
         if ($this->editingId) {
             $category = TransactionCategory::findOrFail($this->editingId);
-            
-            // Only allow editing if user owns the entity
-            if ($category->entity_id && $category->entity->user_id !== auth()->id()) {
-                abort(403);
-            }
-            
             $category->update($data);
             $message = 'Category updated successfully.';
         } else {
@@ -101,7 +82,7 @@ new class extends Component
             $message = 'Category created successfully.';
         }
 
-        $this->reset(['name', 'jurisdiction_id', 'entity_id', 'income_or_expense', 'sort_order', 'editingId']);
+        $this->reset(['name', 'jurisdiction_id', 'income_or_expense', 'sort_order', 'editingId']);
         $this->loadData();
         
         session()->flash('message', $message);
@@ -110,34 +91,23 @@ new class extends Component
     public function edit($id)
     {
         $category = TransactionCategory::findOrFail($id);
-        
-        // Only allow editing if user owns the entity
-        if ($category->entity_id && $category->entity->user_id !== auth()->id()) {
-            abort(403);
-        }
 
         $this->editingId = $category->id;
         $this->name = $category->name;
         $this->jurisdiction_id = $category->jurisdiction_id;
-        $this->entity_id = $category->entity_id;
         $this->income_or_expense = $category->income_or_expense;
         $this->sort_order = $category->sort_order;
     }
 
     public function cancel()
     {
-        $this->reset(['name', 'jurisdiction_id', 'entity_id', 'income_or_expense', 'sort_order', 'editingId']);
+        $this->reset(['name', 'jurisdiction_id', 'income_or_expense', 'sort_order', 'editingId']);
         $this->resetValidation();
     }
 
     public function delete($id)
     {
         $category = TransactionCategory::findOrFail($id);
-        
-        // Only allow deleting if user owns the entity
-        if ($category->entity_id && $category->entity->user_id !== auth()->id()) {
-            abort(403);
-        }
         
         // Check if category has transactions
         if ($category->transactions()->exists()) {
@@ -180,12 +150,6 @@ new class extends Component
                 @endforeach
             </flux:select>
 
-            <flux:select wire:model="entity_id" label="{{ __('Entity (Optional)') }}" placeholder="{{ __('All entities') }}">
-                <option value="">{{ __('-- Global Category --') }}</option>
-                @foreach($entities as $entity)
-                    <option value="{{ $entity->id }}">{{ $entity->name }}</option>
-                @endforeach
-            </flux:select>
 
             <flux:select wire:model="income_or_expense" label="{{ __('Transaction Type') }}" placeholder="{{ __('Select type') }}">
                 <option value="income">{{ __('Income') }}</option>
@@ -239,11 +203,6 @@ new class extends Component
                                 <flux:badge size="sm" :color="$category->income_or_expense === 'income' ? 'green' : ($category->income_or_expense === 'expense' ? 'red' : 'zinc')">
                                     {{ ucfirst($category->income_or_expense) }}
                                 </flux:badge>
-                                @if($category->entity_id)
-                                    <flux:badge size="sm" color="blue">{{ $category->entity->name }}</flux:badge>
-                                @else
-                                    <flux:badge size="sm" color="zinc">Global</flux:badge>
-                                @endif
                             </div>
                             <div class="mt-1 flex items-center gap-4 text-sm text-zinc-600 dark:text-zinc-400">
                                 <span>{{ $category->jurisdiction->name }}</span>

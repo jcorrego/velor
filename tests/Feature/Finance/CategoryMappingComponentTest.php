@@ -11,7 +11,6 @@ it('creates a tax mapping for a category', function () {
     $user = User::factory()->create();
     $entity = Entity::factory()->for($user)->create();
     $category = TransactionCategory::factory()
-        ->forEntity($entity)
         ->create([
             'jurisdiction_id' => $entity->jurisdiction_id,
         ]);

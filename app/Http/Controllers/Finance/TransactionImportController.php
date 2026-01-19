@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Finance;
 
+use App\Enums\Finance\ImportBatchStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Finance\ImportTransactionsRequest;
 use App\Models\Account;
+use App\Models\ImportBatch;
 use App\Services\Finance\TransactionImportService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -35,7 +37,7 @@ class TransactionImportController extends Controller
     }
 
     /**
-     * Confirm and import transactions.
+     * Confirm and create import batch for review (instead of directly importing).
      */
     public function store(Request $request, Account $account): JsonResponse
     {
@@ -57,15 +59,19 @@ class TransactionImportController extends Controller
 
         $matchResult = $this->importService->matchTransactions($parsed, $account);
 
-        // Import only non-duplicate transactions
-        $imported = $this->importService->importTransactions(
-            $matchResult['unmatched'],
-            $account,
-            $parserType
-        );
+        // Create import batch with parsed transactions for review
+        $batch = ImportBatch::create([
+            'account_id' => $account->id,
+            'status' => ImportBatchStatus::Pending,
+            'proposed_transactions' => $matchResult['unmatched'],
+            'transaction_count' => count($matchResult['unmatched']),
+        ]);
 
         return response()->json([
-            'imported' => $imported,
+            'batch_id' => $batch->id,
+            'transaction_count' => count($matchResult['unmatched']),
+            'duplicates' => $matchResult['duplicates'],
+            'message' => 'Import batch created successfully. Please review and approve in the Import Review queue.',
         ]);
     }
 

@@ -28,18 +28,12 @@ class StoreTransactionCategoryRequest extends FormRequest
                 'string',
                 'max:255',
                 Rule::unique('transaction_categories', 'name')
-                    ->where('jurisdiction_id', $this->input('jurisdiction_id'))
-                    ->where('entity_id', $this->input('entity_id')),
+                    ->where('jurisdiction_id', $this->input('jurisdiction_id')),
             ],
             'jurisdiction_id' => [
                 'required',
                 'integer',
                 'exists:jurisdictions,id',
-            ],
-            'entity_id' => [
-                'required',
-                'integer',
-                'exists:entities,id',
             ],
             'income_or_expense' => [
                 'required',
@@ -67,8 +61,6 @@ class StoreTransactionCategoryRequest extends FormRequest
             'name.max' => 'The category name must not exceed 255 characters.',
             'jurisdiction_id.required' => 'The jurisdiction is required.',
             'jurisdiction_id.exists' => 'The selected jurisdiction does not exist.',
-            'entity_id.required' => 'The entity is required.',
-            'entity_id.exists' => 'The selected entity does not exist.',
             'income_or_expense.required' => 'The income or expense type is required.',
             'income_or_expense.in' => 'The income or expense type must be either income or expense.',
             'sort_order.integer' => 'The sort order must be an integer.',

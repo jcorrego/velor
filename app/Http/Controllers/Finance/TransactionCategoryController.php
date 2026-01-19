@@ -18,14 +18,14 @@ class TransactionCategoryController extends Controller
      */
     public function index(Request $request): AnonymousResourceCollection
     {
-        $query = $this->filterByUser(TransactionCategory::query());
+        $query = TransactionCategory::query();
 
         if ($request->has('jurisdiction_id')) {
             $query->where('jurisdiction_id', $request->input('jurisdiction_id'));
         }
 
         $categories = $query
-            ->with(['jurisdiction', 'entity', 'taxMappings'])
+            ->with(['jurisdiction', 'taxMappings'])
             ->paginate(20);
 
         return TransactionCategoryResource::collection($categories);
@@ -39,7 +39,7 @@ class TransactionCategoryController extends Controller
         $category = TransactionCategory::create($request->validated());
 
         return response()->json(
-            new TransactionCategoryResource($category->load(['jurisdiction', 'entity', 'taxMappings'])),
+            new TransactionCategoryResource($category->load(['jurisdiction', 'taxMappings'])),
             201
         );
     }
@@ -49,10 +49,8 @@ class TransactionCategoryController extends Controller
      */
     public function show(TransactionCategory $transactionCategory): JsonResponse
     {
-        $this->ensureUserOwnsCategory($transactionCategory);
-
         return response()->json(
-            new TransactionCategoryResource($transactionCategory->load(['jurisdiction', 'entity', 'taxMappings']))
+            new TransactionCategoryResource($transactionCategory->load(['jurisdiction', 'taxMappings']))
         );
     }
 
@@ -61,12 +59,10 @@ class TransactionCategoryController extends Controller
      */
     public function update(UpdateTransactionCategoryRequest $request, TransactionCategory $transactionCategory): JsonResponse
     {
-        $this->ensureUserOwnsCategory($transactionCategory);
-
         $transactionCategory->update($request->validated());
 
         return response()->json(
-            new TransactionCategoryResource($transactionCategory->load(['jurisdiction', 'entity', 'taxMappings']))
+            new TransactionCategoryResource($transactionCategory->load(['jurisdiction', 'taxMappings']))
         );
     }
 
@@ -75,8 +71,6 @@ class TransactionCategoryController extends Controller
      */
     public function destroy(TransactionCategory $transactionCategory): JsonResponse
     {
-        $this->ensureUserOwnsCategory($transactionCategory);
-
         if ($transactionCategory->transactions()->exists()) {
             return response()->json(
                 ['message' => 'Cannot delete category with existing transactions'],
@@ -87,25 +81,5 @@ class TransactionCategoryController extends Controller
         $transactionCategory->delete();
 
         return response()->json(status: 204);
-    }
-
-    /**
-     * Filter categories by authenticated user.
-     */
-    private function filterByUser($query)
-    {
-        return $query->whereHas('entity', function ($q) {
-            $q->where('user_id', auth()->id());
-        });
-    }
-
-    /**
-     * Ensure the authenticated user owns the category.
-     */
-    private function ensureUserOwnsCategory(TransactionCategory $category): void
-    {
-        if ($category->entity->user_id !== auth()->id()) {
-            abort(403);
-        }
     }
 }

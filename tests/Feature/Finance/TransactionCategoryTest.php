@@ -16,7 +16,7 @@ test('list categories', function () {
 
     TransactionCategory::factory()
         ->count(10)
-        ->create(['entity_id' => $entity->id]);
+        ->create(['jurisdiction_id' => $entity->jurisdiction_id]);
 
     $response = $this->actingAs($user)->getJson('/api/transaction-categories');
 
@@ -33,14 +33,12 @@ test('filter by jurisdiction_id', function () {
     TransactionCategory::factory()
         ->count(5)
         ->create([
-            'entity_id' => $entity->id,
             'jurisdiction_id' => $jurisdiction1->id,
         ]);
 
     TransactionCategory::factory()
         ->count(3)
         ->create([
-            'entity_id' => $entity->id,
             'jurisdiction_id' => $jurisdiction2->id,
         ]);
 
@@ -58,7 +56,6 @@ test('create category with valid jurisdiction and entity', function () {
     $data = [
         'name' => 'Business Expenses',
         'jurisdiction_id' => $jurisdiction->id,
-        'entity_id' => $entity->id,
         'income_or_expense' => 'expense',
         'sort_order' => 10,
     ];
@@ -79,13 +76,11 @@ test('validation fails with duplicate name for same jurisdiction entity', functi
     TransactionCategory::factory()->create([
         'name' => 'Rental Income',
         'jurisdiction_id' => $jurisdiction->id,
-        'entity_id' => $entity->id,
     ]);
 
     $data = [
         'name' => 'Rental Income',
         'jurisdiction_id' => $jurisdiction->id,
-        'entity_id' => $entity->id,
         'income_or_expense' => 'income',
     ];
 
@@ -98,7 +93,7 @@ test('validation fails with duplicate name for same jurisdiction entity', functi
 test('view category with tax mappings', function () {
     $user = User::factory()->create();
     $entity = Entity::factory()->create(['user_id' => $user->id]);
-    $category = TransactionCategory::factory()->create(['entity_id' => $entity->id]);
+    $category = TransactionCategory::factory()->create(['jurisdiction_id' => $entity->jurisdiction_id]);
 
     $response = $this->actingAs($user)->getJson("/api/transaction-categories/{$category->id}");
 
@@ -109,7 +104,6 @@ test('view category with tax mappings', function () {
             'id',
             'name',
             'jurisdiction_id',
-            'entity_id',
             'taxMappings',
         ]);
 });
@@ -118,7 +112,7 @@ test('update category', function () {
     $user = User::factory()->create();
     $entity = Entity::factory()->create(['user_id' => $user->id]);
     $category = TransactionCategory::factory()->create([
-        'entity_id' => $entity->id,
+        'jurisdiction_id' => $entity->jurisdiction_id,
         'name' => 'Old Category Name',
         'sort_order' => 5,
     ]);
@@ -140,7 +134,7 @@ test('update category', function () {
 test('cannot delete category if transactions exist', function () {
     $user = User::factory()->create();
     $entity = Entity::factory()->create(['user_id' => $user->id]);
-    $category = TransactionCategory::factory()->create(['entity_id' => $entity->id]);
+    $category = TransactionCategory::factory()->create(['jurisdiction_id' => $entity->jurisdiction_id]);
     $account = Account::factory()->create(['entity_id' => $entity->id]);
 
     Transaction::factory()->create([
@@ -161,7 +155,7 @@ test('cannot delete category if transactions exist', function () {
 test('can delete category without transactions', function () {
     $user = User::factory()->create();
     $entity = Entity::factory()->create(['user_id' => $user->id]);
-    $category = TransactionCategory::factory()->create(['entity_id' => $entity->id]);
+    $category = TransactionCategory::factory()->create(['jurisdiction_id' => $entity->jurisdiction_id]);
 
     $response = $this->actingAs($user)->deleteJson("/api/transaction-categories/{$category->id}");
 

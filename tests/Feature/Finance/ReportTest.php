@@ -17,13 +17,13 @@ it('returns rental property report summary', function () {
     $account = Account::factory()->create(['entity_id' => $entity->id]);
 
     $incomeCategory = TransactionCategory::factory()->create([
-        'entity_id' => $entity->id,
+        'jurisdiction_id' => $entity->jurisdiction_id,
         'income_or_expense' => 'income',
         'name' => 'Rental Income',
     ]);
 
     $expenseCategory = TransactionCategory::factory()->create([
-        'entity_id' => $entity->id,
+        'jurisdiction_id' => $entity->jurisdiction_id,
         'income_or_expense' => 'expense',
         'name' => 'Rental Maintenance',
     ]);

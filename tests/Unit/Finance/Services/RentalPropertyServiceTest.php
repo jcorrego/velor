@@ -18,7 +18,7 @@ test('getAnnualRentalIncome calculates income for year', function () {
 
     $rentalIncomeCategory = TransactionCategory::factory()
         ->rentalIncome()
-        ->create(['entity_id' => $entity->id]);
+        ->create(['jurisdiction_id' => $entity->jurisdiction_id]);
 
     Transaction::factory()
         ->income()
@@ -53,7 +53,7 @@ test('getAnnualRentalExpenses calculates expenses for year', function () {
 
     $maintenanceCategory = TransactionCategory::factory()
         ->propertyMaintenance()
-        ->create(['entity_id' => $entity->id]);
+        ->create(['jurisdiction_id' => $entity->jurisdiction_id]);
 
     Transaction::factory()
         ->expense()
@@ -102,11 +102,11 @@ test('calculateNetRentalIncome subtracts income minus expenses minus depreciatio
 
     $incomeCategory = TransactionCategory::factory()
         ->rentalIncome()
-        ->create(['entity_id' => $entity->id]);
+        ->create(['jurisdiction_id' => $entity->jurisdiction_id]);
 
     $expenseCategory = TransactionCategory::factory()
         ->propertyMaintenance()
-        ->create(['entity_id' => $entity->id]);
+        ->create(['jurisdiction_id' => $entity->jurisdiction_id]);
 
     Transaction::factory()
         ->income()

@@ -117,7 +117,7 @@ it('detects duplicate transactions in preview', function () {
         ]);
 });
 
-it('can confirm and import transactions', function () {
+it('can confirm and create import batch', function () {
     Storage::fake('local');
 
     $csvContent = "Fecha;Movimiento;Cantidad;Saldo;Referencia\n17/01/2025;Payment received;1500,00;7500,00;REF123\n16/01/2025;Software subscription;-29,99;6000,00;REF456";
@@ -129,17 +129,24 @@ it('can confirm and import transactions', function () {
             'parser_type' => 'santander',
         ])
         ->assertOk()
+        ->assertJsonStructure([
+            'batch_id',
+            'transaction_count',
+            'duplicates',
+            'message',
+        ])
         ->assertJson([
-            'imported' => 2,
+            'transaction_count' => 2,
+            'duplicates' => 0,
         ]);
 
-    expect(Transaction::count())->toBe(2);
-    expect($this->account->transactions()->count())->toBe(2);
+    // Batch should be created but transactions not yet imported
+    expect(\App\Models\ImportBatch::count())->toBe(1);
+    expect(Transaction::count())->toBe(0);
 
-    $firstTransaction = $this->account->transactions()->where('original_amount', 1500.00)->first();
-    expect($firstTransaction)->not->toBeNull();
-    expect($firstTransaction->description)->toBe('Payment received');
-    expect($firstTransaction->transaction_date->format('Y-m-d'))->toBe('2025-01-17');
+    $batch = \App\Models\ImportBatch::first();
+    expect($batch->status->value)->toBe('pending');
+    expect($batch->proposed_transactions)->toHaveCount(2);
 });
 
 it('validates file upload', function () {

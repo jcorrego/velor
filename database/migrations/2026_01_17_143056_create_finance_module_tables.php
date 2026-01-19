@@ -81,11 +81,10 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->foreignId('jurisdiction_id')->constrained('jurisdictions');
-            $table->foreignId('entity_id')->constrained('entities');
             $table->enum('income_or_expense', ['income', 'expense']);
             $table->integer('sort_order')->default(0);
             $table->timestamps();
-            $table->unique(['jurisdiction_id', 'entity_id', 'name']);
+            $table->unique(['jurisdiction_id', 'name']);
         });
 
         // Transactions
@@ -161,6 +160,8 @@ return new class extends Migration
         Schema::dropIfExists('transaction_categories');
         Schema::dropIfExists('asset_valuations');
         Schema::dropIfExists('assets');
+        // Drop import_mapping_profiles if it exists (from a missing migration)
+        Schema::dropIfExists('import_mapping_profiles');
         Schema::dropIfExists('accounts');
         Schema::dropIfExists('fx_rates');
         Schema::dropIfExists('currencies');

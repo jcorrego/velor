@@ -1,6 +1,8 @@
 <?php
 
+use App\Enums\Finance\ImportBatchStatus;
 use App\Models\Account;
+use App\Models\ImportBatch;
 use App\Services\Finance\TransactionImportService;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
@@ -118,21 +120,21 @@ new class extends Component
         }
 
         try {
-            $service = app(TransactionImportService::class);
+            // Create import batch for review instead of directly importing
+            $batch = ImportBatch::create([
+                'account_id' => $this->account->id,
+                'status' => ImportBatchStatus::Pending,
+                'proposed_transactions' => $this->previewData['unmatched'],
+                'transaction_count' => count($this->previewData['unmatched']),
+            ]);
 
-            $count = $service->importTransactions(
-                $this->previewData['unmatched'],
-                $this->account,
-                $this->parserType
-            );
-
-            $this->importedCount = $count;
+            $this->importedCount = $batch->transaction_count;
             $this->showSuccess = true;
             $this->reset(['file', 'parserType', 'previewData']);
 
             $this->dispatch('transactions-imported');
         } catch (\Exception $e) {
-            $this->addError('file', 'Error importing transactions: '.$e->getMessage());
+            $this->addError('file', 'Error creating import batch: '.$e->getMessage());
         }
     }
 
@@ -170,7 +172,7 @@ new class extends Component
 <div>
     @if($showSuccess)
         <flux:callout variant="success" class="mb-6">
-            Successfully imported {{ $importedCount }} transaction(s)!
+            Successfully created import batch with {{ $importedCount }} transaction(s)! The batch is now pending review.
             <flux:button size="sm" variant="ghost" wire:click="resetForm" class="ml-2">
                 Import More
             </flux:button>
@@ -252,6 +254,9 @@ new class extends Component
                                             @if($transaction['counterparty'])
                                                 • {{ $transaction['counterparty'] }}
                                             @endif
+                                            @if($transaction['category_name'])
+                                                • <span class="text-blue-600 dark:text-blue-400">{{ $transaction['category_name'] }}</span>
+                                            @endif
                                         </div>
                                     </div>
                                     <div class="text-right">
@@ -298,10 +303,10 @@ new class extends Component
                         :disabled="count($previewData['unmatched']) === 0"
                     >
                         <span wire:loading.remove wire:target="import">
-                            Import {{ $previewData['new'] }} Transaction(s)
+                            Create Batch for Review ({{ $previewData['new'] }} Transaction(s))
                         </span>
                         <span wire:loading wire:target="import">
-                            Importing...
+                            Creating Batch...
                         </span>
                     </flux:button>
 
