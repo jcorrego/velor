@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\Finance\TaxFormCode;
 use App\Finance\Services\UsTaxReportingService;
 use App\Models\Account;
 use App\Models\Asset;
@@ -222,6 +223,13 @@ test('getScheduleERentalSummary calculates rental income', function () {
         ->rentalIncome()
         ->create();
 
+    CategoryTaxMapping::create([
+        'category_id' => $rentalIncomeCategory->id,
+        'tax_form_code' => TaxFormCode::ScheduleE->value,
+        'line_item' => 'line_1',
+        'country' => 'USA',
+    ]);
+
     Transaction::factory()->income()->create([
         'account_id' => $account->id,
         'category_id' => $rentalIncomeCategory->id,
@@ -266,11 +274,25 @@ test('getScheduleERentalSummary groups expenses by category', function () {
             'income_or_expense' => 'expense',
         ]);
 
+    CategoryTaxMapping::create([
+        'category_id' => $maintenanceCategory->id,
+        'tax_form_code' => TaxFormCode::ScheduleE->value,
+        'line_item' => 'line_18',
+        'country' => 'USA',
+    ]);
+
     $utilitiesCategory = TransactionCategory::factory()
         ->create([
             'name' => 'Rental Utilities',
             'income_or_expense' => 'expense',
         ]);
+
+    CategoryTaxMapping::create([
+        'category_id' => $utilitiesCategory->id,
+        'tax_form_code' => TaxFormCode::ScheduleE->value,
+        'line_item' => 'line_18',
+        'country' => 'USA',
+    ]);
 
     Transaction::factory()->expense()->create([
         'account_id' => $account->id,
@@ -315,6 +337,13 @@ test('getScheduleERentalSummary calculates total expenses', function () {
         ->propertyMaintenance()
         ->create();
 
+    CategoryTaxMapping::create([
+        'category_id' => $expenseCategory->id,
+        'tax_form_code' => TaxFormCode::ScheduleE->value,
+        'line_item' => 'line_18',
+        'country' => 'USA',
+    ]);
+
     Transaction::factory()->expense()->create([
         'account_id' => $account->id,
         'category_id' => $expenseCategory->id,
@@ -357,9 +386,23 @@ test('getScheduleERentalSummary calculates net income', function () {
         ->rentalIncome()
         ->create();
 
+    CategoryTaxMapping::create([
+        'category_id' => $incomeCategory->id,
+        'tax_form_code' => TaxFormCode::ScheduleE->value,
+        'line_item' => 'line_1',
+        'country' => 'USA',
+    ]);
+
     $expenseCategory = TransactionCategory::factory()
         ->propertyMaintenance()
         ->create();
+
+    CategoryTaxMapping::create([
+        'category_id' => $expenseCategory->id,
+        'tax_form_code' => TaxFormCode::ScheduleE->value,
+        'line_item' => 'line_18',
+        'country' => 'USA',
+    ]);
 
     Transaction::factory()->income()->create([
         'account_id' => $account->id,
@@ -406,6 +449,13 @@ test('getScheduleERentalSummary filters income by asset entity', function () {
         ->rentalIncome()
         ->create();
 
+    CategoryTaxMapping::create([
+        'category_id' => $incomeCategory->id,
+        'tax_form_code' => TaxFormCode::ScheduleE->value,
+        'line_item' => 'line_1',
+        'country' => 'USA',
+    ]);
+
     // Income from asset's entity - should be included
     Transaction::factory()->income()->create([
         'account_id' => $account1->id,
@@ -451,6 +501,13 @@ test('getScheduleERentalSummary filters expenses by asset entity', function () {
     $expenseCategory = TransactionCategory::factory()
         ->propertyMaintenance()
         ->create();
+
+    CategoryTaxMapping::create([
+        'category_id' => $expenseCategory->id,
+        'tax_form_code' => TaxFormCode::ScheduleE->value,
+        'line_item' => 'line_18',
+        'country' => 'USA',
+    ]);
 
     // Expense from asset's entity - should be included
     Transaction::factory()->expense()->create([

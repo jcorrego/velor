@@ -20,10 +20,10 @@ Rule-based category-to-tax-form mapping provides:
 - Form 5472 only shows `RelatedPartyTransaction` - no category mapping
 
 ### Proposed Solution
-1. **Add `tax_form_mappings` table**:
-   - Links `transaction_category_id` → `filing_type_id` + `line_item` 
+1. **Use existing `category_tax_mappings` table**:
+   - Links `category_id` → `tax_form_code` + `line_item`
    - Supports multiple mappings per category
-   - Jurisdiction-aware
+   - Country-aware
 
 2. **Update tax reporting services**:
    - Replace `LIKE '%rental%'` filters with category mapping lookups
@@ -37,9 +37,8 @@ Rule-based category-to-tax-form mapping provides:
 
 ### Implementation Phases
 **Phase 1: Database & Core Logic** (MVP)
-- Create `tax_form_mappings` migration
 - Update `UsTaxReportingService` to use mappings instead of `LIKE` filters
-- Seed default mappings for existing categories
+- Seed default mappings for existing categories (as needed)
 
 **Phase 2: UI & Validation** (Future)
 - Add category mapping configuration UI
@@ -49,8 +48,6 @@ Rule-based category-to-tax-form mapping provides:
 ## Impact
 - **Affected specs**: `tax-form-mapping` (already exists)
 - **Affected code**:
-  - `app/Finance/Services/UsTaxReportingService.php` - Replace LIKE filters
-  - New migration: `create_tax_form_mappings_table`  
-  - New model: `app/Models/TaxFormMapping.php`
-  - Seeder updates: Add default mappings
+- `app/Finance/Services/UsTaxReportingService.php` - Replace LIKE filters
+- Seeder updates: Add default mappings
 - **Breaking changes**: None - existing categories will be migrated with default mappings

@@ -3,6 +3,7 @@
 namespace App\Finance\Services;
 
 use App\Models\Asset;
+use App\Models\CategoryTaxMapping;
 use App\Models\Currency;
 use App\Models\Entity;
 use App\Models\Transaction;
@@ -45,14 +46,18 @@ class UsTaxReportingService
     public function getScheduleERentalSummary(Asset $asset, int $taxYear): array
     {
         $usdCurrency = Currency::where('code', 'USD')->firstOrFail();
+        $scheduleEMappingCategoryIds = CategoryTaxMapping::query()
+            ->where('tax_form_code', 'schedule_e')
+            ->where('country', 'USA')
+            ->pluck('category_id');
 
         // Get rental income transactions
         $incomeTransactions = Transaction::query()
-            ->whereIn('category_id', function ($query) {
+            ->whereIn('category_id', function ($query) use ($scheduleEMappingCategoryIds) {
                 $query->select('id')
                     ->from('transaction_categories')
                     ->where('income_or_expense', 'income')
-                    ->where('name', 'like', '%rental%');
+                    ->whereIn('id', $scheduleEMappingCategoryIds);
             })
             ->whereIn('account_id', function ($query) use ($asset) {
                 $query->select('id')
@@ -69,11 +74,11 @@ class UsTaxReportingService
         // Get expenses grouped by category
         $expenses = Transaction::query()
             ->join('transaction_categories', 'transactions.category_id', '=', 'transaction_categories.id')
-            ->whereIn('transactions.category_id', function ($query) {
+            ->whereIn('transactions.category_id', function ($query) use ($scheduleEMappingCategoryIds) {
                 $query->select('id')
                     ->from('transaction_categories')
                     ->where('income_or_expense', 'expense')
-                    ->where('name', 'like', '%rental%');
+                    ->whereIn('id', $scheduleEMappingCategoryIds);
             })
             ->whereIn('transactions.account_id', function ($query) use ($asset) {
                 $query->select('id')
@@ -115,7 +120,7 @@ class UsTaxReportingService
             'rental_income' => $rentalIncome,
             'expenses_by_category' => $expensesByCategory,
             'total_expenses' => $totalExpenses,
-            'net_income' => $rentalIncome - $totalExpenses,
+            'net_income' => $rentalIncome + $totalExpenses,
         ];
     }
 
@@ -138,7 +143,7 @@ class UsTaxReportingService
                     ->from('category_tax_mappings')
                     ->whereColumn('category_tax_mappings.category_id', 'transactions.category_id')
                     ->where('category_tax_mappings.tax_form_code', 'form_5472');
-                
+
                 if ($lineItem) {
                     $subQuery->where('category_tax_mappings.line_item', $lineItem);
                 }
