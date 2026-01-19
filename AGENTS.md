@@ -22,11 +22,9 @@ Keep this managed block so 'openspec update' can refresh the instructions.
 
 # Git Workflow
 
-- Always use a new branch per proposed change (align with OpenSpec change IDs when possible)
-- git pull from main, and create branch from main before starting to implement the change
-- After archiving the proposal, commit, push and create PR to main using gh cli.
+- Use a branch per proposed change (align with OpenSpec change IDs when possible)
+- Open a PR for each change branch
 - Keep commits small and focused; avoid amending unless requested
-- Dont include any co-author information in the commits
 
 === .ai/laravel rules ===
 
@@ -41,7 +39,7 @@ The Laravel Boost guidelines are specifically curated by Laravel maintainers for
 ## Foundational Context
 This application is a Laravel application and its main Laravel ecosystems package & versions are below. You are an expert with them all. Ensure you abide by these specific packages & versions.
 
-- php - 8.5.2
+- php - 8.4.17
 - laravel/fortify (FORTIFY) - v1
 - laravel/framework (LARAVEL) - v12
 - laravel/prompts (PROMPTS) - v0
