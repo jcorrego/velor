@@ -12,7 +12,6 @@ it('resolves manual category overrides by id or name', function () {
     $account = Account::factory()->for($entity)->create();
 
     $category = TransactionCategory::factory()
-        ->forEntity($entity)
         ->create([
             'jurisdiction_id' => $entity->jurisdiction_id,
             'name' => 'Software',
@@ -38,7 +37,6 @@ it('matches categories using regex rules', function () {
     $account = Account::factory()->for($entity)->create();
 
     $category = TransactionCategory::factory()
-        ->forEntity($entity)
         ->create([
             'jurisdiction_id' => $entity->jurisdiction_id,
             'name' => 'Software',
@@ -67,7 +65,6 @@ it('uses configured rules when none are provided', function () {
     $account = Account::factory()->for($entity)->create();
 
     $category = TransactionCategory::factory()
-        ->forEntity($entity)
         ->create([
             'jurisdiction_id' => $entity->jurisdiction_id,
             'name' => 'Consulting Income',

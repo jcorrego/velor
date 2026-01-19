@@ -90,7 +90,7 @@ class Asset extends Model
     public function getRentalIncomeCategories()
     {
         return TransactionCategory::query()
-            ->where('entity_id', $this->entity_id)
+            ->where('jurisdiction_id', $this->entity->jurisdiction_id)
             ->where('income_or_expense', 'income')
             ->where('name', 'like', '%rental%')
             ->get();
@@ -102,7 +102,7 @@ class Asset extends Model
     public function getRentalExpenseCategories()
     {
         return TransactionCategory::query()
-            ->where('entity_id', $this->entity_id)
+            ->where('jurisdiction_id', $this->entity->jurisdiction_id)
             ->where('income_or_expense', 'expense')
             ->where('name', 'like', '%rental%')
             ->get();

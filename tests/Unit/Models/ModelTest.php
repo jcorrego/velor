@@ -65,7 +65,6 @@ it('defines model relationships', function (string $modelClass, string $relation
     [TaxYear::class, 'jurisdiction', BelongsTo::class, Jurisdiction::class],
     [TaxYear::class, 'filings', HasMany::class, Filing::class],
     [TransactionCategory::class, 'jurisdiction', BelongsTo::class, Jurisdiction::class],
-    [TransactionCategory::class, 'entity', BelongsTo::class, Entity::class],
     [TransactionCategory::class, 'transactions', HasMany::class, Transaction::class],
     [TransactionCategory::class, 'taxMappings', HasMany::class, CategoryTaxMapping::class],
     [TransactionCategory::class, 'categoryTaxMappings', HasMany::class, CategoryTaxMapping::class],

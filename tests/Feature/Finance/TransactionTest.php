@@ -62,7 +62,7 @@ test('create multi-currency transaction with FX conversion', function () {
         'entity_id' => $entity->id,
         'currency_id' => $eur->id,
     ]);
-    $category = TransactionCategory::factory()->create(['entity_id' => $entity->id]);
+    $category = TransactionCategory::factory()->create(['jurisdiction_id' => $entity->jurisdiction_id]);
 
     // Clear any cached FX rates
     Cache::flush();
@@ -98,7 +98,7 @@ test('validation fails with invalid amount zero', function () {
     $user = User::factory()->create();
     $entity = Entity::factory()->create(['user_id' => $user->id]);
     $account = Account::factory()->create(['entity_id' => $entity->id]);
-    $category = TransactionCategory::factory()->create(['entity_id' => $entity->id]);
+    $category = TransactionCategory::factory()->create(['jurisdiction_id' => $entity->jurisdiction_id]);
 
     $data = [
         'transaction_date' => '2024-01-15',
@@ -161,8 +161,8 @@ test('update transaction category', function () {
     $user = User::factory()->create();
     $entity = Entity::factory()->create(['user_id' => $user->id]);
     $account = Account::factory()->create(['entity_id' => $entity->id]);
-    $category1 = TransactionCategory::factory()->create(['entity_id' => $entity->id]);
-    $category2 = TransactionCategory::factory()->create(['entity_id' => $entity->id]);
+    $category1 = TransactionCategory::factory()->create(['jurisdiction_id' => $entity->jurisdiction_id]);
+    $category2 = TransactionCategory::factory()->create(['jurisdiction_id' => $entity->jurisdiction_id]);
     $transaction = Transaction::factory()->create([
         'account_id' => $account->id,
         'category_id' => $category1->id,
