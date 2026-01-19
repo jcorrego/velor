@@ -12,52 +12,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Step 1: Create Form 5472 categories if they don't exist
-        $form5472Categories = [
-            ['name' => 'Owner Contribution', 'income_or_expense' => 'income', 'line_item' => 'owner_contribution'],
-            ['name' => 'Owner Draw', 'income_or_expense' => 'expense', 'line_item' => 'owner_draw'],
-            ['name' => 'Personal Spending', 'income_or_expense' => 'expense', 'line_item' => 'personal_spending'],
-            ['name' => 'Reimbursement', 'income_or_expense' => 'income', 'line_item' => 'reimbursement'],
-        ];
+        // Step 1: Migrate existing related_party_transactions to transactions table
+        // Note: This migration only handles existing data. For new installations,
+        // the Form 5472 categories and mappings are created by the seeder.
+        if (! Schema::hasTable('related_party_transactions')) {
+            return;
+        }
 
+        // Build a mapping of line_item to category_id for existing Form 5472 mappings
         $categoryMappings = [];
-        foreach ($form5472Categories as $categoryData) {
-            // Get or create category
-            $category = DB::table('transaction_categories')
-                ->where('name', $categoryData['name'])
-                ->first();
+        $form5472Mappings = DB::table('category_tax_mappings')
+            ->where('tax_form_code', 'form_5472')
+            ->get();
 
-            if (! $category) {
-                $categoryId = DB::table('transaction_categories')->insertGetId([
-                    'name' => $categoryData['name'],
-                    'income_or_expense' => $categoryData['income_or_expense'],
-                    'sort_order' => 0,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-            } else {
-                $categoryId = $category->id;
-            }
-
-            $categoryMappings[$categoryData['line_item']] = $categoryId;
-
-            // Create Form 5472 tax mapping if it doesn't exist
-            $exists = DB::table('category_tax_mappings')
-                ->where('category_id', $categoryId)
-                ->where('tax_form_code', 'form_5472')
-                ->where('line_item', $categoryData['line_item'])
-                ->exists();
-
-            if (! $exists) {
-                DB::table('category_tax_mappings')->insert([
-                    'category_id' => $categoryId,
-                    'tax_form_code' => 'form_5472',
-                    'line_item' => $categoryData['line_item'],
-                    'country' => 'USA',
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-            }
+        foreach ($form5472Mappings as $mapping) {
+            $categoryMappings[$mapping->line_item] = $mapping->category_id;
         }
 
         // Step 2: Migrate related_party_transactions to transactions table

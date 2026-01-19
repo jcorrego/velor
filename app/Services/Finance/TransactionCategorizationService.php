@@ -13,9 +13,7 @@ class TransactionCategorizationService
      */
     public function resolveCategoryId(array $transaction, Account $account, ?array $rules = null): ?int
     {
-        $categories = TransactionCategory::query()
-            ->where('jurisdiction_id', $account->entity->jurisdiction_id)
-            ->get();
+        $categories = TransactionCategory::all();
 
         if ($categories->isEmpty()) {
             return null;

@@ -50,7 +50,7 @@ it('aggregates totals by category for a tax year and jurisdiction', function () 
     ]);
 
     $service = new TransactionCategoryService;
-    $result = $service->aggregateByCategory(2024, $jurisdiction->id);
+    $result = $service->aggregateByCategory(2024);
 
     expect($result)->toHaveCount(2)
         ->and(collect($result)->pluck('total')->sum())->toBe(1500.0);

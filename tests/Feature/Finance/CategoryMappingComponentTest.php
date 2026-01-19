@@ -14,6 +14,8 @@ it('creates a tax mapping for a category', function () {
 
     $this->actingAs($user);
 
+    $initialCount = CategoryTaxMapping::query()->count();
+
     Livewire::test('finance.category-mapping')
         ->set('category_id', $category->id)
         ->set('tax_form_code', TaxFormCode::ScheduleE->value)
@@ -22,6 +24,6 @@ it('creates a tax mapping for a category', function () {
         ->call('save')
         ->assertHasNoErrors();
 
-    expect(CategoryTaxMapping::query()->count())->toBe(1)
-        ->and(CategoryTaxMapping::query()->first()->category_id)->toBe($category->id);
+    expect(CategoryTaxMapping::query()->count())->toBe($initialCount + 1)
+        ->and(CategoryTaxMapping::query()->where('category_id', $category->id)->first()->category_id)->toBe($category->id);
 });

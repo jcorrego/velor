@@ -18,13 +18,18 @@ test('getOwnerFlowSummary calculates contributions for tax year', function () {
     $account = Account::factory()->create(['entity_id' => $entity->id]);
 
     // Create category and Form 5472 mapping for owner contributions
-    $contributionCategory = TransactionCategory::factory()->income()->create(['name' => 'Owner Contribution']);
-    CategoryTaxMapping::factory()->create([
-        'category_id' => $contributionCategory->id,
-        'tax_form_code' => 'form_5472',
-        'line_item' => 'owner_contribution',
-        'country' => 'USA',
-    ]);
+    $contributionCategory = TransactionCategory::firstOrCreate(
+        ['name' => 'Owner Contribution'],
+        ['income_or_expense' => 'income', 'sort_order' => 100]
+    );
+    CategoryTaxMapping::firstOrCreate(
+        [
+            'category_id' => $contributionCategory->id,
+            'tax_form_code' => 'form_5472',
+            'line_item' => 'owner_contribution',
+        ],
+        ['country' => 'USA']
+    );
 
     Transaction::factory()->income()->create([
         'account_id' => $account->id,
@@ -54,13 +59,18 @@ test('getOwnerFlowSummary calculates draws for tax year', function () {
     $account = Account::factory()->create(['entity_id' => $entity->id]);
 
     // Create category and Form 5472 mapping for owner draws
-    $drawCategory = TransactionCategory::factory()->expense()->create(['name' => 'Owner Draw']);
-    CategoryTaxMapping::factory()->create([
-        'category_id' => $drawCategory->id,
-        'tax_form_code' => 'form_5472',
-        'line_item' => 'owner_draw',
-        'country' => 'USA',
-    ]);
+    $drawCategory = TransactionCategory::firstOrCreate(
+        ['name' => 'Owner Draw'],
+        ['income_or_expense' => 'expense', 'sort_order' => 101]
+    );
+    CategoryTaxMapping::firstOrCreate(
+        [
+            'category_id' => $drawCategory->id,
+            'tax_form_code' => 'form_5472',
+            'line_item' => 'owner_draw',
+        ],
+        ['country' => 'USA']
+    );
 
     Transaction::factory()->expense()->create([
         'account_id' => $account->id,
@@ -90,29 +100,44 @@ test('getOwnerFlowSummary calculates total related party transactions', function
     $account = Account::factory()->create(['entity_id' => $entity->id]);
 
     // Create categories and Form 5472 mappings
-    $contributionCategory = TransactionCategory::factory()->income()->create(['name' => 'Owner Contribution']);
-    CategoryTaxMapping::factory()->create([
-        'category_id' => $contributionCategory->id,
-        'tax_form_code' => 'form_5472',
-        'line_item' => 'owner_contribution',
-        'country' => 'USA',
-    ]);
+    $contributionCategory = TransactionCategory::firstOrCreate(
+        ['name' => 'Owner Contribution'],
+        ['income_or_expense' => 'income', 'sort_order' => 100]
+    );
+    CategoryTaxMapping::firstOrCreate(
+        [
+            'category_id' => $contributionCategory->id,
+            'tax_form_code' => 'form_5472',
+            'line_item' => 'owner_contribution',
+        ],
+        ['country' => 'USA']
+    );
 
-    $drawCategory = TransactionCategory::factory()->expense()->create(['name' => 'Owner Draw']);
-    CategoryTaxMapping::factory()->create([
-        'category_id' => $drawCategory->id,
-        'tax_form_code' => 'form_5472',
-        'line_item' => 'owner_draw',
-        'country' => 'USA',
-    ]);
+    $drawCategory = TransactionCategory::firstOrCreate(
+        ['name' => 'Owner Draw'],
+        ['income_or_expense' => 'expense', 'sort_order' => 101]
+    );
+    CategoryTaxMapping::firstOrCreate(
+        [
+            'category_id' => $drawCategory->id,
+            'tax_form_code' => 'form_5472',
+            'line_item' => 'owner_draw',
+        ],
+        ['country' => 'USA']
+    );
 
-    $reimbursementCategory = TransactionCategory::factory()->income()->create(['name' => 'Reimbursement']);
-    CategoryTaxMapping::factory()->create([
-        'category_id' => $reimbursementCategory->id,
-        'tax_form_code' => 'form_5472',
-        'line_item' => 'reimbursement',
-        'country' => 'USA',
-    ]);
+    $reimbursementCategory = TransactionCategory::firstOrCreate(
+        ['name' => 'Reimbursement'],
+        ['income_or_expense' => 'income', 'sort_order' => 102]
+    );
+    CategoryTaxMapping::firstOrCreate(
+        [
+            'category_id' => $reimbursementCategory->id,
+            'tax_form_code' => 'form_5472',
+            'line_item' => 'reimbursement',
+        ],
+        ['country' => 'USA']
+    );
 
     Transaction::factory()->income()->create([
         'account_id' => $account->id,
@@ -150,13 +175,18 @@ test('getOwnerFlowSummary filters by tax year', function () {
     $account = Account::factory()->create(['entity_id' => $entity->id]);
 
     // Create category and Form 5472 mapping
-    $contributionCategory = TransactionCategory::factory()->income()->create(['name' => 'Owner Contribution']);
-    CategoryTaxMapping::factory()->create([
-        'category_id' => $contributionCategory->id,
-        'tax_form_code' => 'form_5472',
-        'line_item' => 'owner_contribution',
-        'country' => 'USA',
-    ]);
+    $contributionCategory = TransactionCategory::firstOrCreate(
+        ['name' => 'Owner Contribution'],
+        ['income_or_expense' => 'income', 'sort_order' => 100]
+    );
+    CategoryTaxMapping::firstOrCreate(
+        [
+            'category_id' => $contributionCategory->id,
+            'tax_form_code' => 'form_5472',
+            'line_item' => 'owner_contribution',
+        ],
+        ['country' => 'USA']
+    );
 
     Transaction::factory()->income()->create([
         'account_id' => $account->id,
