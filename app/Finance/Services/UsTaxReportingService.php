@@ -128,20 +128,23 @@ class UsTaxReportingService
     private function getForm5472Transactions($entities, int $taxYear, ?string $lineItem, Currency $usdCurrency): float
     {
         $query = Transaction::query()
-            ->join('transaction_categories', 'transactions.category_id', '=', 'transaction_categories.id')
-            ->join('category_tax_mappings', 'transaction_categories.id', '=', 'category_tax_mappings.category_id')
-            ->whereIn('transactions.account_id', function ($subQuery) use ($entities) {
+            ->whereIn('account_id', function ($subQuery) use ($entities) {
                 $subQuery->select('id')
                     ->from('accounts')
                     ->whereIn('entity_id', $entities);
             })
-            ->where('category_tax_mappings.tax_form_code', 'form_5472')
-            ->whereYear('transactions.transaction_date', $taxYear)
+            ->whereExists(function ($subQuery) use ($lineItem) {
+                $subQuery->select('id')
+                    ->from('category_tax_mappings')
+                    ->whereColumn('category_tax_mappings.category_id', 'transactions.category_id')
+                    ->where('category_tax_mappings.tax_form_code', 'form_5472');
+                
+                if ($lineItem) {
+                    $subQuery->where('category_tax_mappings.line_item', $lineItem);
+                }
+            })
+            ->whereYear('transaction_date', $taxYear)
             ->with('originalCurrency');
-
-        if ($lineItem) {
-            $query->where('category_tax_mappings.line_item', $lineItem);
-        }
 
         $transactions = $query->get();
 
