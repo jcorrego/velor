@@ -1,7 +1,36 @@
 # tax-form-mapping Specification
 
 ## Purpose
-TBD - created by archiving change add-finance-module. Update Purpose after archive.
+Defines how transaction categories map to tax form line items, enabling automated tax reporting across jurisdictions without hardcoded filters.
+
+## Database Schema
+
+### Table: `tax_form_mappings`
+Maps transaction categories to specific tax form line items.
+
+```sql
+CREATE TABLE tax_form_mappings (
+    id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+    transaction_category_id BIGINT UNSIGNED NOT NULL,
+    filing_type_id BIGINT UNSIGNED NOT NULL,
+    line_item VARCHAR(50) NULL, -- e.g., "Line 1", "Part II Line 6"
+    notes TEXT NULL,
+    created_at TIMESTAMP NULL,
+    updated_at TIMESTAMP NULL,
+    
+    FOREIGN KEY (transaction_category_id) REFERENCES transaction_categories(id) ON DELETE CASCADE,
+    FOREIGN KEY (filing_type_id) REFERENCES filing_types(id) ON DELETE CASCADE,
+    
+    UNIQUE KEY unique_mapping (transaction_category_id, filing_type_id, line_item)
+);
+```
+
+**Design Notes**:
+- One category can map to multiple tax forms (e.g., consulting income → Schedule C + Schedule SE)
+- `line_item` is nullable for forms without line items or when mapping to entire form section
+- Unique constraint prevents duplicate mappings
+- Cascade delete ensures orphaned mappings are removed
+
 ## Requirements
 ### Requirement: Category to Tax Form Mapping
 The system SHALL enable mapping categories to tax form line items with support for multiple forms per category.

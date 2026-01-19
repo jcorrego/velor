@@ -103,7 +103,7 @@ new class extends Component
             <div class="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
                 <div class="text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400">{{ __('Total Rental Income') }}</div>
                 <div class="mt-2 text-2xl font-semibold text-green-600 dark:text-green-400">
-                    ${{ number_format($totals['rental_income'], 2) }}
+                    ${{ number_format($totals['rental_income'], 2) }} USD
                 </div>
                 <div class="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
                     {{ __('All properties') }}
@@ -113,7 +113,7 @@ new class extends Component
             <div class="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
                 <div class="text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400">{{ __('Total Expenses') }}</div>
                 <div class="mt-2 text-2xl font-semibold text-red-600 dark:text-red-400">
-                    ${{ number_format($totals['total_expenses'], 2) }}
+                    ${{ number_format($totals['total_expenses'], 2) }} USD
                 </div>
                 <div class="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
                     {{ __('Year') }}: {{ $filing->taxYear->year }}
@@ -123,7 +123,7 @@ new class extends Component
             <div class="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
                 <div class="text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400">{{ __('Net Income') }}</div>
                 <div class="mt-2 text-2xl font-bold {{ $totals['net_income'] >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}">
-                    ${{ number_format($totals['net_income'], 2) }}
+                    ${{ number_format($totals['net_income'], 2) }} USD
                 </div>
                 <div class="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
                     {{ __('Status') }}: {{ ucfirst(str_replace('_', ' ', $filing->status->value)) }}
@@ -147,19 +147,19 @@ new class extends Component
                             <div>
                                 <div class="text-xs text-zinc-500 dark:text-zinc-400">{{ __('Income') }}</div>
                                 <div class="text-lg font-semibold text-green-600 dark:text-green-400">
-                                    ${{ number_format($propSummary['rental_income'], 2) }}
+                                    ${{ number_format($propSummary['rental_income'], 2) }} USD
                                 </div>
                             </div>
                             <div>
                                 <div class="text-xs text-zinc-500 dark:text-zinc-400">{{ __('Expenses') }}</div>
                                 <div class="text-lg font-semibold text-red-600 dark:text-red-400">
-                                    ${{ number_format($propSummary['total_expenses'], 2) }}
+                                    ${{ number_format($propSummary['total_expenses'], 2) }} USD
                                 </div>
                             </div>
                             <div>
                                 <div class="text-xs text-zinc-500 dark:text-zinc-400">{{ __('Net') }}</div>
                                 <div class="text-lg font-semibold {{ $propSummary['net_income'] >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}">
-                                    ${{ number_format($propSummary['net_income'], 2) }}
+                                    ${{ number_format($propSummary['net_income'], 2) }} USD
                                 </div>
                             </div>
                         </div>
@@ -171,7 +171,7 @@ new class extends Component
                                     @foreach($propSummary['expenses_by_category'] as $categoryName => $amount)
                                         <div class="flex justify-between text-sm">
                                             <span class="text-zinc-600 dark:text-zinc-400">{{ $categoryName }}</span>
-                                            <span class="font-medium text-zinc-900 dark:text-zinc-100">${{ number_format($amount, 2) }}</span>
+                                            <span class="font-medium text-zinc-900 dark:text-zinc-100">${{ number_format($amount, 2) }} USD</span>
                                         </div>
                                     @endforeach
                                 </div>
