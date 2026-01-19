@@ -1,7 +1,7 @@
 # tax-mapping-rules Specification
 
 ## Purpose
-TBD - created by archiving change add-tax-mapping-rules-engine. Update Purpose after archive.
+This specification defines the functional requirements for the tax-mapping rules engine, which applies jurisdiction-specific rules to map transactions to tax concepts and allows users to preview and approve rule outcomes before they are applied.
 ## Requirements
 ### Requirement: Rule-Based Tax Mapping
 The system SHALL support jurisdiction-specific rules that map transactions to tax concepts.
