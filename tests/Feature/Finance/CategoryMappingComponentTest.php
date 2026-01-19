@@ -10,10 +10,7 @@ use Livewire\Livewire;
 it('creates a tax mapping for a category', function () {
     $user = User::factory()->create();
     $entity = Entity::factory()->for($user)->create();
-    $category = TransactionCategory::factory()
-        ->create([
-            'jurisdiction_id' => $entity->jurisdiction_id,
-        ]);
+    $category = TransactionCategory::factory()->create();
 
     $this->actingAs($user);
 

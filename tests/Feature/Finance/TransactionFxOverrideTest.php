@@ -11,7 +11,7 @@ it('allows a user to override the FX rate for their transaction', function () {
     $user = User::factory()->create();
     $entity = Entity::factory()->for($user)->create();
     $account = Account::factory()->for($entity)->create();
-    $category = TransactionCategory::factory()->create(['jurisdiction_id' => $entity->jurisdiction_id]);
+    $category = TransactionCategory::factory()->create();
 
     $transaction = Transaction::factory()
         ->forAccount($account)

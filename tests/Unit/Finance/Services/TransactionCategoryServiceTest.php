@@ -26,13 +26,11 @@ it('aggregates totals by category for a tax year and jurisdiction', function () 
     $account = Account::factory()->create(['entity_id' => $entity->id]);
 
     $incomeCategory = TransactionCategory::factory()->create([
-        'jurisdiction_id' => $jurisdiction->id,
         'income_or_expense' => 'income',
         'name' => 'Rental Income',
     ]);
 
     $expenseCategory = TransactionCategory::factory()->create([
-        'jurisdiction_id' => $jurisdiction->id,
         'income_or_expense' => 'expense',
         'name' => 'Rental Expenses',
     ]);
@@ -80,7 +78,6 @@ it('computes tax form amounts for a filing', function () {
     ]);
 
     $category = TransactionCategory::factory()->create([
-        'jurisdiction_id' => $jurisdiction->id,
         'income_or_expense' => 'income',
     ]);
 

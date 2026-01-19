@@ -62,7 +62,7 @@ test('create multi-currency transaction with FX conversion', function () {
         'entity_id' => $entity->id,
         'currency_id' => $eur->id,
     ]);
-    $category = TransactionCategory::factory()->create(['jurisdiction_id' => $entity->jurisdiction_id]);
+    $category = TransactionCategory::factory()->create();
 
     // Clear any cached FX rates
     Cache::flush();
