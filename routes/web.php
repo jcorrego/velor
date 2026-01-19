@@ -37,5 +37,13 @@ Route::get('finance/accounts/{account}/import', function (\App\Models\Account $a
 })->middleware(['auth', 'verified'])
     ->name('finance.import');
 
+Route::view('finance/us-tax/owner-flow', 'finance.us-tax.owner-flow')
+    ->middleware(['auth', 'verified'])
+    ->name('finance.us-tax.owner-flow');
+
+Route::view('finance/us-tax/schedule-e', 'finance.us-tax.schedule-e')
+    ->middleware(['auth', 'verified'])
+    ->name('finance.us-tax.schedule-e');
+
 require __DIR__.'/settings.php';
 require __DIR__.'/management.php';

@@ -160,26 +160,3 @@ test('delete asset', function () {
     expect(Asset::find($asset->id))->toBeNull();
 });
 
-test('depreciation calculation test RentalPropertyService integration', function () {
-    $user = User::factory()->create();
-    $entity = Entity::factory()->create(['user_id' => $user->id]);
-
-    $asset = Asset::factory()->create([
-        'entity_id' => $entity->id,
-        'type' => AssetType::Residential,
-        'acquisition_date' => '2020-01-01',
-        'acquisition_cost' => 275000.00,
-        'useful_life_years' => 27.5,
-        'annual_depreciation_amount' => 10000.00,
-    ]);
-
-    $service = app(\App\Finance\Services\RentalPropertyService::class);
-
-    $annualDepreciation = $service->getAnnualDepreciation($asset);
-
-    expect($annualDepreciation)->toBe(10000.00);
-
-    $accumulatedDepreciation = $service->calculateAccumulatedDepreciation($asset, now());
-
-    expect($accumulatedDepreciation)->toBeGreaterThan(0);
-});

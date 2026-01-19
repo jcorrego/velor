@@ -4,7 +4,7 @@ namespace App\Finance\Services;
 
 use App\Models\Currency;
 use App\Models\FxRate;
-use Carbon\Carbon;
+use Carbon\CarbonInterface;
 use Illuminate\Support\Facades\Cache;
 
 class FxRateService
@@ -13,7 +13,7 @@ class FxRateService
      * Get the exchange rate between two currencies for a specific date.
      * Prioritizes manual overrides, falls back to cached ECB rates.
      */
-    public function getRate(Currency $fromCurrency, Currency $toCurrency, Carbon $date): float
+    public function getRate(Currency $fromCurrency, Currency $toCurrency, CarbonInterface $date): float
     {
         // Same currency returns 1.0
         if ($fromCurrency->id === $toCurrency->id) {
@@ -64,7 +64,7 @@ class FxRateService
      * For this implementation, we'll use a placeholder that returns a default rate.
      * In production, this would call the actual ECB API.
      */
-    private function fetchAndCacheECBRate(Currency $fromCurrency, Currency $toCurrency, Carbon $date): float
+    private function fetchAndCacheECBRate(Currency $fromCurrency, Currency $toCurrency, CarbonInterface $date): float
     {
         // Placeholder implementation - in production, call ECB API
         // For now, store a rate and return it
@@ -127,7 +127,7 @@ class FxRateService
     /**
      * Set a manual rate override for a specific currency pair and date.
      */
-    public function setOverrideRate(Currency $fromCurrency, Currency $toCurrency, Carbon $date, float $rate): FxRate
+    public function setOverrideRate(Currency $fromCurrency, Currency $toCurrency, CarbonInterface $date, float $rate): FxRate
     {
         $fxRate = FxRate::query()
             ->where('currency_from_id', $fromCurrency->id)
@@ -160,7 +160,7 @@ class FxRateService
     /**
      * Convert amount from one currency to another.
      */
-    public function convert(float $amount, Currency $fromCurrency, Currency $toCurrency, Carbon $date): float
+    public function convert(float $amount, Currency $fromCurrency, Currency $toCurrency, CarbonInterface $date): float
     {
         $rate = $this->getRate($fromCurrency, $toCurrency, $date);
 

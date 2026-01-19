@@ -51,13 +51,6 @@ new class extends Component
             >
                 {{ __('Mappings') }}
             </flux:button>
-            <flux:button
-                size="sm"
-                :variant="$activeTab === 'reports' ? 'primary' : 'ghost'"
-                wire:click="$set('activeTab', 'reports')"
-            >
-                {{ __('Reports') }}
-            </flux:button>
         </div>
 
         @if ($activeTab === 'accounts')
@@ -70,8 +63,6 @@ new class extends Component
             <livewire:finance.category-management />
         @elseif ($activeTab === 'mappings')
             <livewire:finance.category-mapping />
-        @elseif ($activeTab === 'reports')
-            <livewire:finance.rental-property-report />
         @endif
     </div>
 </div>
