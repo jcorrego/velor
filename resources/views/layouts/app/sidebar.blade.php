@@ -55,6 +55,12 @@
                     <flux:sidebar.item icon="currency-dollar" :href="route('finance')" :current="request()->routeIs('finance')" wire:navigate>
                         {{ __('Finance') }}
                     </flux:sidebar.item>
+                    <flux:sidebar.item icon="document-text" :href="route('finance.us-tax.owner-flow')" :current="request()->routeIs('finance.us-tax.owner-flow')" wire:navigate>
+                        {{ __('Owner Flow (5472)') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="home" :href="route('finance.us-tax.schedule-e')" :current="request()->routeIs('finance.us-tax.schedule-e')" wire:navigate>
+                        {{ __('Schedule E') }}
+                    </flux:sidebar.item>
                 </flux:sidebar.group>
             </flux:sidebar.nav>
 
