@@ -132,12 +132,12 @@ class DatabaseSeeder extends Seeder
         );
 
         \App\Models\Asset::factory()
-            ->for($spainEntity)
-            ->inSpain()
+            ->for($usEntity)
+            ->inUSA()
             ->residential()
-            ->individual()
+            ->llc()
             ->create([
-                'name' => 'Summberbreeze Apartment',
+                'name' => 'Summerbreeze Apartment',
             ]);
 
         // Create tax years for 2025

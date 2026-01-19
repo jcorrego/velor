@@ -4,7 +4,6 @@ use App\Http\Controllers\Api\ExternalServiceIntegrationController;
 use App\Http\Controllers\Finance\AccountController;
 use App\Http\Controllers\Finance\AssetController;
 use App\Http\Controllers\Finance\CategoryTaxMappingController;
-use App\Http\Controllers\Finance\ReportController;
 use App\Http\Controllers\Finance\TransactionCategoryController;
 use App\Http\Controllers\Finance\TransactionController;
 use App\Http\Controllers\Finance\TransactionImportController;
@@ -32,10 +31,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Category Tax Mappings
     Route::apiResource('category-tax-mappings', CategoryTaxMappingController::class)->only(['index', 'store', 'destroy']);
-
-    // Reports
-    Route::get('reports/rental-properties/{asset}', [ReportController::class, 'rentalProperty'])
-        ->name('reports.rental-properties');
 
     // External Service Integrations
     Route::post('integrations/mercury/verify', [ExternalServiceIntegrationController::class, 'verifyMercury'])->name('integrations.mercury.verify');
