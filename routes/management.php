@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Finance\DescriptionCategoryRules;
 use App\Livewire\Finance\ImportReviewQueue;
 use App\Livewire\Management\Currencies;
 use App\Livewire\Management\Entities;
@@ -22,4 +23,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Import Management
     Route::livewire('manage/import-review', ImportReviewQueue::class)->name('management.import-review');
+    Route::livewire('manage/description-category-rules', DescriptionCategoryRules::class)->name('management.description-category-rules');
 });

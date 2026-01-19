@@ -44,6 +44,9 @@
                     <flux:sidebar.item icon="arrow-down-tray" :href="route('management.import-review')" :current="request()->routeIs('management.import-review')" wire:navigate>
                         {{ __('Import Review') }}
                     </flux:sidebar.item>
+                    <flux:sidebar.item icon="tag" :href="route('management.description-category-rules')" :current="request()->routeIs('management.description-category-rules')" wire:navigate>
+                        {{ __('Category Rules') }}
+                    </flux:sidebar.item>
                 </flux:sidebar.group>
             </flux:sidebar.nav>
 
