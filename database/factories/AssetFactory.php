@@ -93,6 +93,17 @@ class AssetFactory extends Factory
         ]);
     }
 
+    public function inUSA(): static
+    {
+        $usaJurisdiction = Jurisdiction::where('iso_code', 'USA')->first()
+            ?? Jurisdiction::factory()->create(['iso_code' => 'USA', 'name' => 'United States']);
+
+        return $this->state(fn (array $attributes) => [
+            'jurisdiction_id' => $usaJurisdiction->id,
+            'acquisition_currency_id' => Currency::where('code', 'USD')->first()?->id ?? Currency::factory()->usd()->create()->id,
+        ]);
+    }
+
     public function individual(): static
     {
         return $this->state(fn (array $attributes) => [

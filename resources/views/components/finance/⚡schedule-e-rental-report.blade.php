@@ -16,7 +16,7 @@ new class extends Component
         // Auto-select first US asset if available
         $firstAsset = Asset::query()
             ->whereHas('entity', fn ($query) => $query->where('user_id', auth()->id()))
-            ->whereHas('jurisdiction', fn ($query) => $query->where('iso_code', 'US'))
+            ->whereHas('jurisdiction', fn ($query) => $query->where('iso_code', 'USA'))
             ->orderBy('name')
             ->first();
             
@@ -29,7 +29,7 @@ new class extends Component
     {
         $assets = Asset::query()
             ->whereHas('entity', fn ($query) => $query->where('user_id', auth()->id()))
-            ->whereHas('jurisdiction', fn ($query) => $query->where('iso_code', 'US'))
+            ->whereHas('jurisdiction', fn ($query) => $query->where('iso_code', 'USA'))
             ->orderBy('name')
             ->get();
 
@@ -39,7 +39,7 @@ new class extends Component
         if ($this->assetId) {
             $asset = Asset::query()
                 ->whereHas('entity', fn ($query) => $query->where('user_id', auth()->id()))
-                ->whereHas('jurisdiction', fn ($query) => $query->where('iso_code', 'US'))
+                ->whereHas('jurisdiction', fn ($query) => $query->where('iso_code', 'USA'))
                 ->with(['entity', 'jurisdiction'])
                 ->find($this->assetId);
         }
