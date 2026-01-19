@@ -88,6 +88,39 @@
                     </div>
                 </div>
 
+                <!-- Transaction List -->
+                @if ($selectedBatch->proposed_transactions && count($selectedBatch->proposed_transactions) > 0)
+                    <div class="mt-6">
+                        <flux:subheading>{{ __('Transactions to Import') }}</flux:subheading>
+                        <div class="mt-3 max-h-96 space-y-2 overflow-y-auto">
+                            @foreach ($selectedBatch->proposed_transactions as $transaction)
+                                <div class="rounded-lg border border-zinc-200 p-3 text-xs dark:border-zinc-700">
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex-1">
+                                            <p class="font-medium text-zinc-900 dark:text-white">{{ $transaction['description'] ?? '—' }}</p>
+                                            <div class="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-zinc-600 dark:text-zinc-400">
+                                                <span>{{ \Carbon\Carbon::parse($transaction['date'])->format('M d, Y') }}</span>
+                                                @if ($transaction['counterparty'] ?? null)
+                                                    <span>• {{ $transaction['counterparty'] }}</span>
+                                                @endif
+                                                @if ($transaction['category_name'] ?? null)
+                                                    <span>• <span class="text-blue-600 dark:text-blue-400">{{ $transaction['category_name'] }}</span></span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        <div class="ml-3 text-right">
+                                            <p class="font-semibold {{ $transaction['amount'] >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}">
+                                                {{ number_format(abs($transaction['amount']), 2) }}
+                                            </p>
+                                            <p class="text-zinc-500">{{ $transaction['original_currency'] ?? 'EUR' }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
                 @if ($selectedBatch->status->value === 'pending')
                     <div class="mt-6 space-y-3">
                         <div wire:loading.remove>

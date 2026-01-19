@@ -17,7 +17,6 @@ class TransactionCategory extends Model
     protected $fillable = [
         'name',
         'jurisdiction_id',
-        'entity_id',
         'income_or_expense',
         'sort_order',
     ];
@@ -39,14 +38,6 @@ class TransactionCategory extends Model
     public function jurisdiction(): BelongsTo
     {
         return $this->belongsTo(Jurisdiction::class);
-    }
-
-    /**
-     * Get the entity this category belongs to.
-     */
-    public function entity(): BelongsTo
-    {
-        return $this->belongsTo(Entity::class);
     }
 
     /**

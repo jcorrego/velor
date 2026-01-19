@@ -18,7 +18,6 @@ class TransactionCategoryResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'jurisdiction_id' => $this->jurisdiction_id,
-            'entity_id' => $this->entity_id,
             'income_or_expense' => $this->income_or_expense,
             'parent_category_id' => $this->parent_category_id,
             'sort_order' => $this->sort_order,
@@ -27,7 +26,6 @@ class TransactionCategoryResource extends JsonResource
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'jurisdiction' => $this->whenLoaded('jurisdiction'),
-            'entity' => $this->whenLoaded('entity'),
             'taxMappings' => $this->whenLoaded('taxMappings'),
         ];
     }

@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -44,29 +45,40 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // Create entities
-        \App\Models\Entity::factory()->llc()->create([
+        $usEntity = \App\Models\Entity::factory()->llc()->create([
             'user_id' => $user->id,
             'jurisdiction_id' => $usa->id,
             'name' => 'JCO Services LLC',
         ]);
-        $entity = \App\Models\Entity::where('user_id', $user->id)->first();
+
+        $spainEntity = \App\Models\Entity::factory()->individual()->create([
+            'user_id' => $user->id,
+            'jurisdiction_id' => $spain->id,
+            'name' => 'JCO Spain',
+        ]);
+
+        $colombiaEntity = \App\Models\Entity::factory()->individual()->create([
+            'user_id' => $user->id,
+            'jurisdiction_id' => $colombia->id,
+            'name' => 'JCO Colombia',
+        ]);
 
         \App\Models\Account::factory()
-            ->for($entity)
+            ->for($spainEntity)
             ->bancoSantander()
             ->checking()
             ->active()
             ->create();
 
         \App\Models\Account::factory()
-            ->for($entity)
+            ->for($usEntity)
             ->mercury()
             ->checking()
             ->active()
             ->create();
 
         \App\Models\Account::factory()
-            ->for($entity)
+            ->for($colombiaEntity)
             ->bancolombia()
             ->checking()
             ->active()
@@ -80,12 +92,12 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Repairs & Maintenance', 'income_or_expense' => 'expense', 'sort_order' => 50],
         ];
 
+        // Create categories for US entity
         foreach ($basicCategories as $category) {
             \App\Models\TransactionCategory::firstOrCreate(
                 [
                     'name' => $category['name'],
-                    'jurisdiction_id' => $entity->jurisdiction_id,
-                    'entity_id' => $entity->id,
+                    'jurisdiction_id' => $usa->id,
                 ],
                 [
                     'income_or_expense' => $category['income_or_expense'],
@@ -94,11 +106,36 @@ class DatabaseSeeder extends Seeder
             );
         }
 
+        // Create Spain Taxes category
+        $taxesCategory = \App\Models\TransactionCategory::firstOrCreate(
+            [
+                'name' => 'Taxes',
+                'jurisdiction_id' => $spain->id,
+            ],
+            [
+                'income_or_expense' => 'expense',
+                'sort_order' => 60,
+            ]
+        );
+
+        // Create category rule for TGSS (Social Security) payments
+        \App\Models\DescriptionCategoryRule::firstOrCreate(
+            [
+                'jurisdiction_id' => $spain->id,
+                'description_pattern' => 'Recibo Tgss. Cotizacion',
+            ],
+            [
+                'category_id' => $taxesCategory->id,
+                'is_active' => true,
+                'notes' => 'Spanish Social Security (TGSS) contribution payments',
+            ]
+        );
+
         \App\Models\Asset::factory()
-            ->for($entity)
+            ->for($spainEntity)
             ->inSpain()
             ->residential()
-            ->llc()
+            ->individual()
             ->create([
                 'name' => 'Summberbreeze Apartment',
             ]);

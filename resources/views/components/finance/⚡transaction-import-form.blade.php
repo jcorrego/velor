@@ -172,7 +172,7 @@ new class extends Component
 <div>
     @if($showSuccess)
         <flux:callout variant="success" class="mb-6">
-            Successfully imported {{ $importedCount }} transaction(s)!
+            Successfully created import batch with {{ $importedCount }} transaction(s)! The batch is now pending review.
             <flux:button size="sm" variant="ghost" wire:click="resetForm" class="ml-2">
                 Import More
             </flux:button>
@@ -254,6 +254,9 @@ new class extends Component
                                             @if($transaction['counterparty'])
                                                 • {{ $transaction['counterparty'] }}
                                             @endif
+                                            @if($transaction['category_name'])
+                                                • <span class="text-blue-600 dark:text-blue-400">{{ $transaction['category_name'] }}</span>
+                                            @endif
                                         </div>
                                     </div>
                                     <div class="text-right">
@@ -300,10 +303,10 @@ new class extends Component
                         :disabled="count($previewData['unmatched']) === 0"
                     >
                         <span wire:loading.remove wire:target="import">
-                            Import {{ $previewData['new'] }} Transaction(s)
+                            Create Batch for Review ({{ $previewData['new'] }} Transaction(s))
                         </span>
                         <span wire:loading wire:target="import">
-                            Importing...
+                            Creating Batch...
                         </span>
                     </flux:button>
 

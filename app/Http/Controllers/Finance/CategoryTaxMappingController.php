@@ -18,10 +18,7 @@ class CategoryTaxMappingController extends Controller
      */
     public function index(Request $request): AnonymousResourceCollection
     {
-        $query = CategoryTaxMapping::query()
-            ->whereHas('transactionCategory.entity', function ($query) {
-                $query->where('user_id', auth()->id());
-            });
+        $query = CategoryTaxMapping::query();
 
         if ($request->filled('category_id')) {
             $query->where('category_id', $request->integer('category_id'));
@@ -39,9 +36,6 @@ class CategoryTaxMappingController extends Controller
      */
     public function store(StoreCategoryTaxMappingRequest $request): JsonResponse
     {
-        $category = TransactionCategory::findOrFail($request->validated('category_id'));
-        $this->ensureUserOwnsCategory($category, $request->user()?->id);
-
         $mapping = CategoryTaxMapping::create($request->validated());
 
         return response()->json(
@@ -55,20 +49,8 @@ class CategoryTaxMappingController extends Controller
      */
     public function destroy(Request $request, CategoryTaxMapping $categoryTaxMapping): JsonResponse
     {
-        $this->ensureUserOwnsCategory($categoryTaxMapping->transactionCategory, $request->user()?->id);
-
         $categoryTaxMapping->delete();
 
         return response()->json(status: 204);
-    }
-
-    /**
-     * Ensure the authenticated user owns the category.
-     */
-    private function ensureUserOwnsCategory(TransactionCategory $category, ?int $userId): void
-    {
-        if (! $userId || $category->entity->user_id !== $userId) {
-            abort(403);
-        }
     }
 }

@@ -140,13 +140,6 @@ new class extends Component
             abort(403);
         }
 
-        if ($validated['transactionCategoryId']) {
-            $category = TransactionCategory::query()->with('entity')->findOrFail($validated['transactionCategoryId']);
-
-            if ($category->entity->user_id !== auth()->id()) {
-                abort(403);
-            }
-        }
 
         $originalCurrency = Currency::query()->findOrFail($validated['transactionCurrencyId']);
         $baseCurrency = Currency::query()->where('code', 'EUR')->first() ?? $originalCurrency;
@@ -311,9 +304,7 @@ new class extends Component
             ->whereHas('entity', fn($q) => $q->where('user_id', auth()->id()))
             ->get();
 
-        $categories = TransactionCategory::query()
-            ->whereHas('entity', fn($q) => $q->where('user_id', auth()->id()))
-            ->get();
+        $categories = TransactionCategory::query()->get();
 
         $currencies = Currency::query()
             ->where('is_active', true)

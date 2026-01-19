@@ -49,12 +49,10 @@ new class extends Component
     public function loadData()
     {
         $this->categories = TransactionCategory::query()
-            ->whereHas('entity', fn ($query) => $query->where('user_id', auth()->id()))
             ->orderBy('name')
             ->get();
 
         $query = CategoryTaxMapping::query()
-            ->whereHas('transactionCategory.entity', fn ($query) => $query->where('user_id', auth()->id()))
             ->with('transactionCategory');
 
         if ($this->filterCategoryId) {
@@ -89,11 +87,6 @@ new class extends Component
             'tax_form_code.unique' => 'This tax form mapping already exists for the selected category.',
         ]);
 
-        $category = TransactionCategory::query()->findOrFail($this->category_id);
-        if ($category->entity->user_id !== auth()->id()) {
-            abort(403);
-        }
-
         CategoryTaxMapping::create([
             'category_id' => $this->category_id,
             'tax_form_code' => $this->tax_form_code,
@@ -109,13 +102,7 @@ new class extends Component
 
     public function delete($id)
     {
-        $mapping = CategoryTaxMapping::query()
-            ->with('transactionCategory.entity')
-            ->findOrFail($id);
-
-        if ($mapping->transactionCategory->entity->user_id !== auth()->id()) {
-            abort(403);
-        }
+        $mapping = CategoryTaxMapping::query()->findOrFail($id);
 
         $mapping->delete();
         $this->loadData();

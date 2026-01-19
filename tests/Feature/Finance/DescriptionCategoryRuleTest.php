@@ -6,7 +6,7 @@ use App\Models\TransactionCategory;
 
 test('can create a description category rule', function () {
     $jurisdiction = Jurisdiction::factory()->create();
-    $category = TransactionCategory::factory()->create(['jurisdiction_id' => $jurisdiction->id]);
+    $category = TransactionCategory::factory()->withoutEntity()->create(['jurisdiction_id' => $jurisdiction->id]);
 
     $rule = DescriptionCategoryRule::create([
         'jurisdiction_id' => $jurisdiction->id,
@@ -24,7 +24,7 @@ test('can create a description category rule', function () {
 
 test('finds matching rule by case-insensitive pattern', function () {
     $jurisdiction = Jurisdiction::factory()->create();
-    $category = TransactionCategory::factory()->create(['jurisdiction_id' => $jurisdiction->id]);
+    $category = TransactionCategory::factory()->withoutEntity()->create(['jurisdiction_id' => $jurisdiction->id]);
 
     $rule = DescriptionCategoryRule::create([
         'jurisdiction_id' => $jurisdiction->id,
@@ -54,7 +54,7 @@ test('finds matching rule by case-insensitive pattern', function () {
 
 test('does not match inactive rules', function () {
     $jurisdiction = Jurisdiction::factory()->create();
-    $category = TransactionCategory::factory()->create(['jurisdiction_id' => $jurisdiction->id]);
+    $category = TransactionCategory::factory()->withoutEntity()->create(['jurisdiction_id' => $jurisdiction->id]);
 
     $inactiveRule = DescriptionCategoryRule::create([
         'jurisdiction_id' => $jurisdiction->id,
@@ -86,7 +86,7 @@ test('requires jurisdiction and category to exist', function () {
 
 test('enforces unique jurisdiction and pattern combination', function () {
     $jurisdiction = Jurisdiction::factory()->create();
-    $category = TransactionCategory::factory()->create(['jurisdiction_id' => $jurisdiction->id]);
+    $category = TransactionCategory::factory()->withoutEntity()->create(['jurisdiction_id' => $jurisdiction->id]);
 
     DescriptionCategoryRule::create([
         'jurisdiction_id' => $jurisdiction->id,
@@ -107,8 +107,8 @@ test('enforces unique jurisdiction and pattern combination', function () {
 
 test('can update an existing rule', function () {
     $jurisdiction = Jurisdiction::factory()->create();
-    $category1 = TransactionCategory::factory()->create(['jurisdiction_id' => $jurisdiction->id]);
-    $category2 = TransactionCategory::factory()->create(['jurisdiction_id' => $jurisdiction->id]);
+    $category1 = TransactionCategory::factory()->withoutEntity()->create(['jurisdiction_id' => $jurisdiction->id]);
+    $category2 = TransactionCategory::factory()->withoutEntity()->create(['jurisdiction_id' => $jurisdiction->id]);
 
     $rule = DescriptionCategoryRule::create([
         'jurisdiction_id' => $jurisdiction->id,
@@ -130,7 +130,7 @@ test('can update an existing rule', function () {
 
 test('can delete a rule', function () {
     $jurisdiction = Jurisdiction::factory()->create();
-    $category = TransactionCategory::factory()->create(['jurisdiction_id' => $jurisdiction->id]);
+    $category = TransactionCategory::factory()->withoutEntity()->create(['jurisdiction_id' => $jurisdiction->id]);
 
     $rule = DescriptionCategoryRule::create([
         'jurisdiction_id' => $jurisdiction->id,
@@ -146,8 +146,8 @@ test('can delete a rule', function () {
 
 test('pattern matching returns first matching rule', function () {
     $jurisdiction = Jurisdiction::factory()->create();
-    $category1 = TransactionCategory::factory()->create(['jurisdiction_id' => $jurisdiction->id]);
-    $category2 = TransactionCategory::factory()->create(['jurisdiction_id' => $jurisdiction->id]);
+    $category1 = TransactionCategory::factory()->withoutEntity()->create(['jurisdiction_id' => $jurisdiction->id]);
+    $category2 = TransactionCategory::factory()->withoutEntity()->create(['jurisdiction_id' => $jurisdiction->id]);
 
     DescriptionCategoryRule::create([
         'jurisdiction_id' => $jurisdiction->id,

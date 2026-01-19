@@ -57,16 +57,28 @@ class TransactionImportService
             ->get()
             ->keyBy(fn ($t) => $this->transactionSignature($t));
 
+        $rules = $this->buildCategorizationRules($account);
+        $categorizationService = app(TransactionCategorizationService::class);
+
         $matched = [];
         $unmatched = [];
 
         foreach ($importedTransactions as $imported) {
             $signature = $this->createSignature($imported);
+            
+            // Resolve category for preview
+            $categoryId = $categorizationService->resolveCategoryId($imported, $account, $rules);
+            $category = $categoryId ? \App\Models\TransactionCategory::find($categoryId) : null;
+            
+            $enriched = array_merge($imported, [
+                'category_id' => $categoryId,
+                'category_name' => $category?->name,
+            ]);
 
             if ($existingTransactions->has($signature)) {
-                $matched[] = array_merge($imported, ['duplicate' => true]);
+                $matched[] = array_merge($enriched, ['duplicate' => true]);
             } else {
-                $unmatched[] = array_merge($imported, ['duplicate' => false]);
+                $unmatched[] = array_merge($enriched, ['duplicate' => false]);
             }
         }
 
