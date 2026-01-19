@@ -87,7 +87,7 @@ new class extends Component
             <option value="">{{ __('Select a filing') }}</option>
             @foreach($filings as $filingOption)
                 <option value="{{ $filingOption->id }}">
-                    {{ $filingOption->taxYear->year }} - {{ $filingOption->status->label() }}
+                    {{ $filingOption->taxYear->year }} - {{ ucfirst(str_replace('_', ' ', $filingOption->status->value)) }}
                 </option>
             @endforeach
         </flux:select>
@@ -126,7 +126,7 @@ new class extends Component
                     ${{ number_format($totals['net_income'], 2) }}
                 </div>
                 <div class="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
-                    {{ __('Status') }}: {{ $filing->status->label() }}
+                    {{ __('Status') }}: {{ ucfirst(str_replace('_', ' ', $filing->status->value)) }}
                 </div>
             </div>
         </div>
