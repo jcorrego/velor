@@ -65,11 +65,11 @@ class TransactionImportService
 
         foreach ($importedTransactions as $imported) {
             $signature = $this->createSignature($imported);
-            
+
             // Resolve category for preview
             $categoryId = $categorizationService->resolveCategoryId($imported, $account, $rules);
             $category = $categoryId ? \App\Models\TransactionCategory::find($categoryId) : null;
-            
+
             $enriched = array_merge($imported, [
                 'category_id' => $categoryId,
                 'category_name' => $category?->name,

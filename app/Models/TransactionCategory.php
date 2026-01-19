@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class TransactionCategory extends Model
@@ -16,7 +15,6 @@ class TransactionCategory extends Model
      */
     protected $fillable = [
         'name',
-        'jurisdiction_id',
         'income_or_expense',
         'sort_order',
     ];
@@ -30,14 +28,6 @@ class TransactionCategory extends Model
             'income_or_expense' => 'string',
             'sort_order' => 'integer',
         ];
-    }
-
-    /**
-     * Get the jurisdiction for this category.
-     */
-    public function jurisdiction(): BelongsTo
-    {
-        return $this->belongsTo(Jurisdiction::class);
     }
 
     /**

@@ -103,11 +103,7 @@ class DescriptionCategoryRules extends Component
     {
         $jurisdictions = Jurisdiction::orderBy('name')->get();
 
-        $categories = $this->jurisdictionId
-            ? TransactionCategory::where('jurisdiction_id', $this->jurisdictionId)
-                ->orderBy('name')
-                ->get()
-            : collect();
+        $categories = TransactionCategory::orderBy('name')->get();
 
         $rules = $this->jurisdictionId
             ? DescriptionCategoryRule::where('jurisdiction_id', $this->jurisdictionId)

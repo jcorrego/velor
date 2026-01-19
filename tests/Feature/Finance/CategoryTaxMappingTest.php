@@ -2,7 +2,6 @@
 
 use App\Enums\Finance\TaxFormCode;
 use App\Models\CategoryTaxMapping;
-use App\Models\Entity;
 use App\Models\TransactionCategory;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -40,7 +39,6 @@ it('creates a category tax mapping', function () {
         ->assertJsonPath('tax_form_code', TaxFormCode::ScheduleE->value)
         ->assertJsonPath('category_id', $category->id);
 });
-
 
 it('validates tax form code', function () {
     $user = User::factory()->create();

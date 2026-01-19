@@ -5,7 +5,6 @@ use App\Enums\Finance\AccountType;
 use App\Enums\Finance\AssetType;
 use App\Enums\Finance\ImportFileType;
 use App\Enums\Finance\OwnershipStructure;
-use App\Enums\Finance\RelatedPartyType;
 use App\Enums\Finance\TaxFormCode;
 use App\Enums\Finance\TransactionType;
 use App\Enums\Finance\ValuationMethod;
@@ -20,7 +19,6 @@ use App\Models\Filing;
 use App\Models\FilingType;
 use App\Models\FxRate;
 use App\Models\Jurisdiction;
-use App\Models\RelatedPartyTransaction;
 use App\Models\ResidencyPeriod;
 use App\Models\TaxYear;
 use App\Models\Transaction;
@@ -57,14 +55,12 @@ it('defines model relationships', function (string $modelClass, string $relation
     [Account::class, 'entity', BelongsTo::class, Entity::class],
     [Account::class, 'transactions', HasMany::class, Transaction::class],
     [Account::class, 'transactionImports', HasMany::class, TransactionImport::class],
-    [Account::class, 'relatedPartyTransactions', HasMany::class, RelatedPartyTransaction::class],
     [Entity::class, 'user', BelongsTo::class, User::class],
     [Entity::class, 'jurisdiction', BelongsTo::class, Jurisdiction::class],
     [FilingType::class, 'jurisdiction', BelongsTo::class, Jurisdiction::class],
     [FilingType::class, 'filings', HasMany::class, Filing::class],
     [TaxYear::class, 'jurisdiction', BelongsTo::class, Jurisdiction::class],
     [TaxYear::class, 'filings', HasMany::class, Filing::class],
-    [TransactionCategory::class, 'jurisdiction', BelongsTo::class, Jurisdiction::class],
     [TransactionCategory::class, 'transactions', HasMany::class, Transaction::class],
     [TransactionCategory::class, 'taxMappings', HasMany::class, CategoryTaxMapping::class],
     [TransactionCategory::class, 'categoryTaxMappings', HasMany::class, CategoryTaxMapping::class],
@@ -77,8 +73,6 @@ it('defines model relationships', function (string $modelClass, string $relation
     [Transaction::class, 'category', BelongsTo::class, TransactionCategory::class],
     [Transaction::class, 'originalCurrency', BelongsTo::class, Currency::class],
     [Transaction::class, 'convertedCurrency', BelongsTo::class, Currency::class],
-    [RelatedPartyTransaction::class, 'owner', BelongsTo::class, User::class],
-    [RelatedPartyTransaction::class, 'account', BelongsTo::class, Account::class],
     [UserProfile::class, 'user', BelongsTo::class, User::class],
     [UserProfile::class, 'jurisdiction', BelongsTo::class, Jurisdiction::class],
     [User::class, 'profiles', HasMany::class, UserProfile::class],
@@ -149,11 +143,6 @@ it('defines expected casts for models', function (string $modelClass, array $exp
         'fx_rate' => 'decimal:8',
         'tags' => 'json',
         'reconciled_at' => 'timestamp',
-    ]],
-    [RelatedPartyTransaction::class, [
-        'type' => RelatedPartyType::class,
-        'transaction_date' => 'date',
-        'amount' => 'decimal:2',
     ]],
     [UserProfile::class, [
         'tax_id' => 'encrypted',

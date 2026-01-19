@@ -45,18 +45,18 @@ test('schedule e displays filing when one exists', function () {
     $user = User::factory()->create();
     $usa = \App\Models\Jurisdiction::where('iso_code', 'USA')->first()
         ?? \App\Models\Jurisdiction::factory()->create(['iso_code' => 'USA', 'name' => 'United States']);
-    
+
     $taxYear = \App\Models\TaxYear::factory()->create([
         'jurisdiction_id' => $usa->id,
         'year' => 2025,
     ]);
-    
+
     $filingType = \App\Models\FilingType::factory()->create([
         'jurisdiction_id' => $usa->id,
         'code' => 'SCHEDULE-E',
         'name' => 'Schedule E',
     ]);
-    
+
     $filing = \App\Models\Filing::factory()->create([
         'user_id' => $user->id,
         'tax_year_id' => $taxYear->id,

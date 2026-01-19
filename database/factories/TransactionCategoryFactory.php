@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\Jurisdiction;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -19,7 +18,6 @@ class TransactionCategoryFactory extends Factory
     {
         return [
             'name' => $this->faker->words(3, true),
-            'jurisdiction_id' => Jurisdiction::factory(),
             'income_or_expense' => $this->faker->randomElement(['income', 'expense']),
             'sort_order' => $this->faker->numberBetween(1, 100),
         ];
@@ -79,26 +77,6 @@ class TransactionCategoryFactory extends Factory
         ]);
     }
 
-    public function inSpain(): static
-    {
-        $spainJurisdiction = Jurisdiction::where('iso_code', 'ESP')->first()
-            ?? Jurisdiction::factory()->create(['iso_code' => 'ESP', 'name' => 'Spain']);
-
-        return $this->state(fn (array $attributes) => [
-            'jurisdiction_id' => $spainJurisdiction->id,
-        ]);
-    }
-
-    public function inColombia(): static
-    {
-        $colombiaJurisdiction = Jurisdiction::where('iso_code', 'COL')->first()
-            ?? Jurisdiction::factory()->create(['iso_code' => 'COL', 'name' => 'Colombia']);
-
-        return $this->state(fn (array $attributes) => [
-            'jurisdiction_id' => $colombiaJurisdiction->id,
-        ]);
-    }
-
     public function income(): static
     {
         return $this->state(fn (array $attributes) => [
@@ -112,5 +90,4 @@ class TransactionCategoryFactory extends Factory
             'income_or_expense' => 'expense',
         ]);
     }
-
 }
