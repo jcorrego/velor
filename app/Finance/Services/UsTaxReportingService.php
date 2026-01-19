@@ -69,6 +69,11 @@ class UsTaxReportingService
         // Get rental income
         $rentalIncome = (float) Transaction::query()
             ->whereIn('category_id', $asset->getRentalIncomeCategories()->pluck('id'))
+            ->whereIn('account_id', function ($query) use ($asset) {
+                $query->select('id')
+                    ->from('accounts')
+                    ->where('entity_id', $asset->entity_id);
+            })
             ->whereYear('transaction_date', $taxYear)
             ->where('type', 'income')
             ->sum('converted_amount');
@@ -77,10 +82,15 @@ class UsTaxReportingService
         $expenses = Transaction::query()
             ->join('transaction_categories', 'transactions.category_id', '=', 'transaction_categories.id')
             ->whereIn('transactions.category_id', $asset->getRentalExpenseCategories()->pluck('id'))
+            ->whereIn('transactions.account_id', function ($query) use ($asset) {
+                $query->select('id')
+                    ->from('accounts')
+                    ->where('entity_id', $asset->entity_id);
+            })
             ->whereYear('transactions.transaction_date', $taxYear)
             ->where('transactions.type', 'expense')
             ->selectRaw('transaction_categories.name as category_name, SUM(transactions.converted_amount) as total')
-            ->groupBy('transaction_categories.name')
+            ->groupBy('transaction_categories.id', 'transaction_categories.name')
             ->get();
 
         $expensesByCategory = [];
