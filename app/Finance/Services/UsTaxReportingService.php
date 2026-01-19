@@ -68,7 +68,13 @@ class UsTaxReportingService
     {
         // Get rental income
         $rentalIncome = (float) Transaction::query()
-            ->whereIn('category_id', $asset->getRentalIncomeCategories()->pluck('id'))
+            ->whereIn('category_id', function ($query) use ($asset) {
+                $query->select('id')
+                    ->from('transaction_categories')
+                    ->where('jurisdiction_id', $asset->entity->jurisdiction_id)
+                    ->where('income_or_expense', 'income')
+                    ->where('name', 'like', '%rental%');
+            })
             ->whereIn('account_id', function ($query) use ($asset) {
                 $query->select('id')
                     ->from('accounts')
@@ -81,7 +87,13 @@ class UsTaxReportingService
         // Get expenses grouped by category
         $expenses = Transaction::query()
             ->join('transaction_categories', 'transactions.category_id', '=', 'transaction_categories.id')
-            ->whereIn('transactions.category_id', $asset->getRentalExpenseCategories()->pluck('id'))
+            ->whereIn('transactions.category_id', function ($query) use ($asset) {
+                $query->select('id')
+                    ->from('transaction_categories')
+                    ->where('jurisdiction_id', $asset->entity->jurisdiction_id)
+                    ->where('income_or_expense', 'expense')
+                    ->where('name', 'like', '%rental%');
+            })
             ->whereIn('transactions.account_id', function ($query) use ($asset) {
                 $query->select('id')
                     ->from('accounts')
