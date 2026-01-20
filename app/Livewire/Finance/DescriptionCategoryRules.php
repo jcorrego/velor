@@ -20,6 +20,8 @@ class DescriptionCategoryRules extends Component
 
     public ?int $categoryId = null;
 
+    public string $counterparty = '';
+
     public string $notes = '';
 
     public bool $isActive = true;
@@ -49,6 +51,7 @@ class DescriptionCategoryRules extends Component
         $this->editingId = $rule->id;
         $this->descriptionPattern = $rule->description_pattern;
         $this->categoryId = $rule->category_id;
+        $this->counterparty = $rule->counterparty ?? '';
         $this->notes = $rule->notes ?? '';
         $this->isActive = $rule->is_active;
     }
@@ -60,12 +63,14 @@ class DescriptionCategoryRules extends Component
         $validated = $this->validate([
             'descriptionPattern' => ['required', 'string', 'max:255'],
             'categoryId' => ['required', 'integer', 'exists:transaction_categories,id'],
+            'counterparty' => ['nullable', 'string', 'max:255'],
             'notes' => ['nullable', 'string', 'max:500'],
             'isActive' => ['boolean'],
         ]);
 
         $validated['description_pattern'] = $validated['descriptionPattern'];
         $validated['category_id'] = $validated['categoryId'];
+        $validated['counterparty'] = $validated['counterparty'] ?: null;
         $validated['is_active'] = $validated['isActive'];
         $validated['jurisdiction_id'] = $this->jurisdictionId;
 
@@ -144,6 +149,7 @@ class DescriptionCategoryRules extends Component
 
         $transaction->update([
             'category_id' => $rule->category_id,
+            'counterparty_name' => $rule->counterparty ?: $transaction->counterparty_name,
         ]);
 
         $this->previewTransactions = array_values(array_filter(
@@ -160,9 +166,15 @@ class DescriptionCategoryRules extends Component
 
         $rule = DescriptionCategoryRule::findOrFail($this->previewRuleId);
 
-        $this->buildPreviewQuery($rule)->update([
+        $payload = [
             'category_id' => $rule->category_id,
-        ]);
+        ];
+
+        if ($rule->counterparty) {
+            $payload['counterparty_name'] = $rule->counterparty;
+        }
+
+        $this->buildPreviewQuery($rule)->update($payload);
 
         $this->previewTransactions = [];
     }
@@ -207,6 +219,8 @@ class DescriptionCategoryRules extends Component
                     'currency' => $transaction->originalCurrency?->code,
                     'current_category' => $transaction->category?->name,
                     'new_category' => $rule->category?->name,
+                    'current_counterparty' => $transaction->counterparty_name,
+                    'new_counterparty' => $rule->counterparty,
                 ];
             })
             ->values()
@@ -227,6 +241,17 @@ class DescriptionCategoryRules extends Component
             ->where(function ($query) use ($rule) {
                 $query->whereNull('category_id')
                     ->orWhere('category_id', '!=', $rule->category_id);
+
+                if ($rule->counterparty) {
+                    $query->orWhere(function ($counterpartyQuery) use ($rule) {
+                        $counterpartyQuery
+                            ->where('category_id', $rule->category_id)
+                            ->where(function ($nameQuery) use ($rule) {
+                                $nameQuery->whereNull('counterparty_name')
+                                    ->orWhere('counterparty_name', '!=', $rule->counterparty);
+                            });
+                    });
+                }
             });
     }
 
@@ -235,6 +260,7 @@ class DescriptionCategoryRules extends Component
         $this->editingId = null;
         $this->descriptionPattern = '';
         $this->categoryId = null;
+        $this->counterparty = '';
         $this->notes = '';
         $this->isActive = true;
         $this->resetErrorBag();

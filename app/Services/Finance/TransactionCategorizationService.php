@@ -13,20 +13,32 @@ class TransactionCategorizationService
      */
     public function resolveCategoryId(array $transaction, Account $account, ?array $rules = null): ?int
     {
+        $match = $this->resolveRuleMatch($transaction, $account, $rules);
+
+        return $match['category_id'] ?? null;
+    }
+
+    /**
+     * Resolve matched rule attributes for imported transaction data.
+     *
+     * @return array{category_id: int|null, counterparty: string|null}
+     */
+    public function resolveRuleMatch(array $transaction, Account $account, ?array $rules = null): array
+    {
         $categories = TransactionCategory::all();
 
         if ($categories->isEmpty()) {
-            return null;
+            return ['category_id' => null, 'counterparty' => null];
         }
 
         $manualId = $this->resolveManualCategoryId($transaction, $categories);
         if ($manualId) {
-            return $manualId;
+            return ['category_id' => $manualId, 'counterparty' => null];
         }
 
         $rules ??= config('finance.transaction_categorization_rules', []);
 
-        return $this->resolveRuleCategoryId($transaction, $categories, $rules);
+        return $this->resolveRuleMatchFromRules($transaction, $categories, $rules);
     }
 
     /**
@@ -55,10 +67,15 @@ class TransactionCategorizationService
      * @param  Collection<int, TransactionCategory>  $categories
      * @param  array<int, array<string, mixed>>  $rules
      */
-    private function resolveRuleCategoryId(array $transaction, Collection $categories, array $rules): ?int
+    /**
+     * @param  Collection<int, TransactionCategory>  $categories
+     * @param  array<int, array<string, mixed>>  $rules
+     * @return array{category_id: int|null, counterparty: string|null}
+     */
+    private function resolveRuleMatchFromRules(array $transaction, Collection $categories, array $rules): array
     {
         if ($rules === []) {
-            return null;
+            return ['category_id' => null, 'counterparty' => null];
         }
 
         $description = (string) ($transaction['description'] ?? '');
@@ -80,20 +97,26 @@ class TransactionCategorizationService
 
             $categoryId = $rule['category_id'] ?? null;
             if ($categoryId) {
-                return $categories->firstWhere('id', (int) $categoryId)?->id;
+                return [
+                    'category_id' => $categories->firstWhere('id', (int) $categoryId)?->id,
+                    'counterparty' => $rule['counterparty'] ?? null,
+                ];
             }
 
             $categoryName = $rule['category_name'] ?? null;
             if ($categoryName) {
                 $normalized = strtolower(trim((string) $categoryName));
 
-                return $categories
-                    ->first(fn (TransactionCategory $category) => strtolower($category->name) === $normalized)
-                    ?->id;
+                return [
+                    'category_id' => $categories
+                        ->first(fn (TransactionCategory $category) => strtolower($category->name) === $normalized)
+                        ?->id,
+                    'counterparty' => $rule['counterparty'] ?? null,
+                ];
             }
         }
 
-        return null;
+        return ['category_id' => null, 'counterparty' => null];
     }
 
     /**
