@@ -76,6 +76,30 @@ test('validation fails with invalid asset type', function () {
         ->assertJsonValidationErrors(['type']);
 });
 
+test('create vehicle asset', function () {
+    $user = User::factory()->create();
+    $entity = Entity::factory()->create(['user_id' => $user->id]);
+    $jurisdiction = Jurisdiction::factory()->create();
+    $currency = $this->getCurrency('EUR');
+
+    $data = [
+        'name' => 'Peugot 5008',
+        'type' => AssetType::Vehicle->value,
+        'jurisdiction_id' => $jurisdiction->id,
+        'entity_id' => $entity->id,
+        'ownership_structure' => OwnershipStructure::Direct->value,
+        'acquisition_date' => '2021-03-15',
+        'acquisition_cost' => 32000.00,
+        'acquisition_currency_id' => $currency->id,
+    ];
+
+    $response = $this->actingAs($user)->postJson('/api/assets', $data);
+
+    $response->assertStatus(201)
+        ->assertJsonPath('name', 'Peugot 5008')
+        ->assertJsonPath('type', AssetType::Vehicle->value);
+});
+
 test('view asset with valuations', function () {
     $user = User::factory()->create();
     $entity = Entity::factory()->create(['user_id' => $user->id]);

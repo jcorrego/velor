@@ -71,6 +71,16 @@ class AssetFactory extends Factory
         ]);
     }
 
+    public function vehicle(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'type' => AssetType::Vehicle,
+            'name' => $this->faker->words(2, true).' Vehicle',
+            'acquisition_cost' => $this->faker->randomFloat(2, 15000, 80000),
+            'useful_life_years' => 5,
+        ]);
+    }
+
     public function inSpain(): static
     {
         $spainJurisdiction = Jurisdiction::where('iso_code', 'ESP')->first()
