@@ -8,7 +8,9 @@ use App\Models\Transaction;
 use App\Models\TransactionCategory;
 use App\Models\User;
 use App\Services\Finance\TransactionImportService;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
+uses(RefreshDatabase::class);
 it('falls back to the account currency when import data is missing currency', function () {
     $user = User::factory()->create();
     $entity = Entity::factory()->for($user)->create();
