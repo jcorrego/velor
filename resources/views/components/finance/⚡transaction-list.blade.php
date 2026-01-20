@@ -285,7 +285,9 @@ new class extends Component
             $query->where('account_id', $this->filterAccountId);
         }
 
-        if ($this->filterCategoryId) {
+        if ($this->filterCategoryId === 'uncategorized') {
+            $query->whereNull('category_id');
+        } elseif ($this->filterCategoryId) {
             $query->where('category_id', $this->filterCategoryId);
         }
 
@@ -354,6 +356,7 @@ new class extends Component
 
             <flux:select wire:model.live="filterCategoryId" placeholder="{{ __('All Categories') }}">
                 <option value="">{{ __('All Categories') }}</option>
+                <option value="uncategorized">{{ __('Uncategorized') }}</option>
                 @foreach($categories as $category)
                     <option value="{{ $category->id }}">{{ $category->name }}</option>
                 @endforeach
