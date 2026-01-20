@@ -85,3 +85,59 @@ test('getIrpfSummary aggregates EUR income and expenses by mapped categories and
         ->and($summary['income_by_source'][$incomeSourceLabel])->toBe(1909.00)
         ->and($summary['expense_by_source'][$expenseSourceLabel])->toBe(-200.00);
 });
+
+test('getModelo720Summary aggregates foreign assets by category and threshold status', function () {
+    $eur = Currency::factory()->euro()->create();
+
+    $user = User::factory()->create();
+    $spain = \App\Models\Jurisdiction::factory()->spain()->create();
+    $usa = \App\Models\Jurisdiction::factory()->usa()->create();
+
+    $foreignEntity = Entity::factory()->create([
+        'user_id' => $user->id,
+        'jurisdiction_id' => $usa->id,
+    ]);
+
+    $account = Account::factory()->euro()->create([
+        'entity_id' => $foreignEntity->id,
+        'currency_id' => $eur->id,
+    ]);
+
+    Transaction::factory()->income()->create([
+        'account_id' => $account->id,
+        'transaction_date' => '2024-02-01',
+        'original_amount' => 20000.00,
+        'original_currency_id' => $eur->id,
+    ]);
+
+    Transaction::factory()->expense()->create([
+        'account_id' => $account->id,
+        'transaction_date' => '2024-03-01',
+        'original_amount' => -5000.00,
+        'original_currency_id' => $eur->id,
+    ]);
+
+    $asset = \App\Models\Asset::factory()->create([
+        'entity_id' => $foreignEntity->id,
+        'jurisdiction_id' => $usa->id,
+        'acquisition_date' => '2023-06-01',
+        'acquisition_cost' => 60000.00,
+        'acquisition_currency_id' => $eur->id,
+    ]);
+
+    \App\Models\AssetValuation::factory()->create([
+        'asset_id' => $asset->id,
+        'amount' => 70000.00,
+        'valuation_date' => '2024-06-01',
+    ]);
+
+    $service = app(SpainTaxReportingService::class);
+    $summary = $service->getModelo720Summary($user, 2024);
+
+    expect($summary['threshold'])->toBe(50000.00)
+        ->and($summary['categories']['Bank Accounts']['total'])->toBe(15000.00)
+        ->and($summary['categories']['Bank Accounts']['status'])->toBe('below')
+        ->and($summary['categories']['Real Estate']['total'])->toBe(70000.00)
+        ->and($summary['categories']['Real Estate']['status'])->toBe('above')
+        ->and($summary['total_assets'])->toBe(85000.00);
+});
