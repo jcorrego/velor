@@ -159,17 +159,23 @@ class SpainTaxReportingService
      */
     private function getIrpfTransactions($entityIds, $mappedCategoryIds, $irpfCodes, int $taxYear, TransactionType $type)
     {
+        $mappingQuery = CategoryTaxMapping::query()
+            ->selectRaw('category_id, MIN(line_item) as line_item, MIN(tax_form_code) as tax_form_code')
+            ->whereIn('tax_form_code', $irpfCodes)
+            ->where('country', 'Spain')
+            ->groupBy('category_id');
+
         return Transaction::query()
             ->join('transaction_categories', 'transactions.category_id', '=', 'transaction_categories.id')
-            ->join('category_tax_mappings', 'transactions.category_id', '=', 'category_tax_mappings.category_id')
+            ->joinSub($mappingQuery, 'category_tax_mappings', function ($join) {
+                $join->on('transactions.category_id', '=', 'category_tax_mappings.category_id');
+            })
             ->whereIn('transactions.account_id', function ($query) use ($entityIds) {
                 $query->select('id')
                     ->from('accounts')
                     ->whereIn('entity_id', $entityIds);
             })
             ->whereIn('transactions.category_id', $mappedCategoryIds)
-            ->whereIn('category_tax_mappings.tax_form_code', $irpfCodes)
-            ->where('category_tax_mappings.country', 'Spain')
             ->whereYear('transactions.transaction_date', $taxYear)
             ->where('transactions.type', $type->value)
             ->where('transaction_categories.income_or_expense', $type->value)
