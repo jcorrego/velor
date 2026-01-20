@@ -73,7 +73,7 @@
                     <flux:sidebar.item icon="home" :href="route('finance.us-tax.schedule-e')" :current="request()->routeIs('finance.us-tax.schedule-e')" wire:navigate>
                         {{ __('Schedule E') }}
                     </flux:sidebar.item>
-                    <flux:sidebar.item icon="document-text" :href="route('finance.colombia-tax.summary')" :current="request()->routeIs('finance.colombia-tax.summary')" wire:navigate>
+                    <flux:sidebar.item icon="globe-alt" :href="route('finance.colombia-tax.summary')" :current="request()->routeIs('finance.colombia-tax.summary')" wire:navigate>
                         {{ __('Colombia Summary') }}
                     </flux:sidebar.item>
                 </flux:sidebar.group>
