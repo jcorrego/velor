@@ -7,6 +7,7 @@ enum AssetType: string
     case Residential = 'residential';
     case Commercial = 'commercial';
     case Land = 'land';
+    case Vehicle = 'vehicle';
 
     public function label(): string
     {
@@ -14,6 +15,7 @@ enum AssetType: string
             self::Residential => 'Residential Property',
             self::Commercial => 'Commercial Property',
             self::Land => 'Land',
+            self::Vehicle => 'Vehicle',
         };
     }
 }
