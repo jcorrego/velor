@@ -61,5 +61,9 @@ Route::view('finance/us-tax/schedule-e', 'finance.us-tax.schedule-e')
     ->middleware(['auth', 'verified'])
     ->name('finance.us-tax.schedule-e');
 
+Route::view('finance/colombia-tax/summary', 'finance.colombia-tax.summary')
+    ->middleware(['auth', 'verified'])
+    ->name('finance.colombia-tax.summary');
+
 require __DIR__.'/settings.php';
 require __DIR__.'/management.php';

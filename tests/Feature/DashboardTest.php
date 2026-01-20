@@ -71,10 +71,12 @@ test('dashboard shows filing status summary and due dates', function () {
         'income_or_expense' => 'expense',
     ]);
 
+    $categoryTotalsDate = now()->subYear()->toDateString();
+
     Transaction::factory()->income()->create([
         'account_id' => $account->id,
         'category_id' => $incomeCategory->id,
-        'transaction_date' => now()->toDateString(),
+        'transaction_date' => $categoryTotalsDate,
         'original_amount' => 1200.50,
         'original_currency_id' => $eur->id,
         'converted_amount' => 1200.50,
@@ -85,7 +87,7 @@ test('dashboard shows filing status summary and due dates', function () {
     Transaction::factory()->expense()->create([
         'account_id' => $account->id,
         'category_id' => $expenseCategory->id,
-        'transaction_date' => now()->toDateString(),
+        'transaction_date' => $categoryTotalsDate,
         'original_amount' => 300.25,
         'original_currency_id' => $eur->id,
         'converted_amount' => 300.25,
