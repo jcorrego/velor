@@ -140,6 +140,13 @@
                                                 <div class="flex items-center justify-end gap-3">
                                                     <button
                                                         type="button"
+                                                        class="text-sm font-medium text-blue-700 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-200"
+                                                        wire:click="previewExisting({{ $rule->id }})"
+                                                    >
+                                                        {{ __('Apply to existing') }}
+                                                    </button>
+                                                    <button
+                                                        type="button"
                                                         class="text-sm font-medium text-zinc-700 hover:text-zinc-900 dark:text-zinc-200 dark:hover:text-white"
                                                         wire:click="edit({{ $rule->id }})"
                                                     >
@@ -162,6 +169,76 @@
                         </div>
                     @endif
                 </section>
+
+                @if ($previewRuleId)
+                    <section class="mt-6 rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
+                        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <flux:heading size="lg">{{ __('Preview existing transactions') }}</flux:heading>
+                                <flux:subheading>{{ __('Review transactions that match this rule but have a different category.') }}</flux:subheading>
+                            </div>
+                            <div class="flex flex-col gap-3 sm:flex-row">
+                                <flux:button variant="primary" type="button" wire:click="applyAllPreviewTransactions" :disabled="count($previewTransactions) === 0">
+                                    {{ __('Apply to all') }}
+                                </flux:button>
+                                <flux:button variant="ghost" type="button" wire:click="clearPreview">
+                                    {{ __('Close preview') }}
+                                </flux:button>
+                            </div>
+                        </div>
+
+                        @if (count($previewTransactions) === 0)
+                            <div class="mt-6 rounded-lg border border-dashed border-zinc-200 px-4 py-6 text-sm text-zinc-500 dark:border-zinc-700 dark:text-zinc-300">
+                                {{ __('No matching transactions found.') }}
+                            </div>
+                        @else
+                            <div class="mt-6 overflow-hidden rounded-lg border border-zinc-200 dark:border-zinc-700">
+                                <table class="w-full text-sm">
+                                    <thead class="bg-zinc-50 text-left text-xs uppercase tracking-wide text-zinc-500 dark:bg-zinc-800 dark:text-zinc-300">
+                                        <tr>
+                                            <th class="px-4 py-3">{{ __('Date') }}</th>
+                                            <th class="px-4 py-3">{{ __('Description') }}</th>
+                                            <th class="px-4 py-3">{{ __('Amount') }}</th>
+                                            <th class="px-4 py-3">{{ __('Current Category') }}</th>
+                                            <th class="px-4 py-3">{{ __('New Category') }}</th>
+                                            <th class="px-4 py-3"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-zinc-200 dark:divide-zinc-700">
+                                        @foreach ($previewTransactions as $transaction)
+                                            <tr wire:key="preview-{{ $transaction['id'] }}">
+                                                <td class="px-4 py-3 text-zinc-700 dark:text-zinc-200">
+                                                    {{ $transaction['transaction_date'] }}
+                                                </td>
+                                                <td class="px-4 py-3 text-zinc-700 dark:text-zinc-200">
+                                                    {{ $transaction['description'] ?? __('(No description)') }}
+                                                </td>
+                                                <td class="px-4 py-3 text-zinc-700 dark:text-zinc-200">
+                                                    {{ number_format($transaction['amount'], 2) }} {{ $transaction['currency'] }}
+                                                </td>
+                                                <td class="px-4 py-3 text-zinc-700 dark:text-zinc-200">
+                                                    {{ $transaction['current_category'] ?? __('Uncategorized') }}
+                                                </td>
+                                                <td class="px-4 py-3 text-zinc-700 dark:text-zinc-200">
+                                                    {{ $transaction['new_category'] }}
+                                                </td>
+                                                <td class="px-4 py-3 text-right">
+                                                    <button
+                                                        type="button"
+                                                        class="text-sm font-medium text-blue-700 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-200"
+                                                        wire:click="applyPreviewTransaction({{ $transaction['id'] }})"
+                                                    >
+                                                        {{ __('Apply') }}
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @endif
+                    </section>
+                @endif
             </div>
         @else
             <div class="rounded-xl border border-dashed border-zinc-200 px-6 py-12 text-center dark:border-zinc-700">
