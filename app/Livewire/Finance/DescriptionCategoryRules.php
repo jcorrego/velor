@@ -241,6 +241,17 @@ class DescriptionCategoryRules extends Component
             ->where(function ($query) use ($rule) {
                 $query->whereNull('category_id')
                     ->orWhere('category_id', '!=', $rule->category_id);
+
+                if ($rule->counterparty) {
+                    $query->orWhere(function ($counterpartyQuery) use ($rule) {
+                        $counterpartyQuery
+                            ->where('category_id', $rule->category_id)
+                            ->where(function ($nameQuery) use ($rule) {
+                                $nameQuery->whereNull('counterparty_name')
+                                    ->orWhere('counterparty_name', '!=', $rule->counterparty);
+                            });
+                    });
+                }
             });
     }
 

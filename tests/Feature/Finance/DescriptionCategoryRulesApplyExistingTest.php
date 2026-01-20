@@ -149,3 +149,40 @@ test('apply existing updates counterparty when configured', function () {
     expect($transaction->refresh()->counterparty_name)->toBe('Uber BV')
         ->and($transaction->category_id)->toBe($targetCategory->id);
 });
+
+test('preview includes transactions needing counterparty update only', function () {
+    $user = User::factory()->create();
+    $jurisdiction = Jurisdiction::factory()->create();
+
+    $entity = Entity::factory()->create([
+        'user_id' => $user->id,
+        'jurisdiction_id' => $jurisdiction->id,
+    ]);
+
+    $account = Account::factory()->create(['entity_id' => $entity->id]);
+    $targetCategory = TransactionCategory::factory()->create();
+
+    $rule = DescriptionCategoryRule::create([
+        'jurisdiction_id' => $jurisdiction->id,
+        'category_id' => $targetCategory->id,
+        'description_pattern' => 'LYFT',
+        'counterparty' => 'Lyft Inc',
+        'is_active' => true,
+    ]);
+
+    $transaction = Transaction::factory()->create([
+        'account_id' => $account->id,
+        'category_id' => $targetCategory->id,
+        'description' => 'LYFT RIDE',
+        'counterparty_name' => 'Old Name',
+    ]);
+
+    Livewire::actingAs($user)
+        ->test(DescriptionCategoryRules::class)
+        ->set('jurisdictionId', $jurisdiction->id)
+        ->call('previewExisting', $rule->id)
+        ->assertCount('previewTransactions', 1)
+        ->assertViewHas('previewTransactions', function (array $preview) use ($transaction) {
+            return $preview[0]['id'] === $transaction->id;
+        });
+});
