@@ -138,7 +138,34 @@ class DatabaseSeeder extends Seeder
             ->residential()
             ->llc()
             ->create([
-                'name' => 'Summerbreeze Apartment',
+                'name' => 'Summerbreeze Florida',
+            ]);
+
+        \App\Models\Asset::factory()
+            ->for($colombiaEntity)
+            ->inColombia()
+            ->residential()
+            ->individual()
+            ->create([
+                'name' => 'Apto Arrecifes de la Abadia',
+            ]);
+
+        \App\Models\Asset::factory()
+            ->for($colombiaEntity)
+            ->inColombia()
+            ->residential()
+            ->individual()
+            ->create([
+                'name' => 'Apto Bogota Luis Carlos',
+            ]);
+
+        \App\Models\Asset::factory()
+            ->for($spainEntity)
+            ->inSpain()
+            ->vehicle()
+            ->individual()
+            ->create([
+                'name' => 'Peugeot 5008',
             ]);
 
         // Create tax years for 2025
