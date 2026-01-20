@@ -76,6 +76,12 @@
                     <flux:sidebar.item icon="globe-alt" :href="route('finance.colombia-tax.summary')" :current="request()->routeIs('finance.colombia-tax.summary')" wire:navigate>
                         {{ __('Colombia Summary') }}
                     </flux:sidebar.item>
+                    <flux:sidebar.item icon="document-text" :href="route('finance.spain-tax.irpf')" :current="request()->routeIs('finance.spain-tax.irpf')" wire:navigate>
+                        {{ __('IRPF Summary') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="globe-alt" :href="route('finance.spain-tax.modelo-720')" :current="request()->routeIs('finance.spain-tax.modelo-720')" wire:navigate>
+                        {{ __('Modelo 720') }}
+                    </flux:sidebar.item>
                 </flux:sidebar.group>
             </flux:sidebar.nav>
 

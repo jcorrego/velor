@@ -65,5 +65,13 @@ Route::view('finance/colombia-tax/summary', 'finance.colombia-tax.summary')
     ->middleware(['auth', 'verified'])
     ->name('finance.colombia-tax.summary');
 
+Route::view('finance/spain-tax/irpf', 'finance.spain-tax.irpf-summary')
+    ->middleware(['auth', 'verified'])
+    ->name('finance.spain-tax.irpf');
+
+Route::view('finance/spain-tax/modelo-720', 'finance.spain-tax.modelo-720')
+    ->middleware(['auth', 'verified'])
+    ->name('finance.spain-tax.modelo-720');
+
 require __DIR__.'/settings.php';
 require __DIR__.'/management.php';
