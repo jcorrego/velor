@@ -17,6 +17,7 @@ class DescriptionCategoryRule extends Model
         'jurisdiction_id',
         'category_id',
         'description_pattern',
+        'counterparty',
         'notes',
         'is_active',
     ];

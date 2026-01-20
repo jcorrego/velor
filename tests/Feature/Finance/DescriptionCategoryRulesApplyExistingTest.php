@@ -113,3 +113,39 @@ test('apply all updates every previewed transaction', function () {
     expect($first->refresh()->category_id)->toBe($targetCategory->id)
         ->and($second->refresh()->category_id)->toBe($targetCategory->id);
 });
+
+test('apply existing updates counterparty when configured', function () {
+    $user = User::factory()->create();
+    $jurisdiction = Jurisdiction::factory()->create();
+
+    $entity = Entity::factory()->create([
+        'user_id' => $user->id,
+        'jurisdiction_id' => $jurisdiction->id,
+    ]);
+
+    $account = Account::factory()->create(['entity_id' => $entity->id]);
+    $targetCategory = TransactionCategory::factory()->create();
+
+    $rule = DescriptionCategoryRule::create([
+        'jurisdiction_id' => $jurisdiction->id,
+        'category_id' => $targetCategory->id,
+        'description_pattern' => 'UBER',
+        'counterparty' => 'Uber BV',
+        'is_active' => true,
+    ]);
+
+    $transaction = Transaction::factory()->create([
+        'account_id' => $account->id,
+        'category_id' => null,
+        'description' => 'UBER TRIP',
+        'counterparty_name' => 'Old Name',
+    ]);
+
+    Livewire::actingAs($user)
+        ->test(DescriptionCategoryRules::class)
+        ->call('previewExisting', $rule->id)
+        ->call('applyPreviewTransaction', $transaction->id);
+
+    expect($transaction->refresh()->counterparty_name)->toBe('Uber BV')
+        ->and($transaction->category_id)->toBe($targetCategory->id);
+});

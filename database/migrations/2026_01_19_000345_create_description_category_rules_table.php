@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('jurisdiction_id')->constrained('jurisdictions');
             $table->foreignId('category_id')->constrained('transaction_categories');
             $table->string('description_pattern'); // Text to match at start of description (case-insensitive)
+            $table->string('counterparty')->nullable();
             $table->text('notes')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();

@@ -68,6 +68,14 @@
                     </flux:select>
                     <flux:error name="categoryId" />
 
+                    <flux:input
+                        wire:model="counterparty"
+                        :label="__('Counterparty (Optional)')"
+                        :placeholder="__('e.g., Amazon, Santander')"
+                        type="text"
+                    />
+                    <flux:error name="counterparty" />
+
                     <flux:textarea 
                         wire:model="notes"
                         :label="__('Notes (Optional)')"
@@ -110,6 +118,7 @@
                                     <tr>
                                         <th class="px-4 py-3">{{ __('Pattern') }}</th>
                                         <th class="px-4 py-3">{{ __('Category') }}</th>
+                                        <th class="px-4 py-3">{{ __('Counterparty') }}</th>
                                         <th class="px-4 py-3">{{ __('Notes') }}</th>
                                         <th class="px-4 py-3">{{ __('Status') }}</th>
                                         <th class="px-4 py-3"></th>
@@ -123,6 +132,9 @@
                                             </td>
                                             <td class="px-4 py-3 text-zinc-700 dark:text-zinc-200">
                                                 {{ $rule->category->name }}
+                                            </td>
+                                            <td class="px-4 py-3 text-zinc-700 dark:text-zinc-200">
+                                                {{ $rule->counterparty ?? '-' }}
                                             </td>
                                             <td class="px-4 py-3 text-sm text-zinc-600 dark:text-zinc-400">
                                                 {{ $rule->notes ?? '-' }}
@@ -201,6 +213,8 @@
                                             <th class="px-4 py-3">{{ __('Amount') }}</th>
                                             <th class="px-4 py-3">{{ __('Current Category') }}</th>
                                             <th class="px-4 py-3">{{ __('New Category') }}</th>
+                                            <th class="px-4 py-3">{{ __('Current Counterparty') }}</th>
+                                            <th class="px-4 py-3">{{ __('New Counterparty') }}</th>
                                             <th class="px-4 py-3"></th>
                                         </tr>
                                     </thead>
@@ -221,6 +235,12 @@
                                                 </td>
                                                 <td class="px-4 py-3 text-zinc-700 dark:text-zinc-200">
                                                     {{ $transaction['new_category'] }}
+                                                </td>
+                                                <td class="px-4 py-3 text-zinc-700 dark:text-zinc-200">
+                                                    {{ $transaction['current_counterparty'] ?? '-' }}
+                                                </td>
+                                                <td class="px-4 py-3 text-zinc-700 dark:text-zinc-200">
+                                                    {{ $transaction['new_counterparty'] ?? '-' }}
                                                 </td>
                                                 <td class="px-4 py-3 text-right">
                                                     <button

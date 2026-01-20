@@ -67,12 +67,16 @@ class TransactionImportService
             $signature = $this->createSignature($imported);
 
             // Resolve category for preview
-            $categoryId = $categorizationService->resolveCategoryId($imported, $account, $rules);
+            $match = $categorizationService->resolveRuleMatch($imported, $account, $rules);
+            $categoryId = $match['category_id'];
             $category = $categoryId ? \App\Models\TransactionCategory::find($categoryId) : null;
+
+            $resolvedCounterparty = $match['counterparty'] ?? ($imported['counterparty'] ?? null);
 
             $enriched = array_merge($imported, [
                 'category_id' => $categoryId,
                 'category_name' => $category?->name,
+                'counterparty' => $resolvedCounterparty,
             ]);
 
             if ($existingTransactions->has($signature)) {
@@ -106,8 +110,11 @@ class TransactionImportService
                 continue;
             }
 
-            $categoryId = app(TransactionCategorizationService::class)
-                ->resolveCategoryId($data, $account, $rules);
+            $match = app(TransactionCategorizationService::class)
+                ->resolveRuleMatch($data, $account, $rules);
+
+            $categoryId = $match['category_id'];
+            $resolvedCounterparty = $match['counterparty'] ?? ($data['counterparty'] ?? null);
 
             Transaction::create([
                 'account_id' => $account->id,
@@ -120,7 +127,7 @@ class TransactionImportService
                 'fx_rate' => 1.0, // TODO: fetch from FxRateService
                 'fx_source' => 'import',
                 'type' => $data['amount'] >= 0 ? 'income' : 'expense',
-                'counterparty_name' => $data['counterparty'] ?? null,
+                'counterparty_name' => $resolvedCounterparty,
                 'category_id' => $categoryId,
                 'import_source' => $source,
                 'tags' => $data['tags'] ?? [],
@@ -277,6 +284,7 @@ class TransactionImportService
                 'pattern' => '/^'.preg_quote($rule->description_pattern, '/').'/i',
                 'fields' => ['description'],
                 'category_id' => $rule->category_id,
+                'counterparty' => $rule->counterparty,
             ];
         })->values()->all();
     }
