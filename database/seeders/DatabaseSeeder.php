@@ -160,20 +160,33 @@ class DatabaseSeeder extends Seeder
             ->whereIn('code', ['RENTA'])
             ->pluck('id', 'code');
 
+        $filingDueDates = [
+            'IRPF' => '2026-06-30',
+            '720' => '2026-03-31',
+            '5472' => '2026-04-15',
+            '1120' => '2026-04-15',
+            '1040-NR' => '2026-06-15',
+            'SCHEDULE-E' => '2026-04-15',
+            'RENTA' => '2026-08-01',
+        ];
+
         $planningFilings = [
-            ['tax_year_id' => $taxYearSpain->id, 'filing_type_id' => $spainFilingTypes['IRPF'] ?? null],
-            ['tax_year_id' => $taxYearSpain->id, 'filing_type_id' => $spainFilingTypes['720'] ?? null],
-            ['tax_year_id' => $taxYearUSA->id, 'filing_type_id' => $usaFilingTypes['5472'] ?? null],
-            ['tax_year_id' => $taxYearUSA->id, 'filing_type_id' => $usaFilingTypes['1120'] ?? null],
-            ['tax_year_id' => $taxYearUSA->id, 'filing_type_id' => $usaFilingTypes['1040-NR'] ?? null],
-            ['tax_year_id' => $taxYearUSA->id, 'filing_type_id' => $usaFilingTypes['SCHEDULE-E'] ?? null],
-            ['tax_year_id' => $taxYearColombia->id, 'filing_type_id' => $colombiaFilingTypes['RENTA'] ?? null],
+            ['tax_year_id' => $taxYearSpain->id, 'filing_type_id' => $spainFilingTypes['IRPF'] ?? null, 'code' => 'IRPF'],
+            ['tax_year_id' => $taxYearSpain->id, 'filing_type_id' => $spainFilingTypes['720'] ?? null, 'code' => '720'],
+            ['tax_year_id' => $taxYearUSA->id, 'filing_type_id' => $usaFilingTypes['5472'] ?? null, 'code' => '5472'],
+            ['tax_year_id' => $taxYearUSA->id, 'filing_type_id' => $usaFilingTypes['1120'] ?? null, 'code' => '1120'],
+            ['tax_year_id' => $taxYearUSA->id, 'filing_type_id' => $usaFilingTypes['1040-NR'] ?? null, 'code' => '1040-NR'],
+            ['tax_year_id' => $taxYearUSA->id, 'filing_type_id' => $usaFilingTypes['SCHEDULE-E'] ?? null, 'code' => 'SCHEDULE-E'],
+            ['tax_year_id' => $taxYearColombia->id, 'filing_type_id' => $colombiaFilingTypes['RENTA'] ?? null, 'code' => 'RENTA'],
         ];
 
         foreach ($planningFilings as $filing) {
             if (! $filing['filing_type_id']) {
                 continue;
             }
+
+            $dueDate = $filing['code'] ? ($filingDueDates[$filing['code']] ?? null) : null;
+            $keyMetrics = $dueDate ? ['due_date' => $dueDate] : null;
 
             \App\Models\Filing::firstOrCreate(
                 [
@@ -183,6 +196,7 @@ class DatabaseSeeder extends Seeder
                 ],
                 [
                     'status' => \App\FilingStatus::Planning,
+                    'key_metrics' => $keyMetrics,
                 ]
             );
         }
@@ -200,6 +214,24 @@ class DatabaseSeeder extends Seeder
                 'income_or_expense' => 'expense',
                 'sort_order' => 55,
             ]
+        );
+
+        \App\Models\CategoryTaxMapping::firstOrCreate(
+            [
+                'category_id' => $rentalIncomeCategory->id,
+                'tax_form_code' => \App\Enums\Finance\TaxFormCode::ScheduleE,
+                'line_item' => 'line_1',
+            ],
+            ['country' => 'USA']
+        );
+
+        \App\Models\CategoryTaxMapping::firstOrCreate(
+            [
+                'category_id' => $rentalMaintenanceCategory->id,
+                'tax_form_code' => \App\Enums\Finance\TaxFormCode::ScheduleE,
+                'line_item' => 'line_18',
+            ],
+            ['country' => 'USA']
         );
 
         // Create Form 5472 categories
@@ -263,9 +295,9 @@ class DatabaseSeeder extends Seeder
             'account_id' => $usAccount->id,
             'transaction_date' => '2025-01-20',
             'type' => \App\Enums\Finance\TransactionType::Expense,
-            'original_amount' => 450.00,
+            'original_amount' => -450.00,
             'original_currency_id' => $usCurrencyId,
-            'converted_amount' => 409.09, // Converted to EUR at ~0.909 rate
+            'converted_amount' => -409.09, // Converted to EUR at ~0.909 rate
             'converted_currency_id' => $eurCurrencyId,
             'fx_rate' => 0.909,
             'fx_source' => 'ecb',
@@ -295,9 +327,9 @@ class DatabaseSeeder extends Seeder
             'account_id' => $usAccount->id,
             'transaction_date' => '2025-02-10',
             'type' => \App\Enums\Finance\TransactionType::Expense,
-            'original_amount' => 1500.00,
+            'original_amount' => -1500.00,
             'original_currency_id' => $usCurrencyId,
-            'converted_amount' => 1363.50,
+            'converted_amount' => -1363.50,
             'converted_currency_id' => $eurCurrencyId,
             'fx_rate' => 0.909,
             'fx_source' => 'ecb',
