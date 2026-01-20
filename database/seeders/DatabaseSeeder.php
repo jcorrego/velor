@@ -141,6 +141,33 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Summerbreeze Apartment',
             ]);
 
+        \App\Models\Asset::factory()
+            ->for($colombiaEntity)
+            ->inColombia()
+            ->residential()
+            ->individual()
+            ->create([
+                'name' => 'Apto Arreceifes',
+            ]);
+
+        \App\Models\Asset::factory()
+            ->for($colombiaEntity)
+            ->inColombia()
+            ->residential()
+            ->individual()
+            ->create([
+                'name' => 'Ap Luis Carlos',
+            ]);
+
+        \App\Models\Asset::factory()
+            ->for($spainEntity)
+            ->inSpain()
+            ->commercial()
+            ->individual()
+            ->create([
+                'name' => 'Peugot 5008',
+            ]);
+
         // Create tax years for 2025
         $taxYearSpain = \App\Models\TaxYear::create(['jurisdiction_id' => $spain->id, 'year' => 2025]);
         $taxYearUSA = \App\Models\TaxYear::create(['jurisdiction_id' => $usa->id, 'year' => 2025]);
