@@ -138,7 +138,7 @@ class DatabaseSeeder extends Seeder
             ->residential()
             ->llc()
             ->create([
-                'name' => 'Summerbreeze Apartment',
+                'name' => 'Summerbreeze Florida',
             ]);
 
         \App\Models\Asset::factory()
@@ -147,7 +147,7 @@ class DatabaseSeeder extends Seeder
             ->residential()
             ->individual()
             ->create([
-                'name' => 'Apto Arreceifes',
+                'name' => 'Apto Arrecifes de la Abadia',
             ]);
 
         \App\Models\Asset::factory()
@@ -156,7 +156,7 @@ class DatabaseSeeder extends Seeder
             ->residential()
             ->individual()
             ->create([
-                'name' => 'Ap Luis Carlos',
+                'name' => 'Apto Bogota Luis Carlos',
             ]);
 
         \App\Models\Asset::factory()
