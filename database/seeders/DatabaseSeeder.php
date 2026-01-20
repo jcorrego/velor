@@ -251,12 +251,12 @@ class DatabaseSeeder extends Seeder
 
         $colombiaIncomeCategory = \App\Models\TransactionCategory::firstOrCreate(
             ['name' => 'Consulting Income'],
-            ['income_or_expense' => 'income', 'sort_order' => 10]
+            ['income_or_expense' => 'income']
         );
 
         $colombiaExpenseCategory = \App\Models\TransactionCategory::firstOrCreate(
             ['name' => 'Bank Fees'],
-            ['income_or_expense' => 'expense', 'sort_order' => 40]
+            ['income_or_expense' => 'expense']
         );
 
         // Create Form 5472 tax mappings
