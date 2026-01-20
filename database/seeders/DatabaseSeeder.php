@@ -294,6 +294,28 @@ class DatabaseSeeder extends Seeder
             );
         }
 
+        $expenseCategories = \App\Models\TransactionCategory::query()
+            ->where('income_or_expense', 'expense')
+            ->get();
+
+        foreach ($expenseCategories as $category) {
+            $hasIrpfMapping = \App\Models\CategoryTaxMapping::query()
+                ->where('category_id', $category->id)
+                ->where('tax_form_code', \App\Enums\Finance\TaxFormCode::IRPF)
+                ->exists();
+
+            if (! $hasIrpfMapping) {
+                \App\Models\CategoryTaxMapping::firstOrCreate(
+                    [
+                        'category_id' => $category->id,
+                        'tax_form_code' => \App\Enums\Finance\TaxFormCode::IRPF,
+                        'line_item' => 'Gastos deducibles',
+                    ],
+                    ['country' => 'Spain']
+                );
+            }
+        }
+
         // Create Form 5472 categories
         $ownerContributionCategory = \App\Models\TransactionCategory::firstOrCreate(
             ['name' => 'Owner Contribution'],
