@@ -162,10 +162,10 @@ class DatabaseSeeder extends Seeder
         \App\Models\Asset::factory()
             ->for($spainEntity)
             ->inSpain()
-            ->commercial()
+            ->vehicle()
             ->individual()
             ->create([
-                'name' => 'Peugot 5008',
+                'name' => 'Peugeot 5008',
             ]);
 
         // Create tax years for 2025
