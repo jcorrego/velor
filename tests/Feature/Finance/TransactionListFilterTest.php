@@ -27,12 +27,10 @@ test('can filter transactions by uncategorized', function () {
         'account_id' => $account->id,
         'category_id' => null,
     ]);
-
-    Livewire::actingAs($user)
-        ->test('finance.transaction-list')
-        ->set('filterCategoryId', 'uncategorized')
-        ->assertViewHas('transactions', function ($transactions) use ($uncategorized) {
-            return $transactions->count() === 1
-                && $transactions->first()->id === $uncategorized->id;
-        });
+    $this->actingAs($user);
+    $component = Livewire::test('finance.transaction-list');
+    $component->set('filterCategoryId', 'uncategorized');
+    $transactions = $component->viewData('transactions');
+    expect($transactions)->toHaveCount(1)
+        ->and($transactions->first()->id)->toBe($uncategorized->id);
 });
