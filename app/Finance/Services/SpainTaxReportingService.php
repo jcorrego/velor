@@ -129,7 +129,7 @@ class SpainTaxReportingService
             );
         }
 
-        $threshold = 50000.00;
+        $threshold = (float) config('finance.modelo_720_threshold', 50000.00);
 
         $categories = [
             'Bank Accounts' => [
