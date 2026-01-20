@@ -94,6 +94,7 @@ class DatabaseSeeder extends Seeder
         // Create categories for US entity
         $usCurrencyId = \App\Models\Currency::where('code', 'USD')->first()->id;
         $eurCurrencyId = \App\Models\Currency::where('code', 'EUR')->first()->id;
+        $copCurrencyId = \App\Models\Currency::where('code', 'COP')->first()->id;
 
         foreach ($basicCategories as $category) {
             \App\Models\TransactionCategory::firstOrCreate(
@@ -248,6 +249,16 @@ class DatabaseSeeder extends Seeder
             ['income_or_expense' => 'income', 'sort_order' => 102]
         );
 
+        $colombiaIncomeCategory = \App\Models\TransactionCategory::firstOrCreate(
+            ['name' => 'Consulting Income'],
+            ['income_or_expense' => 'income']
+        );
+
+        $colombiaExpenseCategory = \App\Models\TransactionCategory::firstOrCreate(
+            ['name' => 'Bank Fees'],
+            ['income_or_expense' => 'expense']
+        );
+
         // Create Form 5472 tax mappings
         \App\Models\CategoryTaxMapping::firstOrCreate(
             [
@@ -272,6 +283,24 @@ class DatabaseSeeder extends Seeder
                 'line_item' => 'reimbursement',
             ],
             ['country' => 'USA']
+        );
+
+        \App\Models\CategoryTaxMapping::firstOrCreate(
+            [
+                'category_id' => $colombiaIncomeCategory->id,
+                'tax_form_code' => \App\Enums\Finance\TaxFormCode::ColombianDeclaration,
+                'line_item' => 'income',
+            ],
+            ['country' => 'Colombia']
+        );
+
+        \App\Models\CategoryTaxMapping::firstOrCreate(
+            [
+                'category_id' => $colombiaExpenseCategory->id,
+                'tax_form_code' => \App\Enums\Finance\TaxFormCode::ColombianDeclaration,
+                'line_item' => 'expense',
+            ],
+            ['country' => 'Colombia']
         );
 
         // Create rental income transaction for 2025
@@ -352,6 +381,36 @@ class DatabaseSeeder extends Seeder
             'category_id' => $reimbursementCategory->id,
             'description' => 'Reimbursement for business expenses paid personally',
             'tags' => json_encode(['owner_id' => $user->id]),
+        ]);
+
+        \App\Models\Transaction::create([
+            'account_id' => $colombiaAccount->id,
+            'transaction_date' => '2025-02-12',
+            'type' => \App\Enums\Finance\TransactionType::Income,
+            'original_amount' => 4200000.00,
+            'original_currency_id' => $copCurrencyId,
+            'converted_amount' => 4200000.00,
+            'converted_currency_id' => $copCurrencyId,
+            'fx_rate' => 1.0,
+            'fx_source' => 'manual',
+            'category_id' => $colombiaIncomeCategory->id,
+            'counterparty_name' => 'Cliente Colombia SAS',
+            'description' => 'Consulting services - February',
+        ]);
+
+        \App\Models\Transaction::create([
+            'account_id' => $colombiaAccount->id,
+            'transaction_date' => '2025-02-18',
+            'type' => \App\Enums\Finance\TransactionType::Expense,
+            'original_amount' => -15000.00,
+            'original_currency_id' => $copCurrencyId,
+            'converted_amount' => -15000.00,
+            'converted_currency_id' => $copCurrencyId,
+            'fx_rate' => 1.0,
+            'fx_source' => 'manual',
+            'category_id' => $colombiaExpenseCategory->id,
+            'counterparty_name' => 'Bancolombia',
+            'description' => 'Monthly account fee',
         ]);
     }
 }
