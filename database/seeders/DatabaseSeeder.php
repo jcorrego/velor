@@ -235,6 +235,65 @@ class DatabaseSeeder extends Seeder
             ['country' => 'USA']
         );
 
+        $consultingIncomeCategory = \App\Models\TransactionCategory::where('name', 'Consulting Income')->first();
+        $softwareSubscriptionsCategory = \App\Models\TransactionCategory::where('name', 'Software Subscriptions')->first();
+        $repairsCategory = \App\Models\TransactionCategory::where('name', 'Repairs & Maintenance')->first();
+
+        if ($consultingIncomeCategory) {
+            \App\Models\CategoryTaxMapping::firstOrCreate(
+                [
+                    'category_id' => $consultingIncomeCategory->id,
+                    'tax_form_code' => \App\Enums\Finance\TaxFormCode::IRPF,
+                    'line_item' => 'Rendimientos de actividades económicas',
+                ],
+                ['country' => 'Spain']
+            );
+        }
+
+        if ($rentalIncomeCategory) {
+            \App\Models\CategoryTaxMapping::firstOrCreate(
+                [
+                    'category_id' => $rentalIncomeCategory->id,
+                    'tax_form_code' => \App\Enums\Finance\TaxFormCode::IRPF,
+                    'line_item' => 'Ingresos por alquileres',
+                ],
+                ['country' => 'Spain']
+            );
+        }
+
+        if ($softwareSubscriptionsCategory) {
+            \App\Models\CategoryTaxMapping::firstOrCreate(
+                [
+                    'category_id' => $softwareSubscriptionsCategory->id,
+                    'tax_form_code' => \App\Enums\Finance\TaxFormCode::IRPF,
+                    'line_item' => 'Gastos deducibles',
+                ],
+                ['country' => 'Spain']
+            );
+        }
+
+        if ($repairsCategory) {
+            \App\Models\CategoryTaxMapping::firstOrCreate(
+                [
+                    'category_id' => $repairsCategory->id,
+                    'tax_form_code' => \App\Enums\Finance\TaxFormCode::IRPF,
+                    'line_item' => 'Reparaciones y conservación',
+                ],
+                ['country' => 'Spain']
+            );
+        }
+
+        if ($taxesCategory) {
+            \App\Models\CategoryTaxMapping::firstOrCreate(
+                [
+                    'category_id' => $taxesCategory->id,
+                    'tax_form_code' => \App\Enums\Finance\TaxFormCode::IRPF,
+                    'line_item' => 'Impuestos',
+                ],
+                ['country' => 'Spain']
+            );
+        }
+
         // Create Form 5472 categories
         $ownerContributionCategory = \App\Models\TransactionCategory::firstOrCreate(
             ['name' => 'Owner Contribution'],
