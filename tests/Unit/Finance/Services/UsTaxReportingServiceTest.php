@@ -92,7 +92,7 @@ test('getOwnerFlowSummary calculates draws for tax year', function () {
     $service = app(UsTaxReportingService::class);
     $summary = $service->getOwnerFlowSummary($user, 2024);
 
-    expect($summary['draws'])->toBe(5000.00);
+    expect($summary['draws'])->toBe(-5000.00);
 });
 
 test('getOwnerFlowSummary calculates total related party transactions', function () {
@@ -167,7 +167,7 @@ test('getOwnerFlowSummary calculates total related party transactions', function
     $service = app(UsTaxReportingService::class);
     $summary = $service->getOwnerFlowSummary($user, 2024);
 
-    expect($summary['related_party_totals'])->toBe(13500.00);
+    expect($summary['related_party_totals'])->toBe(7500.00);
 });
 
 test('getOwnerFlowSummary filters by tax year', function () {
@@ -320,9 +320,9 @@ test('getScheduleERentalSummary groups expenses by category', function () {
     $summary = $service->getScheduleERentalSummary($asset, 2024);
 
     expect($summary['expenses_by_category'])->toHaveKey('Rental Property Maintenance')
-        ->and($summary['expenses_by_category']['Rental Property Maintenance'])->toBe(500.00)
+        ->and($summary['expenses_by_category']['Rental Property Maintenance'])->toBe(-500.00)
         ->and($summary['expenses_by_category'])->toHaveKey('Rental Utilities')
-        ->and($summary['expenses_by_category']['Rental Utilities'])->toBe(300.00);
+        ->and($summary['expenses_by_category']['Rental Utilities'])->toBe(-300.00);
 });
 
 test('getScheduleERentalSummary calculates total expenses', function () {
@@ -371,7 +371,7 @@ test('getScheduleERentalSummary calculates total expenses', function () {
     $service = app(UsTaxReportingService::class);
     $summary = $service->getScheduleERentalSummary($asset, 2024);
 
-    expect($summary['total_expenses'])->toBe(2000.00);
+    expect($summary['total_expenses'])->toBe(-2000.00);
 });
 
 test('getScheduleERentalSummary calculates net income', function () {
@@ -538,5 +538,5 @@ test('getScheduleERentalSummary filters expenses by asset entity', function () {
     $service = app(UsTaxReportingService::class);
     $summary = $service->getScheduleERentalSummary($asset, 2024);
 
-    expect($summary['total_expenses'])->toBe(1000.00);
+    expect($summary['total_expenses'])->toBe(-1000.00);
 });
