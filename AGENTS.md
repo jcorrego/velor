@@ -242,9 +242,7 @@ protected function isAccessible(User $user, ?string $path = null): bool
 ### Available Components
 This is correct as of Boost installation, but there may be additional components within the codebase.
 
-<available-flux-components>
-avatar, badge, brand, breadcrumbs, button, callout, checkbox, dropdown, field, heading, icon, input, modal, navbar, otp-input, profile, radio, select, separator, skeleton, switch, text, textarea, tooltip
-</available-flux-components>
+For a quick reference to available Flux components and icon handling guidance, see `.ai/guidelines/iconography.md`.
 
 ### Icons (Lucide)
 - Flux includes Lucide icons: https://lucide.dev/.
