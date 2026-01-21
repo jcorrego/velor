@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use App\Models\Filing;
 use App\Models\FilingType;
-use App\Models\FormSchema;
 use App\Models\Jurisdiction;
 use App\Models\TaxYear;
 use App\Models\User;
@@ -29,33 +28,19 @@ it('renders form 5472 guidance and saves supplemental data', function () {
         ->for($filingType)
         ->create();
 
-    $schema = FormSchema::factory()->create([
-        'form_code' => '5472',
-        'tax_year' => 2025,
-        'title' => 'Form 5472',
-        'sections' => [
-            [
-                'key' => 'part-ii-foreign-shareholder',
-                'title' => 'Part II – 25% Foreign Shareholder',
-                'summary' => ['Shareholder identification details.'],
-                'bullets' => [],
-                'fields' => [
-                    ['key' => 'shareholder_name', 'label' => 'Foreign shareholder name', 'type' => 'text', 'required' => true],
-                ],
-            ],
-        ],
-    ]);
-
     Livewire::actingAs($user)
         ->test('finance.form-5472-guidance')
         ->set('filingId', (string) $filing->id)
         ->assertSee('Part II – 25% Foreign Shareholder')
+        ->set('formData.reporting_corp_name', 'JCO Services LLC')
+        ->set('formData.reporting_corp_ein', '12-3456789')
+        ->set('formData.type_of_filer', 'foreign_owned_us_corporation')
+        ->set('formData.final_amended_return', true)
         ->set('formData.shareholder_name', 'Acme Holdings')
         ->call('save')
         ->assertHasNoErrors();
 
     $fresh = $filing->fresh();
 
-    expect($fresh->form_schema_id)->toBe($schema->id)
-        ->and($fresh->form_data['shareholder_name'])->toBe('Acme Holdings');
+    expect($fresh->form_data['shareholder_name'])->toBe('Acme Holdings');
 });

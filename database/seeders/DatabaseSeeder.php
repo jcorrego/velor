@@ -18,7 +18,6 @@ class DatabaseSeeder extends Seeder
             CurrencySeeder::class,
             JurisdictionSeeder::class,
             FilingTypeSeeder::class,
-            FormSchemaSeeder::class,
         ]);
 
         // Create test user

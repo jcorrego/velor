@@ -1,0 +1,291 @@
+{
+  "form_code": "5472",
+  "tax_year": 2025,
+  "title": "Form 5472 (Information Return of a 25% Foreign-Owned U.S. Corporation or a Foreign Corporation Engaged in a U.S. Trade or Business)",
+  "sections": [
+    {
+      "key": "1-identifying-information-initial-part",
+      "title": "1. Identifying Information (Initial part)",
+      "summary": [
+        "Basic data of the entity filing this form."
+      ],
+      "bullets": [
+        
+      ],
+      "fields": [
+        {
+          "key": "reporting_corp_name",
+          "label": "Reporting corporation name",
+          "type": "text",
+          "required": true,
+          "help": "Enter the official legal name of the entity as it appears on IRS filings."
+        },
+        {
+          "key": "reporting_corp_ein",
+          "label": "EIN",
+          "type": "text",
+          "required": false,
+          "help": "Provide the EIN assigned to the reporting corporation."
+        },
+        {
+          "key": "reporting_corp_incorporation_country",
+          "label": "Country of incorporation",
+          "type": "text",
+          "required": false,
+          "help": "Country where the entity was formed."
+        },
+        {
+          "key": "reporting_corp_activity",
+          "label": "Principal business activity",
+          "type": "text",
+          "required": false,
+          "help": "Describe the primary business activity during the tax year."
+        },
+        {
+          "key": "type_of_filer",
+          "label": "Type of filer",
+          "type": "select",
+          "required": true,
+          "help": "Choose the category that matches how the entity is filing Form 5472.",
+          "options": [
+            {
+              "label": "25% foreign-owned U.S. corporation",
+              "value": "foreign_owned_us_corporation"
+            },
+            {
+              "label": "Foreign corporation engaged in a U.S. trade or business",
+              "value": "foreign_corporation_us_business"
+            }
+          ]
+        },
+        {
+          "key": "final_amended_return",
+          "label": "Final or amended return",
+          "type": "boolean",
+          "required": false,
+          "help": "Check if this filing is the final return or an amended submission."
+        }
+      ]
+    },
+    {
+      "key": "2-part-i-reporting-corporation",
+      "title": "2. Part I – Reporting Corporation",
+      "summary": [
+        "Additional information about the reporting entity."
+      ],
+      "bullets": [
+        "Date of incorporation",
+        "Country of organization",
+        "Type of entity",
+        "Accounting method"
+      ],
+      "fields": [
+        {
+          "key": "incorporation_date",
+          "label": "Date of incorporation",
+          "type": "date",
+          "required": false
+          , "help": "Use the date recorded on the entity formation paperwork."
+        },
+        {
+          "key": "country_of_organization",
+          "label": "Country of organization",
+          "type": "text",
+          "required": false
+          , "help": "Country where the entity is legally organized."
+        },
+        {
+          "key": "entity_type",
+          "label": "Type of entity",
+          "type": "text",
+          "required": false
+          , "help": "Specify corporation, LLC treated as a corporation, etc."
+        },
+        {
+          "key": "accounting_method",
+          "label": "Accounting method",
+          "type": "text",
+          "required": false
+          , "help": "Indicate cash or accrual, or other approved method."
+        }
+      ]
+    },
+    {
+      "key": "3-part-ii-25-foreign-shareholder",
+      "title": "3. Part II – 25% Foreign Shareholder",
+      "summary": [
+        "Details for the foreign owner or single-member LLC owner."
+      ],
+      "bullets": [
+        "Name",
+        "Address",
+        "Country of residence",
+        "Percentage and nature of ownership"
+      ],
+      "fields": [
+        {
+          "key": "shareholder_name",
+          "label": "Foreign shareholder name",
+          "type": "text",
+          "required": true
+          , "help": "Full name of the foreign shareholder reported on the form."
+        },
+        {
+          "key": "shareholder_country",
+          "label": "Country of residence",
+          "type": "text",
+          "required": false
+          , "help": "Country where the shareholder maintains primary residence."
+        },
+        {
+          "key": "ownership_percentage",
+          "label": "Percentage of ownership",
+          "type": "text",
+          "required": false
+          , "help": "Enter the percentage of ownership held by the shareholder."
+        },
+        {
+          "key": "ownership_nature",
+          "label": "Nature of ownership",
+          "type": "text",
+          "required": false
+          , "help": "Explain whether the ownership is direct or indirect."
+        }
+      ]
+    },
+    {
+      "key": "4-part-iii-related-party",
+      "title": "4. Part III – Related Party",
+      "summary": [
+        "List parties with whom reportable transactions occurred."
+      ],
+      "bullets": [
+        "Name",
+        "Country",
+        "Relationship",
+        "Type of entity"
+      ],
+      "fields": [
+        {
+          "key": "related_party_details",
+          "label": "Related party details",
+          "type": "textarea",
+          "required": false
+          , "help": "Describe each related party involved in reportable transactions."
+        }
+      ]
+    },
+    {
+      "key": "5-part-iv-monetary-transactions",
+      "title": "5. Part IV – Monetary Transactions",
+      "summary": [
+        "Report total annual inflows and outflows instead of individual invoices."
+      ],
+      "bullets": [
+        "Sales of inventory",
+        "Rents received",
+        "Interest received",
+        "Royalties received",
+        "Income outflows"
+      ],
+      "fields": [
+        {
+          "key": "monetary_transactions_summary",
+          "label": "Monetary transaction summary",
+          "type": "textarea",
+          "required": false
+          , "help": "Summarize total cash inflows/outflows by category for the year."
+        }
+      ]
+    },
+    {
+      "key": "6-part-v-non-monetary-transactions",
+      "title": "6. Part V – Non-Monetary Transactions",
+      "summary": [
+        "Capture capital contributions, asset use, IP transfers, and debt forgiveness."
+      ],
+      "bullets": [
+        "Contributions of capital in kind",
+        "Free use of assets",
+        "Transfer of intellectual property",
+        "Debt forgiveness"
+      ],
+      "fields": [
+        {
+          "key": "non_monetary_transactions_summary",
+          "label": "Non-monetary transaction summary",
+          "type": "textarea",
+          "required": false
+          , "help": "List contributions, asset transfers, or debt forgiveness that lacked cash flow."
+        }
+      ]
+    },
+    {
+      "key": "7-part-vi-additional-information",
+      "title": "7. Part VI – Additional Information",
+      "summary": [
+        "Answer control questions about ownership and accuracy."
+      ],
+      "bullets": [
+        "Ownership changes",
+        "Accurate information confirmation",
+        "Additional relevant transactions"
+      ],
+      "fields": [
+        {
+          "key": "ownership_changes",
+          "label": "Ownership changes",
+          "type": "textarea",
+          "required": false
+          , "help": "Note any ownership changes, transfers, or restructuring during the year."
+        },
+        {
+          "key": "accurate_information",
+          "label": "Accurate information confirmation",
+          "type": "text",
+          "required": false
+          , "help": "Confirm that the information presented is complete and accurate."
+        },
+        {
+          "key": "other_relevant_transactions",
+          "label": "Other relevant transactions",
+          "type": "textarea",
+          "required": false
+          , "help": "Include other significant related-party transactions not covered elsewhere."
+        }
+      ]
+    },
+    {
+      "key": "8-signature",
+      "title": "8. Signature",
+      "summary": [
+        "Signed by an authorized person from the entity."
+      ],
+      "bullets": [
+        "Signature of a manager or officer"
+      ],
+      "fields": [
+        {
+          "key": "authorized_signature",
+          "label": "Authorized signature",
+          "type": "text",
+          "required": false
+          , "help": "Name and title of the person authorized to sign the return."
+        }
+      ]
+    },
+    {
+      "key": "9-critical-points",
+      "title": "9. Critical Points",
+      "summary": [
+        "Penalties start at USD 25,000 per Form 5472 for failure to file or maintain required records."
+      ],
+      "bullets": [
+        "Form is filed with Form 1120 or 1120-F",
+        "Does not report taxes — only information",
+        "Always at least one reportable transaction in a foreign single-member LLC"
+      ],
+      "fields": []
+    }
+  ]
+}

@@ -2,7 +2,7 @@
 
 use App\Http\Requests\StoreFilingFormResponseRequest;
 use App\Models\Filing;
-use App\Models\FormSchema;
+use App\Services\FormSchemaLoader;
 use Livewire\Component;
 
 new class extends Component
@@ -19,9 +19,12 @@ new class extends Component
      */
     public array $sections = [];
 
-    public ?int $formSchemaId = null;
-
     public ?string $schemaTitle = null;
+
+    /**
+     * @var array<string, mixed>|null
+     */
+    public ?array $schema = null;
 
     public function mount(): void
     {
@@ -55,7 +58,6 @@ new class extends Component
 
         $data = [
             'filing_id' => $filing->id,
-            'form_schema_id' => $schema->id,
             'form_data' => $this->formData,
         ];
 
@@ -66,7 +68,6 @@ new class extends Component
             $request->messagesForSchema($schema),
         )->validate();
 
-        $filing->form_schema_id = $schema->id;
         $filing->form_data = $validated['form_data'] ?? [];
         $filing->save();
 
@@ -101,15 +102,15 @@ new class extends Component
 
         if (! $schema) {
             $this->sections = [];
-            $this->formSchemaId = null;
             $this->schemaTitle = null;
+            $this->schema = null;
             $this->formData = [];
             return;
         }
 
-        $this->formSchemaId = $schema->id;
-        $this->schemaTitle = $schema->title;
-        $this->sections = $schema->sections ?? [];
+        $this->schema = $schema;
+        $this->schemaTitle = $schema['title'] ?? null;
+        $this->sections = $schema['sections'] ?? [];
 
         $this->formData = $filing->form_data ?? [];
 
@@ -120,7 +121,8 @@ new class extends Component
                     continue;
                 }
 
-                $this->formData[$key] = $this->formData[$key] ?? '';
+                $defaultValue = ($field['type'] ?? 'text') === 'boolean' ? false : '';
+                $this->formData[$key] = $this->formData[$key] ?? $defaultValue;
             }
         }
     }
@@ -137,16 +139,16 @@ new class extends Component
             ->find($this->filingId);
     }
 
-    private function currentSchema(?Filing $filing): ?FormSchema
+    private function currentSchema(?Filing $filing): ?array
     {
         if (! $filing) {
             return null;
         }
 
-        return FormSchema::query()
-            ->where('form_code', '5472')
-            ->where('tax_year', $filing->taxYear->year)
-            ->first();
+        return app(FormSchemaLoader::class)->load(
+            $filing->filingType->code,
+            $filing->taxYear->year
+        );
     }
 };
 ?>
@@ -221,21 +223,51 @@ new class extends Component
                                         $fieldKey = $field['key'] ?? '';
                                         $fieldLabel = $field['label'] ?? $fieldKey;
                                         $fieldType = $field['type'] ?? 'text';
+                                        $fieldHelp = $field['help'] ?? '';
+                                        $fieldOptions = $field['options'] ?? [];
+                                        $fieldRequired = $field['required'] ?? false;
                                     @endphp
-
-                                    @if ($fieldType === 'textarea')
-                                        <flux:textarea
-                                            wire:model="formData.{{ $fieldKey }}"
-                                            label="{{ $fieldLabel }}"
-                                        />
-                                    @else
-                                        <flux:input
-                                            wire:model="formData.{{ $fieldKey }}"
-                                            label="{{ $fieldLabel }}"
-                                            type="{{ $fieldType }}"
-                                        />
-                                    @endif
-                                    <flux:error name="formData.{{ $fieldKey }}" />
+                                    <flux:field>
+                                        @if ($fieldType === 'boolean')
+                                            <flux:label>{{ $fieldLabel }}</flux:label>
+                                            <flux:field variant="inline">
+                                                <flux:checkbox wire:model.live="formData.{{ $fieldKey }}"
+                                                    label="{{ __('Is Final') }}"
+                                                    description="{!! $fieldHelp !!}"
+                                                 />
+                                            </flux:field>
+                                            <flux:error name="formData.{{ $fieldKey }}" />
+                                        @else
+                                            @if ($fieldType === 'textarea')
+                                                <flux:textarea wire:model="formData.{{ $fieldKey }}" 
+                                                    label="{{ $fieldLabel }}"
+                                                    description="{!! $fieldHelp !!}"
+                                                />
+                                            @elseif ($fieldType === 'select')
+                                                <flux:select
+                                                    wire:model="formData.{{ $fieldKey }}"
+                                                    :placeholder="__('Select :label', ['label' => $fieldLabel])"
+                                                    label="{{ $fieldLabel }}"
+                                                    description="{!! $fieldHelp !!}"
+                                                >
+                                                    <option value="">{{ __('Select :label', ['label' => $fieldLabel]) }}</option>
+                                                    @foreach ($fieldOptions as $option)
+                                                        <option value="{{ $option['value'] ?? $option['label'] }}">
+                                                            {{ $option['label'] ?? $option['value'] }}
+                                                        </option>
+                                                    @endforeach
+                                                </flux:select>
+                                            @else
+                                                <flux:input
+                                                    wire:model="formData.{{ $fieldKey }}"
+                                                    label="{{ $fieldLabel }}"
+                                                    description="{!! $fieldHelp !!}"
+                                                    type="{{ $fieldType }}"
+                                                />
+                                            @endif
+                                            <flux:error name="formData.{{ $fieldKey }}" />
+                                        @endif
+                                    </flux:field>
                                 @endforeach
                             </div>
                         @endif

@@ -12,8 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('filings', function (Blueprint $table) {
-            $table->foreignId('form_schema_id')->nullable()->after('due_date')->constrained('form_schemas')->nullOnDelete();
-            $table->json('form_data')->nullable()->after('form_schema_id');
+            $table->json('form_data')->nullable()->after('due_date');
         });
     }
 
@@ -23,8 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('filings', function (Blueprint $table) {
-            $table->dropForeign(['form_schema_id']);
-            $table->dropColumn(['form_schema_id', 'form_data']);
+            $table->dropColumn('form_data');
         });
     }
 };
