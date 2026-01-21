@@ -540,3 +540,104 @@ test('getScheduleERentalSummary filters expenses by asset entity', function () {
 
     expect($summary['total_expenses'])->toBe(-1000.00);
 });
+
+test('getForm1040NrSummary groups totals by line item', function () {
+    $user = User::factory()->create();
+    $entity = Entity::factory()->create(['user_id' => $user->id]);
+    $account = Account::factory()->create(['entity_id' => $entity->id]);
+
+    $incomeCategory = TransactionCategory::factory()->create([
+        'name' => 'US Nonresident Income',
+        'income_or_expense' => 'income',
+    ]);
+
+    $expenseCategory = TransactionCategory::factory()->create([
+        'name' => 'US Nonresident Deductions',
+        'income_or_expense' => 'expense',
+    ]);
+
+    CategoryTaxMapping::create([
+        'category_id' => $incomeCategory->id,
+        'tax_form_code' => TaxFormCode::Form1040NR->value,
+        'line_item' => 'line_1',
+        'country' => 'USA',
+    ]);
+
+    CategoryTaxMapping::create([
+        'category_id' => $expenseCategory->id,
+        'tax_form_code' => TaxFormCode::Form1040NR->value,
+        'line_item' => 'line_10',
+        'country' => 'USA',
+    ]);
+
+    Transaction::factory()->income()->create([
+        'account_id' => $account->id,
+        'category_id' => $incomeCategory->id,
+        'transaction_date' => '2024-02-10',
+        'original_amount' => 3000.00,
+        'original_currency_id' => $account->currency_id,
+    ]);
+
+    Transaction::factory()->expense()->create([
+        'account_id' => $account->id,
+        'category_id' => $expenseCategory->id,
+        'transaction_date' => '2024-03-05',
+        'original_amount' => -500.00,
+        'original_currency_id' => $account->currency_id,
+    ]);
+
+    $service = app(UsTaxReportingService::class);
+    $summary = $service->getForm1040NrSummary($user, 2024);
+
+    expect($summary['line_items'])->toHaveKey('line_1')
+        ->and($summary['line_items']['line_1'])->toBe(3000.00)
+        ->and($summary['line_items'])->toHaveKey('line_10')
+        ->and($summary['line_items']['line_10'])->toBe(-500.00)
+        ->and($summary['total'])->toBe(2500.00);
+});
+
+test('getForm1040NrSummary excludes unmapped categories', function () {
+    $user = User::factory()->create();
+    $entity = Entity::factory()->create(['user_id' => $user->id]);
+    $account = Account::factory()->create(['entity_id' => $entity->id]);
+
+    $mappedCategory = TransactionCategory::factory()->create([
+        'name' => 'US Nonresident Income',
+        'income_or_expense' => 'income',
+    ]);
+
+    $unmappedCategory = TransactionCategory::factory()->create([
+        'name' => 'Unmapped Income',
+        'income_or_expense' => 'income',
+    ]);
+
+    CategoryTaxMapping::create([
+        'category_id' => $mappedCategory->id,
+        'tax_form_code' => TaxFormCode::Form1040NR->value,
+        'line_item' => 'line_1',
+        'country' => 'USA',
+    ]);
+
+    Transaction::factory()->income()->create([
+        'account_id' => $account->id,
+        'category_id' => $mappedCategory->id,
+        'transaction_date' => '2024-04-10',
+        'original_amount' => 1200.00,
+        'original_currency_id' => $account->currency_id,
+    ]);
+
+    Transaction::factory()->income()->create([
+        'account_id' => $account->id,
+        'category_id' => $unmappedCategory->id,
+        'transaction_date' => '2024-04-15',
+        'original_amount' => 900.00,
+        'original_currency_id' => $account->currency_id,
+    ]);
+
+    $service = app(UsTaxReportingService::class);
+    $summary = $service->getForm1040NrSummary($user, 2024);
+
+    expect($summary['line_items'])->toHaveKey('line_1')
+        ->and($summary['line_items'])->toHaveCount(1)
+        ->and($summary['total'])->toBe(1200.00);
+});
