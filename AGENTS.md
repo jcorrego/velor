@@ -246,6 +246,11 @@ This is correct as of Boost installation, but there may be additional components
 avatar, badge, brand, breadcrumbs, button, callout, checkbox, dropdown, field, heading, icon, input, modal, navbar, otp-input, profile, radio, select, separator, skeleton, switch, text, textarea, tooltip
 </available-flux-components>
 
+### Icons (Lucide)
+- Flux includes Lucide icons: https://lucide.dev/.
+- When you need an icon, search Lucide’s library, then import the desired icons with `php artisan flux:icon name of the icon`.
+- After importing, use the Flux icon component in the UI.
+
 === livewire/core rules ===
 
 ## Livewire
