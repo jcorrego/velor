@@ -24,8 +24,8 @@ Keep this managed block so 'openspec update' can refresh the instructions.
 
 - Use a branch per proposed change (align with OpenSpec change IDs when possible)
 - Open a PR for each change branch
-- Create PRs using `gh` (GitHub CLI)
 - Keep commits small and focused; avoid amending unless requested
+- Create PRs using `gh` (GitHub CLI)
 
 === .ai/laravel rules ===
 
