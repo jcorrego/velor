@@ -125,6 +125,17 @@ class UsTaxReportingService
     }
 
     /**
+     * Get Form 1040-NR summary totals grouped by line item.
+     * All amounts are converted to USD.
+     *
+     * @return array{line_items: array<string, float>, total: float}
+     */
+    public function getForm1040NrSummary(User $user, int $taxYear): array
+    {
+        return $this->getMappedFormSummary($user, $taxYear, 'form_1040_nr');
+    }
+
+    /**
      * Get Form 5472 transactions by querying via category tax mappings.
      *
      * @param  \Illuminate\Support\Collection  $entities
@@ -154,6 +165,63 @@ class UsTaxReportingService
         $transactions = $query->get();
 
         return $this->convertTransactionsToUSD($transactions, $usdCurrency);
+    }
+
+    /**
+     * Get mapped summary totals for a given US tax form grouped by line item.
+     *
+     * @return array{line_items: array<string, float>, total: float}
+     */
+    private function getMappedFormSummary(User $user, int $taxYear, string $taxFormCode): array
+    {
+        $entities = Entity::where('user_id', $user->id)->pluck('id');
+        $usdCurrency = Currency::where('code', 'USD')->firstOrFail();
+
+        $transactions = Transaction::query()
+            ->join('category_tax_mappings', function ($join) use ($taxFormCode) {
+                $join->on('category_tax_mappings.category_id', '=', 'transactions.category_id')
+                    ->where('category_tax_mappings.tax_form_code', $taxFormCode)
+                    ->where('category_tax_mappings.country', 'USA');
+            })
+            ->whereIn('transactions.account_id', function ($subQuery) use ($entities) {
+                $subQuery->select('id')
+                    ->from('accounts')
+                    ->whereIn('entity_id', $entities);
+            })
+            ->whereYear('transactions.transaction_date', $taxYear)
+            ->select(
+                'transactions.id',
+                'transactions.original_amount',
+                'transactions.original_currency_id',
+                'transactions.transaction_date',
+                'category_tax_mappings.line_item'
+            )
+            ->with('originalCurrency')
+            ->get();
+
+        $lineItems = [];
+        $total = 0;
+
+        foreach ($transactions as $transaction) {
+            $convertedAmount = $this->fxRateService->convert(
+                $transaction->original_amount,
+                $transaction->originalCurrency,
+                $usdCurrency,
+                $transaction->transaction_date
+            );
+
+            if (! isset($lineItems[$transaction->line_item])) {
+                $lineItems[$transaction->line_item] = 0;
+            }
+
+            $lineItems[$transaction->line_item] += $convertedAmount;
+            $total += $convertedAmount;
+        }
+
+        return [
+            'line_items' => $lineItems,
+            'total' => $total,
+        ];
     }
 
     /**

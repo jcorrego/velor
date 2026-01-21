@@ -76,3 +76,62 @@ test('guests cannot access schedule e report page', function () {
 
     $response->assertRedirect();
 });
+
+test('authenticated users can access form 1040-nr report page', function () {
+    $user = User::factory()->create();
+
+    $response = $this->actingAs($user)->get(route('finance.us-tax.form-1040nr'));
+
+    $response->assertSuccessful()
+        ->assertSee('Form 1040-NR')
+        ->assertSeeLivewire('finance.form-1040nr-report');
+});
+
+test('form 1040-nr shows message when no filings exist', function () {
+    $user = User::factory()->create();
+
+    $response = $this->actingAs($user)->get(route('finance.us-tax.form-1040nr'));
+
+    $response->assertSuccessful()
+        ->assertSee('No Form 1040-NR filings found');
+});
+
+test('form 1040-nr displays filing when one exists', function () {
+    $user = User::factory()->create();
+    \App\Models\Currency::firstOrCreate(
+        ['code' => 'USD'],
+        ['name' => 'US Dollar', 'symbol' => '$', 'is_active' => true]
+    );
+    $usa = \App\Models\Jurisdiction::where('iso_code', 'USA')->first()
+        ?? \App\Models\Jurisdiction::factory()->create(['iso_code' => 'USA', 'name' => 'United States']);
+
+    $taxYear = \App\Models\TaxYear::factory()->create([
+        'jurisdiction_id' => $usa->id,
+        'year' => 2025,
+    ]);
+
+    $filingType = \App\Models\FilingType::factory()->create([
+        'jurisdiction_id' => $usa->id,
+        'code' => '1040-NR',
+        'name' => 'Form 1040-NR',
+    ]);
+
+    \App\Models\Filing::factory()->create([
+        'user_id' => $user->id,
+        'tax_year_id' => $taxYear->id,
+        'filing_type_id' => $filingType->id,
+        'status' => \App\FilingStatus::Planning,
+    ]);
+
+    $response = $this->actingAs($user)->get(route('finance.us-tax.form-1040nr'));
+
+    $response->assertSuccessful()
+        ->assertSee('2025')
+        ->assertSee('Planning');
+});
+
+test('guests cannot access form 1040-nr report page', function () {
+    $response = $this->get(route('finance.us-tax.form-1040nr'));
+
+    $response->assertRedirect();
+});
