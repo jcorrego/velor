@@ -65,6 +65,10 @@ Route::view('finance/us-tax/1040-nr', 'finance.us-tax.form-1040nr')
     ->middleware(['auth', 'verified'])
     ->name('finance.us-tax.form-1040nr');
 
+Route::view('finance/us-tax/1120', 'finance.us-tax.form-1120')
+    ->middleware(['auth', 'verified'])
+    ->name('finance.us-tax.form-1120');
+
 Route::view('finance/colombia-tax/summary', 'finance.colombia-tax.summary')
     ->middleware(['auth', 'verified'])
     ->name('finance.colombia-tax.summary');

@@ -641,3 +641,104 @@ test('getForm1040NrSummary excludes unmapped categories', function () {
         ->and($summary['line_items'])->toHaveCount(1)
         ->and($summary['total'])->toBe(1200.00);
 });
+
+test('getForm1120Summary groups totals by line item', function () {
+    $user = User::factory()->create();
+    $entity = Entity::factory()->create(['user_id' => $user->id]);
+    $account = Account::factory()->create(['entity_id' => $entity->id]);
+
+    $incomeCategory = TransactionCategory::factory()->create([
+        'name' => 'US Corporate Income',
+        'income_or_expense' => 'income',
+    ]);
+
+    $expenseCategory = TransactionCategory::factory()->create([
+        'name' => 'US Corporate Deductions',
+        'income_or_expense' => 'expense',
+    ]);
+
+    CategoryTaxMapping::create([
+        'category_id' => $incomeCategory->id,
+        'tax_form_code' => TaxFormCode::Form1120->value,
+        'line_item' => 'line_1',
+        'country' => 'USA',
+    ]);
+
+    CategoryTaxMapping::create([
+        'category_id' => $expenseCategory->id,
+        'tax_form_code' => TaxFormCode::Form1120->value,
+        'line_item' => 'line_26',
+        'country' => 'USA',
+    ]);
+
+    Transaction::factory()->income()->create([
+        'account_id' => $account->id,
+        'category_id' => $incomeCategory->id,
+        'transaction_date' => '2024-02-10',
+        'original_amount' => 8000.00,
+        'original_currency_id' => $account->currency_id,
+    ]);
+
+    Transaction::factory()->expense()->create([
+        'account_id' => $account->id,
+        'category_id' => $expenseCategory->id,
+        'transaction_date' => '2024-03-05',
+        'original_amount' => -1200.00,
+        'original_currency_id' => $account->currency_id,
+    ]);
+
+    $service = app(UsTaxReportingService::class);
+    $summary = $service->getForm1120Summary($user, 2024);
+
+    expect($summary['line_items'])->toHaveKey('line_1')
+        ->and($summary['line_items']['line_1'])->toBe(8000.00)
+        ->and($summary['line_items'])->toHaveKey('line_26')
+        ->and($summary['line_items']['line_26'])->toBe(-1200.00)
+        ->and($summary['total'])->toBe(6800.00);
+});
+
+test('getForm1120Summary excludes unmapped categories', function () {
+    $user = User::factory()->create();
+    $entity = Entity::factory()->create(['user_id' => $user->id]);
+    $account = Account::factory()->create(['entity_id' => $entity->id]);
+
+    $mappedCategory = TransactionCategory::factory()->create([
+        'name' => 'US Corporate Income',
+        'income_or_expense' => 'income',
+    ]);
+
+    $unmappedCategory = TransactionCategory::factory()->create([
+        'name' => 'Unmapped Corporate Income',
+        'income_or_expense' => 'income',
+    ]);
+
+    CategoryTaxMapping::create([
+        'category_id' => $mappedCategory->id,
+        'tax_form_code' => TaxFormCode::Form1120->value,
+        'line_item' => 'line_1',
+        'country' => 'USA',
+    ]);
+
+    Transaction::factory()->income()->create([
+        'account_id' => $account->id,
+        'category_id' => $mappedCategory->id,
+        'transaction_date' => '2024-04-10',
+        'original_amount' => 1800.00,
+        'original_currency_id' => $account->currency_id,
+    ]);
+
+    Transaction::factory()->income()->create([
+        'account_id' => $account->id,
+        'category_id' => $unmappedCategory->id,
+        'transaction_date' => '2024-04-15',
+        'original_amount' => 900.00,
+        'original_currency_id' => $account->currency_id,
+    ]);
+
+    $service = app(UsTaxReportingService::class);
+    $summary = $service->getForm1120Summary($user, 2024);
+
+    expect($summary['line_items'])->toHaveKey('line_1')
+        ->and($summary['line_items'])->toHaveCount(1)
+        ->and($summary['total'])->toBe(1800.00);
+});

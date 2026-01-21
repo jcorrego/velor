@@ -136,6 +136,17 @@ class UsTaxReportingService
     }
 
     /**
+     * Get Form 1120 summary totals grouped by line item.
+     * All amounts are converted to USD.
+     *
+     * @return array{line_items: array<string, float>, total: float}
+     */
+    public function getForm1120Summary(User $user, int $taxYear): array
+    {
+        return $this->getMappedFormSummary($user, $taxYear, 'form_1120');
+    }
+
+    /**
      * Get Form 5472 transactions by querying via category tax mappings.
      *
      * @param  \Illuminate\Support\Collection  $entities
