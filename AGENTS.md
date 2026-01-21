@@ -27,6 +27,20 @@ Keep this managed block so 'openspec update' can refresh the instructions.
 - Keep commits small and focused; avoid amending unless requested
 - Create PRs using `gh` (GitHub CLI)
 
+=== .ai/iconography rules ===
+
+# Iconography & Flux Components
+
+## Flux components
+Flux UI exposes a standard component set for consistent layouts. The following components are available for reuse:
+
+avatar, badge, brand, breadcrumbs, button, callout, checkbox, dropdown, field, heading, icon, input, modal, navbar, otp-input, profile, radio, select, separator, skeleton, switch, text, textarea, tooltip
+
+## Icons
+- Flux includes Lucide icons (https://lucide.dev/).
+- Search the Lucide icon library, then add the desired icon with `php artisan flux:icon name-of-the-icon`.
+- Use the Flux `<flux:icon name="..." />` component after importing the icon.
+
 === .ai/laravel rules ===
 
 We are using Mysql 8 for deployment.
@@ -242,12 +256,9 @@ protected function isAccessible(User $user, ?string $path = null): bool
 ### Available Components
 This is correct as of Boost installation, but there may be additional components within the codebase.
 
-For a quick reference to available Flux components and icon handling guidance, see `.ai/guidelines/iconography.md`.
-
-### Icons (Lucide)
-- Flux includes Lucide icons: https://lucide.dev/.
-- When you need an icon, search Lucide’s library, then import the desired icons with `php artisan flux:icon name of the icon`.
-- After importing, use the Flux icon component in the UI.
+<available-flux-components>
+avatar, badge, brand, breadcrumbs, button, callout, checkbox, dropdown, field, heading, icon, input, modal, navbar, otp-input, profile, radio, select, separator, skeleton, switch, text, textarea, tooltip
+</available-flux-components>
 
 === livewire/core rules ===
 
