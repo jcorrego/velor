@@ -22,6 +22,8 @@ class Filings extends Component
 
     public string $status = '';
 
+    public ?string $due_date = null;
+
     public function mount(): void
     {
         $this->status = FilingStatus::Planning->value;
@@ -38,6 +40,7 @@ class Filings extends Component
         $this->tax_year_id = $filing->tax_year_id;
         $this->filing_type_id = $filing->filing_type_id;
         $this->status = $filing->status->value;
+        $this->due_date = $filing->due_date?->toDateString();
     }
 
     public function save(): void
@@ -101,6 +104,7 @@ class Filings extends Component
             'tax_year_id' => $this->tax_year_id,
             'filing_type_id' => $this->filing_type_id,
             'status' => $this->status,
+            'due_date' => $this->due_date,
             'filing_id' => $this->editingId,
         ];
     }
@@ -137,5 +141,6 @@ class Filings extends Component
         $this->tax_year_id = null;
         $this->filing_type_id = null;
         $this->status = FilingStatus::Planning->value;
+        $this->due_date = null;
     }
 }

@@ -22,6 +22,9 @@ class Filing extends Model
         'tax_year_id',
         'filing_type_id',
         'status',
+        'due_date',
+        'form_schema_id',
+        'form_data',
         'key_metrics',
     ];
 
@@ -34,6 +37,8 @@ class Filing extends Model
     {
         return [
             'status' => FilingStatus::class,
+            'due_date' => 'date',
+            'form_data' => 'array',
             'key_metrics' => 'json',
         ];
     }
@@ -68,5 +73,13 @@ class Filing extends Model
     public function documents(): MorphToMany
     {
         return $this->morphToMany(Document::class, 'documentable')->withTimestamps();
+    }
+
+    /**
+     * Get the supplemental form response for this filing.
+     */
+    public function formSchema(): BelongsTo
+    {
+        return $this->belongsTo(FormSchema::class);
     }
 }

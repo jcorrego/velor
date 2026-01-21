@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             CurrencySeeder::class,
             JurisdictionSeeder::class,
             FilingTypeSeeder::class,
+            FormSchemaSeeder::class,
         ]);
 
         // Create test user
@@ -188,16 +189,6 @@ class DatabaseSeeder extends Seeder
             ->whereIn('code', ['RENTA'])
             ->pluck('id', 'code');
 
-        $filingDueDates = [
-            'IRPF' => '2026-06-30',
-            '720' => '2026-03-31',
-            '5472' => '2026-04-15',
-            '1120' => '2026-04-15',
-            '1040-NR' => '2026-06-15',
-            'SCHEDULE-E' => '2026-04-15',
-            'RENTA' => '2026-08-01',
-        ];
-
         $planningFilings = [
             ['tax_year_id' => $taxYearSpain->id, 'filing_type_id' => $spainFilingTypes['IRPF'] ?? null, 'code' => 'IRPF'],
             ['tax_year_id' => $taxYearSpain->id, 'filing_type_id' => $spainFilingTypes['720'] ?? null, 'code' => '720'],
@@ -213,9 +204,6 @@ class DatabaseSeeder extends Seeder
                 continue;
             }
 
-            $dueDate = $filing['code'] ? ($filingDueDates[$filing['code']] ?? null) : null;
-            $keyMetrics = $dueDate ? ['due_date' => $dueDate] : null;
-
             \App\Models\Filing::firstOrCreate(
                 [
                     'user_id' => $user->id,
@@ -224,7 +212,7 @@ class DatabaseSeeder extends Seeder
                 ],
                 [
                     'status' => \App\FilingStatus::Planning,
-                    'key_metrics' => $keyMetrics,
+                    'key_metrics' => null,
                 ]
             );
         }

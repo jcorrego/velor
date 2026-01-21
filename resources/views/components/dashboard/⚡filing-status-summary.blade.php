@@ -3,6 +3,7 @@
 use App\FilingStatus;
 use App\Models\Filing;
 use Carbon\Carbon;
+use Carbon\CarbonInterface;
 use Illuminate\Support\Str;
 use Livewire\Component;
 
@@ -24,7 +25,7 @@ new class extends Component
 
         $dueFilings = $openFilings
             ->map(function (Filing $filing) use ($now) {
-                $dueDate = $this->extractDueDate($filing->key_metrics);
+                $dueDate = $filing->due_date;
 
                 return [
                     'id' => $filing->id,
@@ -51,26 +52,7 @@ new class extends Component
         ];
     }
 
-    private function extractDueDate(?array $metrics): ?Carbon
-    {
-        if (! is_array($metrics)) {
-            return null;
-        }
-
-        $value = $metrics['due_date'] ?? $metrics['dueDate'] ?? $metrics['due'] ?? null;
-
-        if (! $value) {
-            return null;
-        }
-
-        try {
-            return Carbon::parse($value);
-        } catch (Throwable) {
-            return null;
-        }
-    }
-
-    private function dueStatusLabel(?Carbon $dueDate, Carbon $now): string
+    private function dueStatusLabel(?CarbonInterface $dueDate, CarbonInterface $now): string
     {
         if (! $dueDate) {
             return __('No due date');
@@ -89,7 +71,7 @@ new class extends Component
         return __('Upcoming');
     }
 
-    private function dueStatusColor(?Carbon $dueDate, Carbon $now): string
+    private function dueStatusColor(?CarbonInterface $dueDate, CarbonInterface $now): string
     {
         if (! $dueDate) {
             return 'zinc';
