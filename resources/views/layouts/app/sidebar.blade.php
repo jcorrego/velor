@@ -19,12 +19,9 @@
             </flux:sidebar.nav>
 
             <flux:sidebar.nav>
-                <flux:sidebar.group :heading="__('Management')" class="grid">
+                <flux:sidebar.group :heading="__('People')" class="grid">
                     <flux:sidebar.item icon="user" :href="route('management.profiles')" :current="request()->routeIs('management.profiles')" wire:navigate>
                         {{ __('Profiles') }}
-                    </flux:sidebar.item>
-                    <flux:sidebar.item icon="currency-dollar" :href="route('management.currencies')" :current="request()->routeIs('management.currencies')" wire:navigate>
-                        {{ __('Currencies') }}
                     </flux:sidebar.item>
                     <flux:sidebar.item icon="map" :href="route('management.residency-periods')" :current="request()->routeIs('management.residency-periods')" wire:navigate>
                         {{ __('Residency') }}
@@ -32,14 +29,19 @@
                     <flux:sidebar.item icon="building-office-2" :href="route('management.entities')" :current="request()->routeIs('management.entities')" wire:navigate>
                         {{ __('Entities') }}
                     </flux:sidebar.item>
+                </flux:sidebar.group>
+            </flux:sidebar.nav>
+
+            <flux:sidebar.nav>
+                <flux:sidebar.group :heading="__('Operations')" class="grid">
                     <flux:sidebar.item icon="calendar" :href="route('management.tax-years')" :current="request()->routeIs('management.tax-years')" wire:navigate>
                         {{ __('Tax Years') }}
                     </flux:sidebar.item>
-                    <flux:sidebar.item icon="folder-open" :href="route('management.documents')" :current="request()->routeIs('management.documents')" wire:navigate>
-                        {{ __('Documents') }}
-                    </flux:sidebar.item>
                     <flux:sidebar.item icon="document-text" :href="route('management.filings')" :current="request()->routeIs('management.filings')" wire:navigate>
                         {{ __('Filings') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="folder-open" :href="route('management.documents')" :current="request()->routeIs('management.documents')" wire:navigate>
+                        {{ __('Documents') }}
                     </flux:sidebar.item>
                     <flux:sidebar.item icon="arrow-down-tray" :href="route('management.import-review')" :current="request()->routeIs('management.import-review')" wire:navigate>
                         {{ __('Import Review') }}
@@ -47,11 +49,14 @@
                     <flux:sidebar.item icon="tag" :href="route('management.description-category-rules')" :current="request()->routeIs('management.description-category-rules')" wire:navigate>
                         {{ __('Category Rules') }}
                     </flux:sidebar.item>
+                    <flux:sidebar.item icon="currency-dollar" :href="route('management.currencies')" :current="request()->routeIs('management.currencies')" wire:navigate>
+                        {{ __('Currencies') }}
+                    </flux:sidebar.item>
                 </flux:sidebar.group>
             </flux:sidebar.nav>
 
             <flux:sidebar.nav>
-                <flux:sidebar.group :heading="__('Finance')" class="grid">
+                <flux:sidebar.group :heading="__('Records')" class="grid">
                     <flux:sidebar.item icon="currency-dollar" :href="route('finance.accounts')" :current="request()->routeIs('finance.accounts')" wire:navigate>
                         {{ __('Accounts') }}
                     </flux:sidebar.item>
@@ -61,12 +66,22 @@
                     <flux:sidebar.item icon="home" :href="route('finance.assets')" :current="request()->routeIs('finance.assets')" wire:navigate>
                         {{ __('Assets') }}
                     </flux:sidebar.item>
+                </flux:sidebar.group>
+            </flux:sidebar.nav>
+
+            <flux:sidebar.nav>
+                <flux:sidebar.group :heading="__('Tax Setup')" class="grid">
                     <flux:sidebar.item icon="tag" :href="route('finance.categories')" :current="request()->routeIs('finance.categories')" wire:navigate>
                         {{ __('Categories') }}
                     </flux:sidebar.item>
                     <flux:sidebar.item icon="map" :href="route('finance.mappings')" :current="request()->routeIs('finance.mappings')" wire:navigate>
                         {{ __('Mappings') }}
                     </flux:sidebar.item>
+                </flux:sidebar.group>
+            </flux:sidebar.nav>
+
+            <flux:sidebar.nav>
+                <flux:sidebar.group :heading="__('Reports')" class="grid">
                     <flux:sidebar.item icon="document-text" :href="route('finance.us-tax.owner-flow')" :current="request()->routeIs('finance.us-tax.owner-flow')" wire:navigate>
                         {{ __('Owner Flow (5472)') }}
                     </flux:sidebar.item>
@@ -97,13 +112,14 @@
             <flux:spacer />
 
             <flux:sidebar.nav>
-                <flux:sidebar.item icon="folder-git-2" href="https://github.com/jcorrego/velor" target="_blank">
-                    {{ __('Repository') }}
-                </flux:sidebar.item>
-
-                <flux:sidebar.item icon="book-open-text" :href="route('docs')" :current="request()->routeIs('docs')" wire:navigate>
-                    {{ __('Documentation') }}
-                </flux:sidebar.item>
+                <flux:sidebar.group :heading="__('Resources')" class="grid">
+                    <flux:sidebar.item icon="book-open-text" :href="route('docs')" :current="request()->routeIs('docs')" wire:navigate>
+                        {{ __('Documentation') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="folder-git-2" href="https://github.com/jcorrego/velor" target="_blank">
+                        {{ __('Repository') }}
+                    </flux:sidebar.item>
+                </flux:sidebar.group>
             </flux:sidebar.nav>
 
             <x-desktop-user-menu class="hidden lg:block" :name="auth()->user()->name" />
