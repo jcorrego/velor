@@ -55,14 +55,6 @@ class Currency extends Model
     }
 
     /**
-     * Get all assets acquired in this currency.
-     */
-    public function assets(): HasMany
-    {
-        return $this->hasMany(Asset::class, 'acquisition_currency_id');
-    }
-
-    /**
      * Get all transactions that use this currency as the original currency.
      */
     public function originalTransactions(): HasMany
@@ -81,7 +73,6 @@ class Currency extends Model
     public function isInUse(): bool
     {
         return $this->accounts()->exists()
-            || $this->assets()->exists()
             || $this->originalTransactions()->exists()
             || $this->convertedTransactions()->exists()
             || $this->fxRatesFrom()->exists()

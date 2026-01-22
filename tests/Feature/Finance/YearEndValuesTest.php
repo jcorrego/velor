@@ -84,10 +84,8 @@ it('updates year-end values for an asset from asset management', function () {
         'jurisdiction_id' => $jurisdiction->id,
         'year' => 2024,
     ]);
-    $currency = Currency::factory()->euro()->create();
     $asset = Asset::factory()->for($entity)->create([
         'jurisdiction_id' => $jurisdiction->id,
-        'acquisition_currency_id' => $currency->id,
     ]);
 
     $this->actingAs($user);

@@ -16,7 +16,6 @@ new class extends Component
     public $assets;
     public $entities;
     public $jurisdictions;
-    public $currencies;
     
     public $editingId = null;
     
@@ -40,18 +39,6 @@ new class extends Component
     
     #[Validate('required|numeric|min:0')]
     public $acquisition_cost = '';
-    
-    #[Validate('required|exists:currencies,id')]
-    public $acquisition_currency_id = '';
-    
-    #[Validate('nullable|string')]
-    public $depreciation_method = 'straight-line';
-    
-    #[Validate('nullable|integer|min:1')]
-    public $useful_life_years = '';
-    
-    #[Validate('nullable|numeric|min:0')]
-    public $annual_depreciation_amount = '';
 
     public $yearEndAssetId = null;
     public $yearEndAssetName = '';
@@ -72,18 +59,25 @@ new class extends Component
     {
         $this->entities = Entity::where('user_id', auth()->id())->get();
         $this->jurisdictions = Jurisdiction::all();
-        $this->currencies = Currency::where('is_active', true)->get();
         $this->assets = Asset::query()
             ->whereHas('entity', fn($q) => $q->where('user_id', auth()->id()))
-            ->with(['entity', 'jurisdiction', 'acquisitionCurrency', 'yearEndValues.taxYear'])
+            ->with(['entity.jurisdiction', 'jurisdiction', 'yearEndValues.taxYear'])
             ->latest()
             ->get();
 
         $this->assets->each(function (Asset $asset): void {
+            $defaultCurrency = Currency::query()
+                ->where('code', $asset->entity->jurisdiction->default_currency)
+                ->first();
+
             $latest = $asset->yearEndValues
                 ->sortByDesc(fn (YearEndValue $value) => $value->taxYear?->year ?? 0)
                 ->first();
 
+            $asset->setAttribute(
+                'display_currency_symbol',
+                $defaultCurrency?->symbol ?? $asset->entity->jurisdiction->default_currency ?? ''
+            );
             $asset->setAttribute('latest_year_end_value', $latest);
         });
     }
@@ -100,10 +94,6 @@ new class extends Component
             'ownership_structure' => $this->ownership_structure,
             'acquisition_date' => $this->acquisition_date,
             'acquisition_cost' => $this->acquisition_cost,
-            'acquisition_currency_id' => $this->acquisition_currency_id,
-            'depreciation_method' => $this->depreciation_method,
-            'useful_life_years' => $this->useful_life_years,
-            'annual_depreciation_amount' => $this->annual_depreciation_amount,
         ];
 
         if ($this->editingId) {
@@ -122,8 +112,7 @@ new class extends Component
         }
 
         $this->reset(['name', 'type', 'jurisdiction_id', 'entity_id', 'ownership_structure', 
-                     'acquisition_date', 'acquisition_cost', 'acquisition_currency_id', 
-                     'depreciation_method', 'useful_life_years', 'annual_depreciation_amount', 'editingId']);
+                 'acquisition_date', 'acquisition_cost', 'editingId']);
         $this->loadData();
         
         session()->flash('message', $this->editingId ? 'Asset updated successfully.' : 'Asset created successfully.');
@@ -145,17 +134,12 @@ new class extends Component
         $this->ownership_structure = $asset->ownership_structure->value;
         $this->acquisition_date = $asset->acquisition_date->format('Y-m-d');
         $this->acquisition_cost = $asset->acquisition_cost;
-        $this->acquisition_currency_id = $asset->acquisition_currency_id;
-        $this->depreciation_method = $asset->depreciation_method;
-        $this->useful_life_years = $asset->useful_life_years;
-        $this->annual_depreciation_amount = $asset->annual_depreciation_amount;
     }
 
     public function cancel()
     {
         $this->reset(['name', 'type', 'jurisdiction_id', 'entity_id', 'ownership_structure', 
-                     'acquisition_date', 'acquisition_cost', 'acquisition_currency_id', 
-                     'depreciation_method', 'useful_life_years', 'annual_depreciation_amount', 'editingId']);
+                     'acquisition_date', 'acquisition_cost', 'editingId']);
         $this->resetValidation();
     }
 
@@ -176,7 +160,7 @@ new class extends Component
     public function openYearEndValues(int $assetId): void
     {
         $asset = Asset::query()
-            ->with(['entity', 'acquisitionCurrency', 'yearEndValues.taxYear'])
+            ->with(['entity.jurisdiction', 'yearEndValues.taxYear'])
             ->findOrFail($assetId);
 
         if ($asset->entity->user_id !== auth()->id()) {
@@ -185,7 +169,9 @@ new class extends Component
 
         $this->yearEndAssetId = $asset->id;
         $this->yearEndAssetName = $asset->name;
-        $this->yearEndCurrencySymbol = $asset->acquisitionCurrency?->symbol ?? '';
+        $this->yearEndCurrencySymbol = Currency::query()
+            ->where('code', $asset->entity->jurisdiction->default_currency)
+            ->value('symbol') ?? $asset->entity->jurisdiction->default_currency ?? '';
 
         $this->yearEndTaxYears = TaxYear::query()
             ->where('jurisdiction_id', $asset->entity->jurisdiction_id)
@@ -327,21 +313,7 @@ new class extends Component
 
             <flux:input wire:model="acquisition_date" label="{{ __('Acquisition Date') }}" type="date" :disabled="!!$editingId" />
 
-            <div class="grid grid-cols-2 gap-3">
-                <flux:input wire:model="acquisition_cost" label="{{ __('Acquisition Cost') }}" type="number" step="0.01" :disabled="!!$editingId" />
-                
-                <flux:select wire:model="acquisition_currency_id" label="{{ __('Currency') }}" :disabled="!!$editingId">
-                    @foreach($currencies as $currency)
-                        <option value="{{ $currency->id }}">{{ $currency->code }}</option>
-                    @endforeach
-                </flux:select>
-            </div>
-
-            <flux:separator />
-
-            <flux:input wire:model="useful_life_years" label="{{ __('Useful Life (Years)') }}" type="number" />
-
-            <flux:input wire:model="annual_depreciation_amount" label="{{ __('Annual Depreciation') }}" type="number" step="0.01" />
+            <flux:input wire:model="acquisition_cost" label="{{ __('Acquisition Cost') }}" type="number" step="0.01" :disabled="!!$editingId" />
 
                 <div class="flex items-center gap-3">
                     <flux:button type="submit" variant="primary">
@@ -383,7 +355,7 @@ new class extends Component
                                         <span>•</span>
                                         <span>
                                             {{ __('Latest Year-End:') }}
-                                            {{ $asset->acquisitionCurrency->symbol }}{{ number_format($asset->latest_year_end_value->amount, 2) }}
+                                            {{ $asset->display_currency_symbol }}{{ number_format($asset->latest_year_end_value->amount, 2) }}
                                             ({{ $asset->latest_year_end_value->taxYear->year }})
                                         </span>
                                     @endif
@@ -391,11 +363,7 @@ new class extends Component
                                 <div class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
                                     <span>Acquired: {{ $asset->acquisition_date->format('M Y') }}</span>
                                     <span class="mx-2">•</span>
-                                    <span>Cost: {{ $asset->acquisitionCurrency->symbol }}{{ number_format($asset->acquisition_cost, 2) }}</span>
-                                    @if($asset->annual_depreciation_amount)
-                                        <span class="mx-2">•</span>
-                                        <span>Depreciation: {{ $asset->acquisitionCurrency->symbol }}{{ number_format($asset->annual_depreciation_amount, 2) }}/yr</span>
-                                    @endif
+                                    <span>Cost: {{ $asset->display_currency_symbol }}{{ number_format($asset->acquisition_cost, 2) }}</span>
                                 </div>
                             </div>
                             <div class="flex items-center gap-2">

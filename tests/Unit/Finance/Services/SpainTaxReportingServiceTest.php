@@ -89,6 +89,7 @@ test('getIrpfSummary aggregates EUR income and expenses by mapped categories and
 
 test('getModelo720Summary aggregates foreign assets by category and threshold status', function () {
     $eur = Currency::factory()->euro()->create();
+    Currency::factory()->usd()->create();
 
     $user = User::factory()->create();
     $spain = \App\Models\Jurisdiction::factory()->spain()->create();
@@ -114,7 +115,6 @@ test('getModelo720Summary aggregates foreign assets by category and threshold st
         'jurisdiction_id' => $usa->id,
         'acquisition_date' => '2023-06-01',
         'acquisition_cost' => 60000.00,
-        'acquisition_currency_id' => $eur->id,
     ]);
 
     YearEndValue::create([
@@ -137,7 +137,7 @@ test('getModelo720Summary aggregates foreign assets by category and threshold st
     expect($summary['threshold'])->toBe(50000.00)
         ->and($summary['categories']['Bank Accounts']['total'])->toBe(15000.00)
         ->and($summary['categories']['Bank Accounts']['status'])->toBe('below')
-        ->and($summary['categories']['Real Estate']['total'])->toBe(70000.00)
+        ->and($summary['categories']['Real Estate']['total'])->toBe(63630.00)
         ->and($summary['categories']['Real Estate']['status'])->toBe('above')
-        ->and($summary['total_assets'])->toBe(85000.00);
+        ->and($summary['total_assets'])->toBe(78630.00);
 });

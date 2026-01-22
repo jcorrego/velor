@@ -4,6 +4,7 @@ namespace App\Finance\Services;
 
 use App\Enums\Finance\TaxFormCode;
 use App\Enums\Finance\TransactionType;
+use App\Models\Asset;
 use App\Models\CategoryTaxMapping;
 use App\Models\Currency;
 use App\Models\Entity;
@@ -94,14 +95,14 @@ class SpainTaxReportingService
         $yearEndValues = YearEndValue::query()
             ->whereIn('entity_id', $foreignEntityIds)
             ->whereIn('tax_year_id', $taxYearIds)
-            ->with(['account.currency', 'asset.acquisitionCurrency', 'taxYear'])
+            ->with(['account.currency', 'asset.entity.jurisdiction', 'taxYear'])
             ->get();
 
         $bankAccountsTotal = 0.0;
         $realEstateTotal = 0.0;
 
         foreach ($yearEndValues as $value) {
-            $currency = $value->account?->currency ?? $value->asset?->acquisitionCurrency;
+            $currency = $value->account?->currency ?? $this->resolveAssetCurrency($value->asset);
 
             if (! $currency || ! $value->taxYear) {
                 continue;
@@ -145,6 +146,17 @@ class SpainTaxReportingService
             'total_assets' => $bankAccountsTotal + $realEstateTotal,
             'categories' => $categories,
         ];
+    }
+
+    private function resolveAssetCurrency(?Asset $asset): ?Currency
+    {
+        if (! $asset?->entity?->jurisdiction?->default_currency) {
+            return null;
+        }
+
+        return Currency::query()
+            ->where('code', $asset->entity->jurisdiction->default_currency)
+            ->first();
     }
 
     /**

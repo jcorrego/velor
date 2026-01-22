@@ -23,15 +23,10 @@ class AssetResource extends JsonResource
             'ownership_structure' => $this->ownership_structure,
             'acquisition_date' => $this->acquisition_date?->format('Y-m-d'),
             'acquisition_cost' => $this->acquisition_cost ? number_format($this->acquisition_cost, 2, '.', '') : null,
-            'acquisition_currency_id' => $this->acquisition_currency_id,
-            'depreciation_method' => $this->depreciation_method,
-            'useful_life_years' => $this->useful_life_years,
-            'annual_depreciation_amount' => $this->annual_depreciation_amount ? number_format($this->annual_depreciation_amount, 2, '.', '') : null,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'jurisdiction' => $this->whenLoaded('jurisdiction'),
             'entity' => $this->whenLoaded('entity'),
-            'currency' => $this->whenLoaded('currency'),
         ];
     }
 }

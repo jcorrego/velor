@@ -139,7 +139,8 @@ class DatabaseSeeder extends Seeder
             ->residential()
             ->llc()
             ->create([
-                'name' => 'Summerbreeze Florida',
+                'name' => 'Summerbreeze Apartment',
+                'acquisition_cost' => 285000.00,
             ]);
 
         \App\Models\Asset::factory()
@@ -173,6 +174,17 @@ class DatabaseSeeder extends Seeder
         $taxYearSpain = \App\Models\TaxYear::create(['jurisdiction_id' => $spain->id, 'year' => 2025]);
         $taxYearUSA = \App\Models\TaxYear::create(['jurisdiction_id' => $usa->id, 'year' => 2025]);
         $taxYearColombia = \App\Models\TaxYear::create(['jurisdiction_id' => $colombia->id, 'year' => 2025]);
+
+        \App\Models\YearEndValue::firstOrCreate(
+            [
+                'entity_id' => $usEntity->id,
+                'asset_id' => $usAsset->id,
+                'tax_year_id' => $taxYearUSA->id,
+            ],
+            [
+                'amount' => 206841.00,
+            ]
+        );
 
         $spainFilingTypes = \App\Models\FilingType::query()
             ->where('jurisdiction_id', $spain->id)

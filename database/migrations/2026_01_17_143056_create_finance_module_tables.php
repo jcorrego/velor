@@ -57,10 +57,6 @@ return new class extends Migration
             $table->string('ownership_structure');
             $table->date('acquisition_date');
             $table->decimal('acquisition_cost', 20, 2);
-            $table->foreignId('acquisition_currency_id')->constrained('currencies');
-            $table->string('depreciation_method')->nullable();
-            $table->integer('useful_life_years')->nullable();
-            $table->decimal('annual_depreciation_amount', 20, 2)->nullable();
             $table->timestamps();
         });
 

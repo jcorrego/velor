@@ -59,26 +59,6 @@ class StoreAssetRequest extends FormRequest
                 'decimal:0,2',
                 'min:0.01',
             ],
-            'acquisition_currency_id' => [
-                'required',
-                'integer',
-                'exists:currencies,id',
-            ],
-            'depreciation_method' => [
-                'nullable',
-                'string',
-                Rule::in('straight-line'),
-            ],
-            'useful_life_years' => [
-                'nullable',
-                'integer',
-                'min:1',
-                'max:100',
-            ],
-            'annual_depreciation_amount' => [
-                'nullable',
-                'decimal:0,2',
-            ],
         ];
     }
 
@@ -106,13 +86,6 @@ class StoreAssetRequest extends FormRequest
             'acquisition_cost.required' => 'The acquisition cost is required.',
             'acquisition_cost.decimal' => 'The acquisition cost must be a valid decimal with up to 2 decimal places.',
             'acquisition_cost.min' => 'The acquisition cost must be at least 0.01.',
-            'acquisition_currency_id.required' => 'The acquisition currency is required.',
-            'acquisition_currency_id.exists' => 'The selected acquisition currency does not exist.',
-            'depreciation_method.in' => 'The selected depreciation method is invalid.',
-            'useful_life_years.integer' => 'The useful life years must be an integer.',
-            'useful_life_years.min' => 'The useful life years must be at least 1.',
-            'useful_life_years.max' => 'The useful life years must not exceed 100.',
-            'annual_depreciation_amount.decimal' => 'The annual depreciation amount must be a valid decimal with up to 2 decimal places.',
         ];
     }
 }

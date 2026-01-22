@@ -4,7 +4,6 @@ namespace Database\Factories;
 
 use App\Enums\Finance\AssetType;
 use App\Enums\Finance\OwnershipStructure;
-use App\Models\Currency;
 use App\Models\Entity;
 use App\Models\Jurisdiction;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -31,13 +30,6 @@ class AssetFactory extends Factory
             'ownership_structure' => $this->faker->randomElement(OwnershipStructure::cases()),
             'acquisition_date' => $acquisitionDate,
             'acquisition_cost' => $this->faker->randomFloat(2, 50000, 500000),
-            'acquisition_currency_id' => Currency::firstOrCreate(
-                ['code' => 'USD'],
-                ['name' => 'US Dollar', 'symbol' => '$', 'is_active' => true]
-            )->id,
-            'depreciation_method' => $this->faker->randomElement(['straight_line', 'declining_balance']),
-            'useful_life_years' => $this->faker->randomElement([15, 20, 27.5, 39]),
-            'annual_depreciation_amount' => null,
         ];
     }
 
@@ -47,7 +39,6 @@ class AssetFactory extends Factory
             'type' => AssetType::Residential,
             'name' => $this->faker->words(2, true).' Residential Property',
             'acquisition_cost' => $this->faker->randomFloat(2, 150000, 500000),
-            'useful_life_years' => 27.5,
         ]);
     }
 
@@ -57,7 +48,6 @@ class AssetFactory extends Factory
             'type' => AssetType::Commercial,
             'name' => $this->faker->words(2, true).' Commercial Property',
             'acquisition_cost' => $this->faker->randomFloat(2, 300000, 1000000),
-            'useful_life_years' => 39,
         ]);
     }
 
@@ -67,7 +57,6 @@ class AssetFactory extends Factory
             'type' => AssetType::Land,
             'name' => $this->faker->words(2, true).' Land',
             'acquisition_cost' => $this->faker->randomFloat(2, 50000, 300000),
-            'useful_life_years' => null,
         ]);
     }
 
@@ -77,7 +66,6 @@ class AssetFactory extends Factory
             'type' => AssetType::Vehicle,
             'name' => $this->faker->words(2, true).' Vehicle',
             'acquisition_cost' => $this->faker->randomFloat(2, 15000, 80000),
-            'useful_life_years' => 5,
         ]);
     }
 
@@ -88,7 +76,6 @@ class AssetFactory extends Factory
 
         return $this->state(fn (array $attributes) => [
             'jurisdiction_id' => $spainJurisdiction->id,
-            'acquisition_currency_id' => Currency::where('code', 'EUR')->first()?->id ?? Currency::factory()->euro()->create()->id,
         ]);
     }
 
@@ -99,7 +86,6 @@ class AssetFactory extends Factory
 
         return $this->state(fn (array $attributes) => [
             'jurisdiction_id' => $colombiaJurisdiction->id,
-            'acquisition_currency_id' => Currency::where('code', 'COP')->first()?->id ?? Currency::factory()->cop()->create()->id,
         ]);
     }
 
@@ -110,7 +96,6 @@ class AssetFactory extends Factory
 
         return $this->state(fn (array $attributes) => [
             'jurisdiction_id' => $usaJurisdiction->id,
-            'acquisition_currency_id' => Currency::where('code', 'USD')->first()?->id ?? Currency::factory()->usd()->create()->id,
         ]);
     }
 

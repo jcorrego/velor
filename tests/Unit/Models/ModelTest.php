@@ -36,7 +36,6 @@ it('defines model relationships', function (string $modelClass, string $relation
 })->with([
     [Asset::class, 'jurisdiction', BelongsTo::class, Jurisdiction::class],
     [Asset::class, 'entity', BelongsTo::class, Entity::class],
-    [Asset::class, 'acquisitionCurrency', BelongsTo::class, Currency::class],
     [Filing::class, 'user', BelongsTo::class, User::class],
     [Filing::class, 'taxYear', BelongsTo::class, TaxYear::class],
     [Filing::class, 'filingType', BelongsTo::class, FilingType::class],

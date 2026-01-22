@@ -25,10 +25,6 @@ class Asset extends Model
         'ownership_structure',
         'acquisition_date',
         'acquisition_cost',
-        'acquisition_currency_id',
-        'depreciation_method',
-        'useful_life_years',
-        'annual_depreciation_amount',
     ];
 
     /**
@@ -58,14 +54,6 @@ class Asset extends Model
     public function entity(): BelongsTo
     {
         return $this->belongsTo(Entity::class);
-    }
-
-    /**
-     * Get the acquisition currency for this asset.
-     */
-    public function acquisitionCurrency(): BelongsTo
-    {
-        return $this->belongsTo(Currency::class, 'acquisition_currency_id');
     }
 
     /**

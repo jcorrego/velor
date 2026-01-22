@@ -25,11 +25,10 @@ test('list assets with pagination', function () {
         ->assertJsonPath('meta.per_page', 15);
 });
 
-test('create residential asset with depreciation', function () {
+test('create residential asset', function () {
     $user = User::factory()->create();
     $entity = Entity::factory()->create(['user_id' => $user->id]);
     $jurisdiction = Jurisdiction::factory()->create();
-    $currency = $this->getCurrency('USD');
 
     $data = [
         'name' => 'Residential Property Downtown',
@@ -39,25 +38,19 @@ test('create residential asset with depreciation', function () {
         'ownership_structure' => OwnershipStructure::Direct->value,
         'acquisition_date' => '2020-01-01',
         'acquisition_cost' => 250000.00,
-        'acquisition_currency_id' => $currency->id,
-        'depreciation_method' => 'straight-line',
-        'useful_life_years' => 28,
-        'annual_depreciation_amount' => 8928.57,
     ];
 
     $response = $this->actingAs($user)->postJson('/api/assets', $data);
 
     $response->assertStatus(201)
         ->assertJsonPath('name', 'Residential Property Downtown')
-        ->assertJsonPath('type', AssetType::Residential->value)
-        ->assertJsonPath('annual_depreciation_amount', '8928.57');
+        ->assertJsonPath('type', AssetType::Residential->value);
 });
 
 test('validation fails with invalid asset type', function () {
     $user = User::factory()->create();
     $entity = Entity::factory()->create(['user_id' => $user->id]);
     $jurisdiction = Jurisdiction::factory()->create();
-    $currency = $this->getCurrency('USD');
 
     $data = [
         'name' => 'Test Asset',
@@ -66,7 +59,6 @@ test('validation fails with invalid asset type', function () {
         'entity_id' => $entity->id,
         'acquisition_date' => '2020-01-01',
         'acquisition_cost' => 100000.00,
-        'acquisition_currency_id' => $currency->id,
     ];
 
     $response = $this->actingAs($user)->postJson('/api/assets', $data);
@@ -79,7 +71,6 @@ test('create vehicle asset', function () {
     $user = User::factory()->create();
     $entity = Entity::factory()->create(['user_id' => $user->id]);
     $jurisdiction = Jurisdiction::factory()->create();
-    $currency = $this->getCurrency('EUR');
 
     $data = [
         'name' => 'Peugot 5008',
@@ -89,7 +80,6 @@ test('create vehicle asset', function () {
         'ownership_structure' => OwnershipStructure::Direct->value,
         'acquisition_date' => '2021-03-15',
         'acquisition_cost' => 32000.00,
-        'acquisition_currency_id' => $currency->id,
     ];
 
     $response = $this->actingAs($user)->postJson('/api/assets', $data);
@@ -115,27 +105,23 @@ test('view asset details', function () {
         ]);
 });
 
-test('update asset ownership_structure and depreciation', function () {
+test('update asset ownership_structure', function () {
     $user = User::factory()->create();
     $entity = Entity::factory()->create(['user_id' => $user->id]);
     $asset = Asset::factory()->create([
         'entity_id' => $entity->id,
         'ownership_structure' => OwnershipStructure::Direct->value,
-        'annual_depreciation_amount' => 5000.00,
     ]);
 
     $response = $this->actingAs($user)->putJson("/api/assets/{$asset->id}", [
         'ownership_structure' => OwnershipStructure::Corporation->value,
-        'annual_depreciation_amount' => 7500.00,
     ]);
 
     $response->assertSuccessful()
-        ->assertJsonPath('ownership_structure', OwnershipStructure::Corporation->value)
-        ->assertJsonPath('annual_depreciation_amount', '7500.00');
+        ->assertJsonPath('ownership_structure', OwnershipStructure::Corporation->value);
 
     $asset->refresh();
     expect($asset->ownership_structure)->toBe(OwnershipStructure::Corporation);
-    expect((float) $asset->annual_depreciation_amount)->toBe(7500.00);
 });
 
 test('cannot change acquisition_date', function () {

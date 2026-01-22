@@ -40,21 +40,6 @@ class UpdateAssetRequest extends FormRequest
                 'string',
                 Rule::in(array_map(fn ($case) => $case->value, OwnershipStructure::cases())),
             ],
-            'depreciation_method' => [
-                'nullable',
-                'string',
-                Rule::in('straight-line'),
-            ],
-            'useful_life_years' => [
-                'nullable',
-                'integer',
-                'min:1',
-                'max:100',
-            ],
-            'annual_depreciation_amount' => [
-                'nullable',
-                'decimal:0,2',
-            ],
         ];
     }
 
@@ -70,11 +55,6 @@ class UpdateAssetRequest extends FormRequest
             'name.max' => 'The asset name must not exceed 255 characters.',
             'type.in' => 'The selected asset type is invalid.',
             'ownership_structure.in' => 'The selected ownership structure is invalid.',
-            'depreciation_method.in' => 'The selected depreciation method is invalid.',
-            'useful_life_years.integer' => 'The useful life years must be an integer.',
-            'useful_life_years.min' => 'The useful life years must be at least 1.',
-            'useful_life_years.max' => 'The useful life years must not exceed 100.',
-            'annual_depreciation_amount.decimal' => 'The annual depreciation amount must be a valid decimal with up to 2 decimal places.',
         ];
     }
 }
