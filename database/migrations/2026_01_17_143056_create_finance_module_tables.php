@@ -64,18 +64,6 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // Asset Valuations
-        Schema::create('asset_valuations', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('asset_id')->constrained('assets');
-            $table->decimal('amount', 20, 2);
-            $table->date('valuation_date');
-            $table->string('method');
-            $table->text('notes')->nullable();
-            $table->timestamps();
-            $table->unique(['asset_id', 'valuation_date']);
-        });
-
         // Transaction Categories
         Schema::create('transaction_categories', function (Blueprint $table) {
             $table->id();
@@ -121,19 +109,6 @@ return new class extends Migration
             $table->unique(['category_id', 'tax_form_code', 'line_item']);
         });
 
-        // Related Party Transactions
-        Schema::create('related_party_transactions', function (Blueprint $table) {
-            $table->id();
-            $table->date('transaction_date');
-            $table->decimal('amount', 20, 2);
-            $table->string('type');
-            $table->foreignId('owner_id')->constrained('users');
-            $table->foreignId('account_id')->constrained('accounts');
-            $table->text('description')->nullable();
-            $table->timestamps();
-            $table->index('transaction_date');
-        });
-
         // Transaction Imports
         Schema::create('transaction_imports', function (Blueprint $table) {
             $table->id();
@@ -154,11 +129,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('transaction_imports');
-        Schema::dropIfExists('related_party_transactions');
         Schema::dropIfExists('category_tax_mappings');
         Schema::dropIfExists('transactions');
         Schema::dropIfExists('transaction_categories');
-        Schema::dropIfExists('asset_valuations');
         Schema::dropIfExists('assets');
         // Drop import_mapping_profiles if it exists (from a missing migration)
         Schema::dropIfExists('import_mapping_profiles');

@@ -17,6 +17,8 @@ return new class extends Migration
             $table->foreignId('tax_year_id')->constrained()->cascadeOnDelete();
             $table->foreignId('filing_type_id')->constrained()->cascadeOnDelete();
             $table->string('status'); // Will use enum
+            $table->date('due_date')->nullable();
+            $table->json('form_data')->nullable();
             $table->json('key_metrics')->nullable();
             $table->timestamps();
 
