@@ -10,5 +10,6 @@
     "guidelines": [
         "laravel/fortify"
     ],
-    "herd_mcp": true
+    "herd_mcp": true,
+    "sail": true
 }
