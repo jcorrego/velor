@@ -403,34 +403,34 @@ new class extends Component
         @endif
 
         <form wire:submit="save" class="mt-5 space-y-4">
-            <flux:select wire:model="entity_id" label="{{ __('Entity') }}" placeholder="{{ __('Select entity') }}">
+            <flux:select wire:model.live="entity_id" label="{{ __('Entity') }}" placeholder="{{ __('Select entity') }}">
                 <option value="">{{ __('Select entity') }}</option>
                 @foreach ($entities as $entity)
                     <option value="{{ $entity->id }}">{{ $entity->name }}</option>
                 @endforeach
             </flux:select>
 
-            <flux:select wire:model="tax_year_id" label="{{ __('Tax Year') }}" placeholder="{{ __('Select tax year') }}">
+            <flux:select wire:model.live="tax_year_id" wire:key="year-end-tax-year-{{ $entity_id ?: 'all' }}" label="{{ __('Tax Year') }}" placeholder="{{ __('Select tax year') }}">
                 <option value="">{{ __('Select tax year') }}</option>
                 @foreach ($taxYears as $taxYear)
                     <option value="{{ $taxYear->id }}">{{ $taxYear->year }} — {{ $taxYear->jurisdiction->name }}</option>
                 @endforeach
             </flux:select>
 
-            <flux:select wire:model="valueType" label="{{ __('Value Type') }}">
+            <flux:select wire:model.live="valueType" label="{{ __('Value Type') }}">
                 <option value="account">{{ __('Account') }}</option>
                 <option value="asset">{{ __('Asset') }}</option>
             </flux:select>
 
             @if ($valueType === 'account')
-                <flux:select wire:model="account_id" label="{{ __('Account') }}" placeholder="{{ __('Select account') }}">
+                <flux:select wire:model.live="account_id" wire:key="year-end-account-{{ $entity_id ?: 'all' }}" label="{{ __('Account') }}" placeholder="{{ __('Select account') }}">
                     <option value="">{{ __('Select account') }}</option>
                     @foreach ($accounts as $account)
                         <option value="{{ $account->id }}">{{ $account->name }} — {{ $account->entity->name }}</option>
                     @endforeach
                 </flux:select>
             @else
-                <flux:select wire:model="asset_id" label="{{ __('Asset') }}" placeholder="{{ __('Select asset') }}">
+                <flux:select wire:model.live="asset_id" wire:key="year-end-asset-{{ $entity_id ?: 'all' }}" label="{{ __('Asset') }}" placeholder="{{ __('Select asset') }}">
                     <option value="">{{ __('Select asset') }}</option>
                     @foreach ($assets as $asset)
                         <option value="{{ $asset->id }}">{{ $asset->name }} — {{ $asset->entity->name }}</option>
