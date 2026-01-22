@@ -1,6 +1,8 @@
 <?php
 
+use App\Finance\Services\UsTaxReportingService;
 use App\Http\Requests\StoreFilingFormResponseRequest;
+use App\Models\Currency;
 use App\Models\Filing;
 use App\Services\FormSchemaLoader;
 use Livewire\Component;
@@ -13,6 +15,11 @@ new class extends Component
      * @var array<string, mixed>
      */
     public array $formData = [];
+
+    /**
+     * @var array<string, array{value: float, formatted: string, transaction_count: int, category_count: int}>
+     */
+    public array $calculatedFields = [];
 
     /**
      * @var array<int, array<string, mixed>>
@@ -121,6 +128,7 @@ new class extends Component
             'filing' => $filing,
             'sections' => $this->sections,
             'schemaTitle' => $this->schemaTitle,
+            'calculatedFields' => $this->calculatedFields,
         ];
     }
 
@@ -136,6 +144,7 @@ new class extends Component
             $this->schemaTitle = null;
             $this->schema = null;
             $this->formData = [];
+            $this->calculatedFields = [];
             return;
         }
 
@@ -144,6 +153,7 @@ new class extends Component
         $this->sections = $schema['sections'] ?? [];
 
         $this->formData = $filing->form_data ?? [];
+        $this->calculatedFields = [];
 
         foreach ($this->sections as $section) {
             foreach ($section['fields'] ?? [] as $field) {
@@ -152,10 +162,48 @@ new class extends Component
                     continue;
                 }
 
-                $defaultValue = ($field['type'] ?? 'text') === 'boolean' ? false : '';
+                $fieldType = $field['type'] ?? 'text';
+                if ($fieldType === 'calculated') {
+                    $summary = $this->buildCalculatedFieldSummary($filing, (string) $key);
+                    $this->calculatedFields[(string) $key] = $summary;
+                    $this->formData[(string) $key] = $summary['value'];
+                    continue;
+                }
+
+                $defaultValue = $fieldType === 'boolean' ? false : '';
                 $this->formData[$key] = $this->formData[$key] ?? $defaultValue;
             }
         }
+    }
+
+    /**
+     * @return array{value: float, formatted: string, transaction_count: int, category_count: int}
+     */
+    private function buildCalculatedFieldSummary(Filing $filing, string $lineItem): array
+    {
+        $user = auth()->user();
+
+        if (! $user) {
+            return [
+                'value' => 0.0,
+                'formatted' => $this->formatCurrency(0.0),
+                'transaction_count' => 0,
+                'category_count' => 0,
+            ];
+        }
+
+        $summary = app(UsTaxReportingService::class)->getForm5472LineItemSummary(
+            $user,
+            $filing->taxYear->year,
+            $lineItem
+        );
+
+        return [
+            'value' => $summary['total'],
+            'formatted' => $this->formatCurrency($summary['total']),
+            'transaction_count' => $summary['transaction_count'],
+            'category_count' => $summary['category_count'],
+        ];
     }
 
     private function currentFiling(): ?Filing
@@ -201,6 +249,14 @@ new class extends Component
         }
 
         return $formData;
+    }
+
+    private function formatCurrency(float $amount): string
+    {
+        $currency = Currency::query()->where('code', 'USD')->first();
+        $symbol = $currency?->symbol ?? '$';
+
+        return $symbol . number_format($amount, 2, '.', ',');
     }
 };
 ?>
@@ -301,7 +357,27 @@ new class extends Component
                                             @else
                                                 <flux:label> {{ $fieldLabel }}</flux:label>
                                             @endif
-                                            @if ($fieldType === 'textarea')
+                                            @if ($fieldType === 'calculated')
+                                                @php
+                                                    $calculated = $calculatedFields[$fieldKey] ?? null;
+                                                    $calculatedValue = $calculated['formatted'] ?? '$0.00';
+                                                    $transactionsCount = $calculated['transaction_count'] ?? 0;
+                                                    $categoriesCount = $calculated['category_count'] ?? 0;
+                                                    $calculatedInfo = __('Calculated from :transactions transactions across :categories categories.', [
+                                                        'transactions' => $transactionsCount,
+                                                        'categories' => $categoriesCount,
+                                                    ]);
+                                                @endphp
+                                                <flux:input type="text" readonly value="{{ $calculatedValue }}" />
+                                                <flux:description class="mt-0!">
+                                                    @if ($fieldHelp)
+                                                        {!! $fieldHelp !!}
+                                                        <span class="block">{{ $calculatedInfo }}</span>
+                                                    @else
+                                                        {{ $calculatedInfo }}
+                                                    @endif
+                                                </flux:description>
+                                            @elseif ($fieldType === 'textarea')
                                                 <flux:textarea wire:model.live.debounce.500ms="formData.{{ $fieldKey }}" />
                                             @elseif ($fieldType === 'select')
                                                 <flux:select
@@ -333,7 +409,9 @@ new class extends Component
                                                 
                                             @endif
                                             <flux:error name="formData.{{ $fieldKey }}" />
-                                            <flux:description class="mt-0!">{!! $fieldHelp !!}</flux:description>
+                                            @if ($fieldType !== 'calculated')
+                                                <flux:description class="mt-0!">{!! $fieldHelp !!}</flux:description>
+                                            @endif
                                         @endif
                                     </flux:field>
                                 @endforeach

@@ -2,6 +2,7 @@
 
 namespace App\Finance\Services;
 
+use App\Enums\Finance\TaxFormCode;
 use App\Models\Asset;
 use App\Models\CategoryTaxMapping;
 use App\Models\Currency;
@@ -34,6 +35,56 @@ class UsTaxReportingService
             'contributions' => $contributions,
             'draws' => $draws,
             'related_party_totals' => $relatedPartyTotals,
+        ];
+    }
+
+    /**
+     * Get Form 5472 line item summary for a specific line item key.
+     * All amounts are converted to USD.
+     *
+     * @return array{total: float, transaction_count: int, category_count: int}
+     */
+    public function getForm5472LineItemSummary(User $user, int $taxYear, string $lineItem): array
+    {
+        $entities = Entity::where('user_id', $user->id)->pluck('id');
+        $usdCurrency = Currency::where('code', 'USD')->firstOrFail();
+
+        $transactions = Transaction::query()
+            ->join('category_tax_mappings', function ($join) use ($lineItem) {
+                $join->on('category_tax_mappings.category_id', '=', 'transactions.category_id')
+                    ->where('category_tax_mappings.tax_form_code', TaxFormCode::Form5472->value)
+                    ->where('category_tax_mappings.country', 'USA')
+                    ->where('category_tax_mappings.line_item', $lineItem);
+            })
+            ->whereIn('transactions.account_id', function ($subQuery) use ($entities) {
+                $subQuery->select('id')
+                    ->from('accounts')
+                    ->whereIn('entity_id', $entities);
+            })
+            ->whereYear('transactions.transaction_date', $taxYear)
+            ->select(
+                'transactions.id',
+                'transactions.original_amount',
+                'transactions.original_currency_id',
+                'transactions.transaction_date',
+                'transactions.category_id'
+            )
+            ->with('originalCurrency')
+            ->get();
+
+        $total = $this->convertTransactionsToUSD($transactions, $usdCurrency);
+
+        $categoryCount = CategoryTaxMapping::query()
+            ->where('tax_form_code', TaxFormCode::Form5472)
+            ->where('country', 'USA')
+            ->where('line_item', $lineItem)
+            ->distinct('category_id')
+            ->count('category_id');
+
+        return [
+            'total' => $total,
+            'transaction_count' => $transactions->count(),
+            'category_count' => $categoryCount,
         ];
     }
 

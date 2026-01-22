@@ -164,60 +164,13 @@
       ]
     },
     {
-      "key": "2-part-i-reporting-corporation",
-      "title": "2. Part I – Reporting Corporation",
-      "summary": [
-        "Additional information about the reporting entity."
-      ],
-      "bullets": [
-        "Date of incorporation",
-        "Country of organization",
-        "Type of entity",
-        "Accounting method"
-      ],
-      "fields": [
-        {
-          "key": "incorporation_date",
-          "label": "Date of incorporation",
-          "type": "date",
-          "required": false
-          , "help": "Use the date recorded on the entity formation paperwork."
-        },
-        {
-          "key": "country_of_organization",
-          "label": "Country of organization",
-          "type": "text",
-          "required": false
-          , "help": "Country where the entity is legally organized."
-        },
-        {
-          "key": "entity_type",
-          "label": "Type of entity",
-          "type": "text",
-          "required": false
-          , "help": "Specify corporation, LLC treated as a corporation, etc."
-        },
-        {
-          "key": "accounting_method",
-          "label": "Accounting method",
-          "type": "text",
-          "required": false
-          , "help": "Indicate cash or accrual, or other approved method."
-        }
-      ]
-    },
-    {
-      "key": "3-part-ii-25-foreign-shareholder",
-      "title": "3. Part II – 25% Foreign Shareholder",
+      "key": "1-part-ii-25-foreign-shareholder",
+      "label": "Part II",
+      "title": "25% Foreign Shareholder",
       "summary": [
         "Details for the foreign owner or single-member LLC owner."
       ],
-      "bullets": [
-        "Name",
-        "Address",
-        "Country of residence",
-        "Percentage and nature of ownership"
-      ],
+      "bullets": [],
       "fields": [
         {
           "key": "shareholder_name",
@@ -250,17 +203,13 @@
       ]
     },
     {
-      "key": "4-part-iii-related-party",
-      "title": "4. Part III – Related Party",
+      "key": "3-part-iii-related-party",
+      "label": "Part III",
+      "title": "Related Party",
       "summary": [
         "List parties with whom reportable transactions occurred."
       ],
-      "bullets": [
-        "Name",
-        "Country",
-        "Relationship",
-        "Type of entity"
-      ],
+      "bullets": [],
       "fields": [
         {
           "key": "related_party_details",
@@ -272,25 +221,61 @@
       ]
     },
     {
-      "key": "5-part-iv-monetary-transactions",
-      "title": "5. Part IV – Monetary Transactions",
+      "key": "4-part-iv-monetary-transactions",
+      "label": "Part IV",
+      "title": "Monetary Transactions",
       "summary": [
         "Report total annual inflows and outflows instead of individual invoices."
       ],
-      "bullets": [
-        "Sales of inventory",
-        "Rents received",
-        "Interest received",
-        "Royalties received",
-        "Income outflows"
-      ],
+      "bullets": [],
       "fields": [
         {
-          "key": "monetary_transactions_summary",
-          "label": "Monetary transaction summary",
-          "type": "textarea",
-          "required": false
-          , "help": "Summarize total cash inflows/outflows by category for the year."
+          "key": "9",
+          "label": "Sales of stock in trade (inventory)",
+          "type": "text",
+          "required": false,
+          "help": "",
+          "class": "md:col-span-12"
+        },
+        {
+          "key": "10",
+          "label": "Sales of tangible property other than stock in trade ",
+          "type": "text",
+          "required": false,
+          "help": "",
+          "class": "md:col-span-12"
+        },
+        {
+          "key": "35",
+          "label": "Other amounts paid (see instructions) ",
+          "type": "calculated",
+          "required": false,
+          "help": "",
+          "class": "md:col-span-12"
+        },
+        {
+          "key": "12",
+          "label": "Interest",
+          "type": "text",
+          "required": false,
+          "help": "",
+          "class": "md:col-span-12"
+        },
+        {
+          "key": "13",
+          "label": "Services",
+          "type": "text",
+          "required": false,
+          "help": "",
+          "class": "md:col-span-12"
+        },
+        {
+          "key": "14",
+          "label": "Other transactions (specify)",
+          "type": "text",
+          "required": false,
+          "help": "",
+          "class": "md:col-span-12"
         }
       ]
     },
