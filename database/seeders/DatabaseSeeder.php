@@ -48,6 +48,7 @@ class DatabaseSeeder extends Seeder
             'user_id' => $user->id,
             'jurisdiction_id' => $usa->id,
             'name' => 'JCO Services LLC',
+            'ein_or_tax_id' => '352795672',
         ]);
 
         $spainEntity = \App\Models\Entity::factory()->individual()->create([
