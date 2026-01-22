@@ -295,7 +295,7 @@ new class extends Component
             <div class="flex flex-wrap items-center justify-between gap-2">
                 <flux:heading size="md" class="flex flex-col gap-2">
                   <div>{{ $schemaTitle ?? __('Form 5472') }}</div>
-                  <flux:text>Visit IRS <flux:link href="https://www.irs.gov/forms-pubs/about-form-5472">documentation</flux:link> for more information.</flux:text>
+                  <flux:text>Visit IRS <flux:link target="_blank" href="https://www.irs.gov/forms-pubs/about-form-5472">documentation</flux:link> for more information.</flux:text>
                 </flux:heading>
                 
                 <flux:badge size="sm" color="zinc">{{ $filing->taxYear->year }}</flux:badge>
