@@ -3,7 +3,6 @@
 use App\Enums\Finance\AssetType;
 use App\Enums\Finance\OwnershipStructure;
 use App\Models\Asset;
-use App\Models\AssetValuation;
 use App\Models\Entity;
 use App\Models\Jurisdiction;
 use App\Models\User;
@@ -100,12 +99,10 @@ test('create vehicle asset', function () {
         ->assertJsonPath('type', AssetType::Vehicle->value);
 });
 
-test('view asset with valuations', function () {
+test('view asset details', function () {
     $user = User::factory()->create();
     $entity = Entity::factory()->create(['user_id' => $user->id]);
     $asset = Asset::factory()->create(['entity_id' => $entity->id]);
-
-    AssetValuation::factory()->count(3)->create(['asset_id' => $asset->id]);
 
     $response = $this->actingAs($user)->getJson("/api/assets/{$asset->id}");
 
@@ -115,23 +112,7 @@ test('view asset with valuations', function () {
             'id',
             'name',
             'type',
-            'valuations' => [
-                '*' => ['id', 'valuation_date', 'valuation_amount'],
-            ],
         ]);
-});
-
-test('list all valuations for an asset', function () {
-    $user = User::factory()->create();
-    $entity = Entity::factory()->create(['user_id' => $user->id]);
-    $asset = Asset::factory()->create(['entity_id' => $entity->id]);
-
-    AssetValuation::factory()->count(5)->create(['asset_id' => $asset->id]);
-
-    $response = $this->actingAs($user)->getJson("/api/assets/{$asset->id}/valuations");
-
-    $response->assertSuccessful()
-        ->assertJsonCount(5, 'data');
 });
 
 test('update asset ownership_structure and depreciation', function () {

@@ -24,7 +24,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Assets
     Route::apiResource('assets', AssetController::class);
-    Route::get('assets/{asset}/valuations', [AssetController::class, 'valuations'])->name('assets.valuations');
 
     // Transaction Categories
     Route::apiResource('transaction-categories', TransactionCategoryController::class);

@@ -9,6 +9,7 @@ use App\Models\Entity;
 use App\Models\Transaction;
 use App\Models\TransactionCategory;
 use App\Models\User;
+use App\Models\YearEndValue;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -98,23 +99,14 @@ test('getModelo720Summary aggregates foreign assets by category and threshold st
         'jurisdiction_id' => $usa->id,
     ]);
 
+    $taxYear = \App\Models\TaxYear::factory()->create([
+        'jurisdiction_id' => $usa->id,
+        'year' => 2024,
+    ]);
+
     $account = Account::factory()->euro()->create([
         'entity_id' => $foreignEntity->id,
         'currency_id' => $eur->id,
-    ]);
-
-    Transaction::factory()->income()->create([
-        'account_id' => $account->id,
-        'transaction_date' => '2024-02-01',
-        'original_amount' => 20000.00,
-        'original_currency_id' => $eur->id,
-    ]);
-
-    Transaction::factory()->expense()->create([
-        'account_id' => $account->id,
-        'transaction_date' => '2024-03-01',
-        'original_amount' => -5000.00,
-        'original_currency_id' => $eur->id,
     ]);
 
     $asset = \App\Models\Asset::factory()->create([
@@ -125,10 +117,22 @@ test('getModelo720Summary aggregates foreign assets by category and threshold st
         'acquisition_currency_id' => $eur->id,
     ]);
 
-    \App\Models\AssetValuation::factory()->create([
+    YearEndValue::create([
+        'entity_id' => $foreignEntity->id,
+        'tax_year_id' => $taxYear->id,
+        'account_id' => $account->id,
+        'currency_id' => $eur->id,
+        'amount' => 15000.00,
+        'as_of_date' => '2024-12-31',
+    ]);
+
+    YearEndValue::create([
+        'entity_id' => $foreignEntity->id,
+        'tax_year_id' => $taxYear->id,
         'asset_id' => $asset->id,
+        'currency_id' => $eur->id,
         'amount' => 70000.00,
-        'valuation_date' => '2024-06-01',
+        'as_of_date' => '2024-12-31',
     ]);
 
     $service = app(SpainTaxReportingService::class);

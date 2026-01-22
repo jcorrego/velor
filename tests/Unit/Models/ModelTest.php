@@ -7,11 +7,9 @@ use App\Enums\Finance\ImportFileType;
 use App\Enums\Finance\OwnershipStructure;
 use App\Enums\Finance\TaxFormCode;
 use App\Enums\Finance\TransactionType;
-use App\Enums\Finance\ValuationMethod;
 use App\FilingStatus;
 use App\Models\Account;
 use App\Models\Asset;
-use App\Models\AssetValuation;
 use App\Models\CategoryTaxMapping;
 use App\Models\Currency;
 use App\Models\Entity;
@@ -39,18 +37,15 @@ it('defines model relationships', function (string $modelClass, string $relation
     [Asset::class, 'jurisdiction', BelongsTo::class, Jurisdiction::class],
     [Asset::class, 'entity', BelongsTo::class, Entity::class],
     [Asset::class, 'acquisitionCurrency', BelongsTo::class, Currency::class],
-    [Asset::class, 'valuations', HasMany::class, AssetValuation::class],
     [Filing::class, 'user', BelongsTo::class, User::class],
     [Filing::class, 'taxYear', BelongsTo::class, TaxYear::class],
     [Filing::class, 'filingType', BelongsTo::class, FilingType::class],
     [TransactionImport::class, 'account', BelongsTo::class, Account::class],
-    [AssetValuation::class, 'asset', BelongsTo::class, Asset::class],
     [FxRate::class, 'currencyFrom', BelongsTo::class, Currency::class],
     [FxRate::class, 'currencyTo', BelongsTo::class, Currency::class],
     [Currency::class, 'fxRatesFrom', HasMany::class, FxRate::class],
     [Currency::class, 'fxRatesTo', HasMany::class, FxRate::class],
     [Currency::class, 'accounts', HasMany::class, Account::class],
-    [Currency::class, 'assetValuations', HasMany::class, AssetValuation::class],
     [Account::class, 'currency', BelongsTo::class, Currency::class],
     [Account::class, 'entity', BelongsTo::class, Entity::class],
     [Account::class, 'transactions', HasMany::class, Transaction::class],
@@ -105,11 +100,6 @@ it('defines expected casts for models', function (string $modelClass, array $exp
         'imported_at' => 'timestamp',
         'parsed_count' => 'integer',
         'matched_count' => 'integer',
-    ]],
-    [AssetValuation::class, [
-        'amount' => 'decimal:2',
-        'valuation_date' => 'date',
-        'method' => ValuationMethod::class,
     ]],
     [FxRate::class, [
         'rate' => 'decimal:8',
