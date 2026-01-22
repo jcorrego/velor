@@ -5,65 +5,161 @@
   "sections": [
     {
       "key": "1-identifying-information-initial-part",
-      "title": "1. Identifying Information (Initial part)",
+      "label": "Part I",
+      "title": "Reporting Corporation. ",
       "summary": [
-        "Basic data of the entity filing this form."
+        "All reporting corporations must complete Part I. "
       ],
-      "bullets": [
-        
-      ],
+      "bullets": [],
       "fields": [
         {
-          "key": "reporting_corp_name",
-          "label": "Reporting corporation name",
+          "key": "1a",
+          "label": "1a. Name of reporting corporation",
           "type": "text",
           "required": true,
-          "help": "Enter the official legal name of the entity as it appears on IRS filings."
+          "help": "Enter the official legal name of the entity as it appears on IRS filings.",
+          "class": "md:col-span-8"
         },
         {
-          "key": "reporting_corp_ein",
-          "label": "EIN",
+          "key": "1b",
+          "label": "1b. Employer identification number",
           "type": "text",
           "required": false,
-          "help": "Provide the EIN assigned to the reporting corporation."
+          "help": "Provide the EIN assigned to the reporting corporation.",
+          "class": "md:col-span-4",
+          "mask": "99-9999999"
         },
         {
-          "key": "reporting_corp_incorporation_country",
+          "key": "1a-address",
+          "label": "Number, street, and room or suite no. (If a P.O. box, see instructions.)",
+          "type": "text",
+          "required": false,
+          "help": "Street address of the reporting corporation's main office.",
+          "class": "md:col-span-5"
+        },
+        {
+          "key": "1a-city-state-zip",
+          "label": "City or town, state, and ZIP code (If a foreign address, see instructions.)",
+          "type": "text",
+          "required": false,
+          "help": "City, state, and ZIP code of the reporting corporation's address.",
+          "class": "md:col-span-4"
+        },
+        {
+          "key": "1c",
+          "label": "Total assets",
+          "type": "number",
+          "required": true,
+          "help": "Total assets of the reporting corporation.",
+          "class": "md:col-span-3"
+        },
+        {
+          "key": "1d",
+          "label": "Principal business activity",
+          "type": "text",
+          "required": false,
+          "help": "Describe the primary business activity during the tax year.",
+          "class": "md:col-span-8"
+        },
+        {
+          "key": "1e",
+          "label": "Principal business activity code",
+          "type": "number",
+          "required": false,
+          "help": "Enter the six-digit code that best describes the principal business activity.",
+          "class": "md:col-span-4"
+        },
+        {
+          "key": "1f",
+          "label": "Total value of gross payments made or received reported on this Form 5472. See instructions.",
+          "type": "number",
+          "required": false,
+          "help": "Enter the total value of gross payments made or received as reported on this Form 5472.",
+          "class": "md:col-span-4"
+        },
+        {
+          "key": "1g",
+          "label": "Total number of Forms 5472 filed for the tax year",
+          "type": "number",
+          "required": false,
+          "help": "Enter the total number of Forms 5472 filed for the tax year.",
+          "class": "md:col-span-4"
+        },
+        {
+          "key": "1h",
+          "label": "Total value of gross payments made or received reported on all Forms 5472. See instructions. ",
+          "type": "number",
+          "required": false,
+          "help": "Enter the total value of gross payments made or received as reported on all Forms 5472.",
+          "class": "md:col-span-4"
+        },
+        {
+          "key": "1i",
+          "label": "Check here if this is a consolidated filing of Form 5472 ",
+          "type": "boolean",
+          "required": false,
+          "help": "Check this box if filing Form 5472 on behalf of multiple entities.",
+          "class": "col-span-4"
+        },
+        {
+          "key": "1j",
+          "label": "Check here if this is the initial year for which the U.S. reporting corporation is filing a Form 5472",
+          "type": "boolean",
+          "required": false,
+          "help": "Check this box if this is the first year the reporting corporation is filing Form 5472.",
+          "class": "col-span-4"
+        },
+        {
+          "key": "1k",
+          "label": "Total number of Parts VIII attached to Form 5472",
+          "type": "number",
+          "required": false,
+          "help": "Enter the total number of Parts VIII attached to Form 5472.",
+          "class": "md:col-span-4"
+        },
+        {
+          "key": "1l",
           "label": "Country of incorporation",
           "type": "text",
           "required": false,
           "help": "Country where the entity was formed."
         },
         {
-          "key": "reporting_corp_activity",
-          "label": "Principal business activity",
+          "key": "1m",
+          "label": "Date of incorporation",
+          "type": "date",
+          "required": true,
+          "help": "Date when the entity was formed."
+        },
+        {
+          "key": "1n",
+          "label": "Country(ies) under whose laws the reporting corporation files an income tax return as a resident",
           "type": "text",
           "required": false,
-          "help": "Describe the primary business activity during the tax year."
+          "help": "Country where the entity files an income tax return as a resident."
         },
         {
-          "key": "type_of_filer",
-          "label": "Type of filer",
-          "type": "select",
-          "required": true,
-          "help": "Choose the category that matches how the entity is filing Form 5472.",
-          "options": [
-            {
-              "label": "25% foreign-owned U.S. corporation",
-              "value": "foreign_owned_us_corporation"
-            },
-            {
-              "label": "Foreign corporation engaged in a U.S. trade or business",
-              "value": "foreign_corporation_us_business"
-            }
-          ]
-        },
-        {
-          "key": "final_amended_return",
-          "label": "Final or amended return",
-          "type": "boolean",
+          "key": "1o",
+          "label": "Principal country(ies) where business is conducted",
+          "type": "text",
           "required": false,
-          "help": "Check if this filing is the final return or an amended submission."
+          "help": "Country where the entity conducts its primary business activities."
+        },
+        {
+          "key": "2",
+          "label": "Check here if, at any time during the tax year, any foreign person owned, directly or indirectly, at least 50% of (a) the total voting power of all classes of the stock of the reporting corporation entitled to vote, or (b) the total value of all classes of stock of the reporting corporation ",
+          "type": "boolean",
+          "required": true,
+          "help": "Check this box if any foreign person owned at least 50% of the reporting corporation during the tax year.",
+          "class": "col-span-12"
+        },
+        {
+          "key": "3",
+          "label": "Check here if the reporting corporation is a foreign-owned domestic disregarded entity (foreign-owned U.S. DE) treated as a corporation for purposes of section 6038A. See instructions ",
+          "type": "boolean",
+          "required": true,
+          "help": "Check this box if you are a <a target=\"_blank\" href=\"https://www.irs.gov/instructions/i5472#en_US_202501_publink100058495\">foreign-owned U.S. DE.</a>",
+          "class": "col-span-12"
         }
       ]
     },

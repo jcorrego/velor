@@ -43,9 +43,14 @@ class StoreFilingFormResponseRequest extends FormRequest
     /**
      * @return array<string, mixed>
      */
-    public function rulesForSchema(?array $schema): array
+    public function rulesForSchema(?array $schema, string $prefix = 'form_data'): array
     {
         $rules = $this->rules();
+
+        if ($prefix !== 'form_data' && isset($rules['form_data'])) {
+            $rules[$prefix] = $rules['form_data'];
+            unset($rules['form_data']);
+        }
 
         if (! $schema) {
             return $rules;
@@ -54,7 +59,7 @@ class StoreFilingFormResponseRequest extends FormRequest
         foreach ($this->fieldsFromSchema($schema) as $field) {
             $key = $field['key'];
             $typeRule = $this->ruleForFieldType($field['type'] ?? 'text');
-            $rules["form_data.{$key}"] = array_filter([
+            $rules["{$prefix}.{$key}"] = array_filter([
                 $field['required'] ? 'required' : 'nullable',
                 $typeRule,
             ]);
@@ -66,9 +71,15 @@ class StoreFilingFormResponseRequest extends FormRequest
     /**
      * @return array<string, string>
      */
-    public function messagesForSchema(?array $schema): array
+    public function messagesForSchema(?array $schema, string $prefix = 'form_data'): array
     {
         $messages = $this->messages();
+
+        if ($prefix !== 'form_data') {
+            $messages = collect($messages)
+                ->mapWithKeys(fn (string $message, string $key) => [str_replace('form_data', $prefix, $key) => $message])
+                ->all();
+        }
 
         if (! $schema) {
             return $messages;
@@ -78,7 +89,7 @@ class StoreFilingFormResponseRequest extends FormRequest
             $label = $field['label'] ?? Str::headline($field['key'] ?? 'field');
             $key = $field['key'];
 
-            $messages["form_data.{$key}.required"] = "The {$label} field is required.";
+            $messages["{$prefix}.{$key}.required"] = "The {$label} field is required.";
         }
 
         return $messages;

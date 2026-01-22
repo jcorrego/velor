@@ -37,7 +37,6 @@ it('renders form 5472 guidance and saves supplemental data', function () {
         ->set('formData.type_of_filer', 'foreign_owned_us_corporation')
         ->set('formData.final_amended_return', true)
         ->set('formData.shareholder_name', 'Acme Holdings')
-        ->call('save')
         ->assertHasNoErrors();
 
     $fresh = $filing->fresh();
