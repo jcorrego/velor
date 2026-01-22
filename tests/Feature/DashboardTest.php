@@ -38,7 +38,7 @@ test('dashboard shows filing status summary and due dates', function () {
         ->for($filingTypePlanning)
         ->planning()
         ->create([
-            'key_metrics' => ['due_date' => '2026-04-15'],
+            'due_date' => '2026-04-15',
         ]);
 
     Filing::factory()
@@ -47,7 +47,7 @@ test('dashboard shows filing status summary and due dates', function () {
         ->for($filingTypeReview)
         ->inReview()
         ->create([
-            'key_metrics' => ['due_date' => '2026-02-01'],
+            'due_date' => '2026-02-01',
         ]);
 
     Filing::factory()
@@ -103,6 +103,7 @@ test('dashboard shows filing status summary and due dates', function () {
         ->assertSee('Apr 15, 2026')
         ->assertSee('Feb 01, 2026')
         ->assertSee('Category totals')
+        ->assertSee('Transaction counts by category')
         ->assertSee('Consulting Income')
         ->assertSee('Software Subscriptions')
         ->assertSee('€'.number_format(1200.50, 2))

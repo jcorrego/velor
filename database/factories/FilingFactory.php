@@ -25,6 +25,7 @@ class FilingFactory extends Factory
             'tax_year_id' => TaxYear::factory(),
             'filing_type_id' => FilingType::factory(),
             'status' => fake()->randomElement(FilingStatus::cases()),
+            'due_date' => null,
             'key_metrics' => null,
         ];
     }

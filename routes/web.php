@@ -57,6 +57,10 @@ Route::view('finance/us-tax/owner-flow', 'finance.us-tax.owner-flow')
     ->middleware(['auth', 'verified'])
     ->name('finance.us-tax.owner-flow');
 
+Route::view('finance/us-tax/form-5472', 'finance.us-tax.form-5472')
+    ->middleware(['auth', 'verified'])
+    ->name('finance.us-tax.form-5472');
+
 Route::view('finance/us-tax/schedule-e', 'finance.us-tax.schedule-e')
     ->middleware(['auth', 'verified'])
     ->name('finance.us-tax.schedule-e');

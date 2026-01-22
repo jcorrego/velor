@@ -88,6 +88,13 @@
                         @enderror
                     </div>
 
+                    <div class="space-y-2">
+                        <flux:input wire:model="due_date" label="{{ __('Due date (optional)') }}" type="date" />
+                        @error('due_date')
+                            <p class="text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                        @enderror
+                    </div>
+
                     <div class="flex items-center gap-3">
                         <flux:button variant="primary" type="submit">
                             {{ $editingId ? __('Update filing') : __('Save filing') }}
@@ -120,6 +127,7 @@
                                     <th class="px-4 py-3">{{ __('Tax year') }}</th>
                                     <th class="px-4 py-3">{{ __('Filing type') }}</th>
                                     <th class="px-4 py-3">{{ __('Status') }}</th>
+                                    <th class="px-4 py-3">{{ __('Due date') }}</th>
                                     <th class="px-4 py-3"></th>
                                 </tr>
                             </thead>
@@ -134,6 +142,9 @@
                                         </td>
                                         <td class="px-4 py-3 text-zinc-700 dark:text-zinc-200">
                                             {{ $statusLabel($filing->status) }}
+                                        </td>
+                                        <td class="px-4 py-3 text-zinc-700 dark:text-zinc-200">
+                                            {{ $filing->due_date?->format('M d, Y') ?? '—' }}
                                         </td>
                                         <td class="px-4 py-3 text-right">
                                             <button

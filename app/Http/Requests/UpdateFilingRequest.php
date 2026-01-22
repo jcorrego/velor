@@ -58,6 +58,10 @@ class UpdateFilingRequest extends FormRequest
                 'string',
                 Rule::in(array_map(fn ($case) => $case->value, FilingStatus::cases())),
             ],
+            'due_date' => [
+                'nullable',
+                'date',
+            ],
             'key_metrics' => [
                 'nullable',
                 'array',
@@ -81,6 +85,7 @@ class UpdateFilingRequest extends FormRequest
             'filing_type_id.required' => 'The filing type is required.',
             'filing_type_id.exists' => 'The selected filing type does not exist.',
             'status.in' => 'The selected status is invalid.',
+            'due_date.date' => 'The due date must be a valid date.',
             'key_metrics.array' => 'Key metrics must be an array.',
         ];
     }

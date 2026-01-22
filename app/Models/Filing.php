@@ -22,6 +22,8 @@ class Filing extends Model
         'tax_year_id',
         'filing_type_id',
         'status',
+        'due_date',
+        'form_data',
         'key_metrics',
     ];
 
@@ -34,6 +36,8 @@ class Filing extends Model
     {
         return [
             'status' => FilingStatus::class,
+            'due_date' => 'date',
+            'form_data' => 'array',
             'key_metrics' => 'json',
         ];
     }
