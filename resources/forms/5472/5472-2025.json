@@ -280,17 +280,13 @@
       ]
     },
     {
-      "key": "6-part-v-non-monetary-transactions",
-      "title": "6. Part V – Non-Monetary Transactions",
+      "key": "5-part-v-reportable-transactions",
+      "label": "Part V",
+      "title": "Reportable Transactions of a Reporting Corporation That Is a Foreign-Owned U.S. DE",
       "summary": [
-        "Capture capital contributions, asset use, IP transfers, and debt forgiveness."
+        "Describe on an attached separate sheet any other transaction as defined by Regulations section 1.482-1(i)(7), such as amounts paid or received in connection with the formation, dissolution, acquisition, and disposition of the entity, including contributions to and distributions from the entity, and check here"
       ],
-      "bullets": [
-        "Contributions of capital in kind",
-        "Free use of assets",
-        "Transfer of intellectual property",
-        "Debt forgiveness"
-      ],
+      "bullets": [],
       "fields": [
         {
           "key": "non_monetary_transactions_summary",
@@ -302,16 +298,13 @@
       ]
     },
     {
-      "key": "7-part-vi-additional-information",
-      "title": "7. Part VI – Additional Information",
+      "key": "6-part-vi-additional-information",
+      "label": "Part VI",
+      "title": "Nonmonetary and Less-Than-Full Consideration Transactions Between the Reporting Corporation and the Foreign Related Party",
       "summary": [
-        "Answer control questions about ownership and accuracy."
+        "Describe these transactions on an attached separate sheet and check here."
       ],
-      "bullets": [
-        "Ownership changes",
-        "Accurate information confirmation",
-        "Additional relevant transactions"
-      ],
+      "bullets": [],
       "fields": [
         {
           "key": "ownership_changes",
@@ -337,14 +330,13 @@
       ]
     },
     {
-      "key": "8-signature",
-      "title": "8. Signature",
+      "key": "7-addtional-information",
+      "label": "Part VII",
+      "title": "Additional Information",
       "summary": [
-        "Signed by an authorized person from the entity."
+        "All reporting corporations must complete Part VII."
       ],
-      "bullets": [
-        "Signature of a manager or officer"
-      ],
+      "bullets": [],
       "fields": [
         {
           "key": "authorized_signature",
@@ -356,16 +348,23 @@
       ]
     },
     {
-      "key": "9-critical-points",
-      "title": "9. Critical Points",
+      "key": "8-cost-sharing-arrangements",
+      "label": "Part VIII",
+      "title": "Cost-Sharing Arrangements",
       "summary": [
-        "Penalties start at USD 25,000 per Form 5472 for failure to file or maintain required records."
+        "Note: Complete a separate Part VIII for each CSA in which the reporting corporation was a participant during the tax year. Report all amounts in U.S. dollars. (See instructions.)"
       ],
-      "bullets": [
-        "Form is filed with Form 1120 or 1120-F",
-        "Does not report taxes — only information",
-        "Always at least one reportable transaction in a foreign single-member LLC"
+      "bullets": [],
+      "fields": []
+    },
+    {
+      "key": "9-base-erosion-payments",
+      "label": "Part IX",
+      "title": "Base Erosion Payments and Base Erosion Tax Benefits Under Section 59A",
+      "summary": [
+        ""
       ],
+      "bullets": [],
       "fields": []
     }
   ]
