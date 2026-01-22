@@ -301,11 +301,32 @@ new class extends Component
 
         <div class="space-y-6">
             @foreach ($sections as $section)
-              <section class="divide-y divide-gray-200 overflow-hidden rounded-lg bg-white shadow-sm dark:divide-white/10 dark:bg-gray-800/50 dark:shadow-none dark:outline dark:-outline-offset-1 dark:outline-white/10">
-                <div class="px-4 py-5 sm:px-6 bg-gray-50 dark:bg-gray-700/30">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ $section['label'] ?? '' }}</h3>
-                    <p class="mt-1 text-md text-gray-500 dark:text-gray-400">{{ $section['title'] }}</p>
-                    <div class="text-gray-900 opacity-50 dark:text-white bg-gray-50 dark:bg-gray-700/30"">
+              @php
+                  $sectionId = 'form-5472-section-' . $loop->index;
+              @endphp
+              <section
+                  class="divide-y divide-gray-200 overflow-hidden rounded-lg bg-white shadow-sm dark:divide-white/10 dark:bg-gray-800/50 dark:shadow-none dark:outline dark:-outline-offset-1 dark:outline-white/10"
+                  x-data="{ open: false }"
+                  data-form-5472-section
+              >
+                <button
+                    type="button"
+                    class="w-full cursor-pointer px-4 py-5 text-left sm:px-6 bg-gray-50 dark:bg-gray-700/30"
+                    @click="open = !open"
+                    :aria-expanded="open ? 'true' : 'false'"
+                    aria-controls="{{ $sectionId }}-content"
+                >
+                    <div class="flex items-start justify-between gap-4">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ $section['label'] ?? '' }}</h3>
+                            <p class="mt-1 text-md text-gray-500 dark:text-gray-400">{{ $section['title'] }}</p>
+                        </div>
+                        <span class="mt-1 text-zinc-500 dark:text-zinc-300">
+                            <flux:icon.chevron-down class="size-4" x-show="open" />
+                            <flux:icon.chevron-right class="size-4" x-show="!open" />
+                        </span>
+                    </div>
+                    <div class="text-gray-900 opacity-50 dark:text-white bg-gray-50 dark:bg-gray-700/30">
                       @if (! empty($section['summary']))
                           <div class="mt-2 grid gap-2 text-sm text-gray-900 dark:text-zinc-300">
                               @foreach ($section['summary'] as $line)
@@ -324,8 +345,14 @@ new class extends Component
                           </ul>
                       @endif
                     </div>
-                </div>
-                <div class="px-4 py-5 sm:p-6 space-y-4">
+                </button>
+                <div
+                    class="px-4 py-5 sm:p-6 space-y-4"
+                    id="{{ $sectionId }}-content"
+                    x-show="open"
+                    x-transition
+                    x-cloak
+                >
                         @if (! empty($section['fields']))
                             <div class="grid gap-12 md:grid-cols-12">
                                 @foreach ($section['fields'] as $field)

@@ -44,6 +44,8 @@ it('renders form 5472 guidance and saves supplemental data', function () {
     Livewire::actingAs($user)
         ->test('finance.form-5472-guidance')
         ->set('filingId', (string) $filing->id)
+        ->assertSee('data-form-5472-section', false)
+        ->assertSee('x-data="{ open: false }"', false)
         ->assertSee('Part II')
         ->assertSee('25% Foreign Shareholder')
         ->set('formData.reporting_corp_name', 'JCO Services LLC')
