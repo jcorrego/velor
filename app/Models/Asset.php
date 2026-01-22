@@ -77,6 +77,14 @@ class Asset extends Model
     }
 
     /**
+     * Get year-end values for this asset.
+     */
+    public function yearEndValues(): HasMany
+    {
+        return $this->hasMany(YearEndValue::class);
+    }
+
+    /**
      * Get the documents linked to this asset.
      */
     public function documents(): MorphToMany

@@ -38,6 +38,10 @@ Route::view('finance/mappings', 'finance.mappings')
     ->middleware(['auth', 'verified'])
     ->name('finance.mappings');
 
+Route::view('finance/year-end-values', 'finance.year-end-values')
+    ->middleware(['auth', 'verified'])
+    ->name('finance.year-end-values');
+
 Route::get('finance/import', function () {
     $accounts = \App\Models\Account::query()
         ->whereHas('entity', fn ($query) => $query->where('user_id', auth()->id()))
@@ -60,6 +64,10 @@ Route::view('finance/us-tax/owner-flow', 'finance.us-tax.owner-flow')
 Route::view('finance/us-tax/form-5472', 'finance.us-tax.form-5472')
     ->middleware(['auth', 'verified'])
     ->name('finance.us-tax.form-5472');
+
+Route::view('finance/us-tax/form-4562', 'finance.us-tax.form-4562')
+    ->middleware(['auth', 'verified'])
+    ->name('finance.us-tax.form-4562');
 
 Route::view('finance/us-tax/schedule-e', 'finance.us-tax.schedule-e')
     ->middleware(['auth', 'verified'])

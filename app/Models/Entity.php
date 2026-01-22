@@ -6,6 +6,7 @@ use App\EntityType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 class Entity extends Model
@@ -60,5 +61,13 @@ class Entity extends Model
     public function documents(): MorphToMany
     {
         return $this->morphToMany(Document::class, 'documentable')->withTimestamps();
+    }
+
+    /**
+     * Get the year-end values for this entity.
+     */
+    public function yearEndValues(): HasMany
+    {
+        return $this->hasMany(YearEndValue::class);
     }
 }

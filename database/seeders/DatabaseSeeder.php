@@ -180,7 +180,7 @@ class DatabaseSeeder extends Seeder
 
         $usaFilingTypes = \App\Models\FilingType::query()
             ->where('jurisdiction_id', $usa->id)
-            ->whereIn('code', ['5472', '1120', '1040-NR', 'SCHEDULE-E'])
+            ->whereIn('code', ['5472', '4562', '1120', '1040-NR', 'SCHEDULE-E'])
             ->pluck('id', 'code');
 
         $colombiaFilingTypes = \App\Models\FilingType::query()
@@ -192,6 +192,7 @@ class DatabaseSeeder extends Seeder
             ['tax_year_id' => $taxYearSpain->id, 'filing_type_id' => $spainFilingTypes['IRPF'] ?? null, 'code' => 'IRPF'],
             ['tax_year_id' => $taxYearSpain->id, 'filing_type_id' => $spainFilingTypes['720'] ?? null, 'code' => '720'],
             ['tax_year_id' => $taxYearUSA->id, 'filing_type_id' => $usaFilingTypes['5472'] ?? null, 'code' => '5472'],
+            ['tax_year_id' => $taxYearUSA->id, 'filing_type_id' => $usaFilingTypes['4562'] ?? null, 'code' => '4562'],
             ['tax_year_id' => $taxYearUSA->id, 'filing_type_id' => $usaFilingTypes['1120'] ?? null, 'code' => '1120'],
             ['tax_year_id' => $taxYearUSA->id, 'filing_type_id' => $usaFilingTypes['1040-NR'] ?? null, 'code' => '1040-NR'],
             ['tax_year_id' => $taxYearUSA->id, 'filing_type_id' => $usaFilingTypes['SCHEDULE-E'] ?? null, 'code' => 'SCHEDULE-E'],

@@ -66,6 +66,9 @@
                     <flux:sidebar.item icon="home" :href="route('finance.assets')" :current="request()->routeIs('finance.assets')" wire:navigate>
                         {{ __('Assets') }}
                     </flux:sidebar.item>
+                    <flux:sidebar.item icon="document-text" :href="route('finance.year-end-values')" :current="request()->routeIs('finance.year-end-values')" wire:navigate>
+                        {{ __('Year-End Values') }}
+                    </flux:sidebar.item>
                 </flux:sidebar.group>
             </flux:sidebar.nav>
 
@@ -87,6 +90,9 @@
                     </flux:sidebar.item>
                     <flux:sidebar.item icon="document-text" :href="route('finance.us-tax.form-5472')" :current="request()->routeIs('finance.us-tax.form-5472')" wire:navigate>
                         {{ __('Form 5472 Guidance') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="document-text" :href="route('finance.us-tax.form-4562')" :current="request()->routeIs('finance.us-tax.form-4562')" wire:navigate>
+                        {{ __('Form 4562') }}
                     </flux:sidebar.item>
                     <flux:sidebar.item icon="home" :href="route('finance.us-tax.schedule-e')" :current="request()->routeIs('finance.us-tax.schedule-e')" wire:navigate>
                         {{ __('Schedule E') }}

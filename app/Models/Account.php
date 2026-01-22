@@ -69,4 +69,12 @@ class Account extends Model
     {
         return $this->hasMany(TransactionImport::class);
     }
+
+    /**
+     * Get year-end values for this account.
+     */
+    public function yearEndValues(): HasMany
+    {
+        return $this->hasMany(YearEndValue::class);
+    }
 }

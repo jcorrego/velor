@@ -48,4 +48,12 @@ class TaxYear extends Model
     {
         return $this->hasMany(Filing::class);
     }
+
+    /**
+     * Get year-end values for this tax year.
+     */
+    public function yearEndValues(): HasMany
+    {
+        return $this->hasMany(YearEndValue::class);
+    }
 }

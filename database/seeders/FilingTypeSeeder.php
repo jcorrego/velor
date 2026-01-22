@@ -47,6 +47,11 @@ class FilingTypeSeeder extends Seeder
                     'description' => 'Information Return of a 25% Foreign-Owned U.S. Corporation',
                 ],
                 [
+                    'code' => '4562',
+                    'name' => 'Form 4562',
+                    'description' => 'Depreciation and Amortization',
+                ],
+                [
                     'code' => '1120',
                     'name' => 'Form 1120 (Pro-forma)',
                     'description' => 'U.S. Corporation Income Tax Return (Pro-forma for disregarded entity)',

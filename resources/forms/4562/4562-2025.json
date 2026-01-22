@@ -1,0 +1,263 @@
+{
+  "form_code": "4562",
+  "tax_year": 2025,
+  "title": "Form 4562 (Depreciation and Amortization)",
+  "sections": [
+    {
+      "key": "part-1-section-179",
+      "label": "Part I",
+      "title": "Section 179 Election",
+      "summary": [
+        "Capture property elected for section 179 expensing."
+      ],
+      "bullets": [],
+      "fields": [
+        {
+          "key": "section_179_description",
+          "label": "Property description",
+          "type": "text",
+          "required": false,
+          "help": "Describe the property eligible for the section 179 election.",
+          "class": "md:col-span-6"
+        },
+        {
+          "key": "section_179_date_in_service",
+          "label": "Date placed in service",
+          "type": "date",
+          "required": false,
+          "help": "Enter the date the property was first placed in service.",
+          "class": "md:col-span-3"
+        },
+        {
+          "key": "section_179_cost",
+          "label": "Cost or basis",
+          "type": "number",
+          "required": false,
+          "help": "Enter the cost or basis of the property.",
+          "class": "md:col-span-3"
+        },
+        {
+          "key": "section_179_elected_amount",
+          "label": "Elected section 179 amount",
+          "type": "number",
+          "required": false,
+          "help": "Enter the amount elected for section 179 expensing.",
+          "class": "md:col-span-3"
+        },
+        {
+          "key": "section_179_limit_note",
+          "label": "Limit notes",
+          "type": "textarea",
+          "required": false,
+          "help": "Add any notes about section 179 limits or business use restrictions.",
+          "class": "md:col-span-6"
+        }
+      ]
+    },
+    {
+      "key": "part-2-bonus-depreciation",
+      "label": "Part II",
+      "title": "Special Depreciation Allowance",
+      "summary": [
+        "Record bonus depreciation or special allowance amounts."
+      ],
+      "bullets": [],
+      "fields": [
+        {
+          "key": "bonus_depreciation_claimed",
+          "label": "Claim special allowance",
+          "type": "boolean",
+          "required": false,
+          "help": "Check if bonus depreciation applies for the year.",
+          "class": "md:col-span-3"
+        },
+        {
+          "key": "bonus_depreciation_amount",
+          "label": "Special allowance amount",
+          "type": "number",
+          "required": false,
+          "help": "Enter the amount of bonus depreciation claimed.",
+          "class": "md:col-span-3"
+        },
+        {
+          "key": "bonus_depreciation_notes",
+          "label": "Notes",
+          "type": "textarea",
+          "required": false,
+          "help": "Explain the property or rationale for the special allowance.",
+          "class": "md:col-span-6"
+        }
+      ]
+    },
+    {
+      "key": "part-3-macrs",
+      "label": "Part III",
+      "title": "MACRS Depreciation",
+      "summary": [
+        "Track property subject to MACRS depreciation.",
+        "Use one entry per material asset group as needed."
+      ],
+      "bullets": [],
+      "fields": [
+        {
+          "key": "macrs_description",
+          "label": "Property description",
+          "type": "text",
+          "required": false,
+          "help": "Describe the property subject to MACRS.",
+          "class": "md:col-span-6"
+        },
+        {
+          "key": "macrs_date_in_service",
+          "label": "Date placed in service",
+          "type": "date",
+          "required": false,
+          "help": "Enter the date the property was placed in service.",
+          "class": "md:col-span-3"
+        },
+        {
+          "key": "macrs_cost_basis",
+          "label": "Cost or other basis",
+          "type": "number",
+          "required": false,
+          "help": "Enter the cost or basis used for depreciation.",
+          "class": "md:col-span-3"
+        },
+        {
+          "key": "macrs_method",
+          "label": "Method",
+          "type": "text",
+          "required": false,
+          "help": "Describe the depreciation method used (e.g., 200% DB, SL).",
+          "class": "md:col-span-3"
+        },
+        {
+          "key": "macrs_life_years",
+          "label": "Recovery period (years)",
+          "type": "number",
+          "required": false,
+          "help": "Enter the recovery period in years.",
+          "class": "md:col-span-3"
+        },
+        {
+          "key": "macrs_convention",
+          "label": "Convention",
+          "type": "text",
+          "required": false,
+          "help": "Enter the applicable convention (e.g., half-year, mid-quarter).",
+          "class": "md:col-span-3"
+        },
+        {
+          "key": "macrs_depreciation_amount",
+          "label": "Depreciation amount",
+          "type": "number",
+          "required": false,
+          "help": "Enter the depreciation amount for this property.",
+          "class": "md:col-span-3"
+        }
+      ]
+    },
+    {
+      "key": "part-5-listed-property",
+      "label": "Part V",
+      "title": "Listed Property",
+      "summary": [
+        "Capture listed property usage and depreciation." 
+      ],
+      "bullets": [],
+      "fields": [
+        {
+          "key": "listed_property_description",
+          "label": "Property description",
+          "type": "text",
+          "required": false,
+          "help": "Describe the listed property (vehicle, equipment, etc.).",
+          "class": "md:col-span-6"
+        },
+        {
+          "key": "listed_property_business_use",
+          "label": "Business use percentage",
+          "type": "number",
+          "required": false,
+          "help": "Enter the business-use percentage for the property.",
+          "class": "md:col-span-3"
+        },
+        {
+          "key": "listed_property_basis",
+          "label": "Cost or basis",
+          "type": "number",
+          "required": false,
+          "help": "Enter the cost or basis of the listed property.",
+          "class": "md:col-span-3"
+        },
+        {
+          "key": "listed_property_depreciation",
+          "label": "Depreciation amount",
+          "type": "number",
+          "required": false,
+          "help": "Enter the depreciation amount for the listed property.",
+          "class": "md:col-span-3"
+        },
+        {
+          "key": "listed_property_notes",
+          "label": "Usage notes",
+          "type": "textarea",
+          "required": false,
+          "help": "Document business use logs or substantiation notes.",
+          "class": "md:col-span-6"
+        }
+      ]
+    },
+    {
+      "key": "part-6-amortization",
+      "label": "Part VI",
+      "title": "Amortization",
+      "summary": [
+        "Record amortization for intangibles or startup costs."
+      ],
+      "bullets": [],
+      "fields": [
+        {
+          "key": "amortization_description",
+          "label": "Description of costs",
+          "type": "text",
+          "required": false,
+          "help": "Describe the costs being amortized.",
+          "class": "md:col-span-6"
+        },
+        {
+          "key": "amortization_start_date",
+          "label": "Amortization start date",
+          "type": "date",
+          "required": false,
+          "help": "Enter the date amortization began.",
+          "class": "md:col-span-3"
+        },
+        {
+          "key": "amortization_cost",
+          "label": "Amount or basis",
+          "type": "number",
+          "required": false,
+          "help": "Enter the amount or basis being amortized.",
+          "class": "md:col-span-3"
+        },
+        {
+          "key": "amortization_period_months",
+          "label": "Amortization period (months)",
+          "type": "number",
+          "required": false,
+          "help": "Enter the amortization period in months.",
+          "class": "md:col-span-3"
+        },
+        {
+          "key": "amortization_amount",
+          "label": "Amortization amount",
+          "type": "number",
+          "required": false,
+          "help": "Enter the amortization amount for the year.",
+          "class": "md:col-span-3"
+        }
+      ]
+    }
+  ]
+}
