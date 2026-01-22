@@ -20,6 +20,39 @@ use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
+it('auto-fills reporting corporation name and EIN from first USA entity', function () {
+    $user = User::factory()->create();
+    $usa = Jurisdiction::factory()->usa()->create();
+    $taxYear = TaxYear::factory()->for($usa)->create(['year' => 2025]);
+
+    Currency::firstOrCreate(
+        ['code' => 'USD'],
+        ['name' => 'US Dollar', 'symbol' => '$', 'is_active' => true]
+    );
+
+    $entity = Entity::factory()->for($user)->for($usa)->create([
+        'name' => 'Acme USA LLC',
+        'ein_or_tax_id' => '12-3456789',
+    ]);
+
+    $filingType = FilingType::factory()->for($usa)->create([
+        'code' => '5472',
+        'name' => 'Form 5472',
+    ]);
+
+    $filing = Filing::factory()
+        ->for($user)
+        ->for($taxYear)
+        ->for($filingType)
+        ->create();
+
+    Livewire::actingAs($user)
+        ->test('finance.form-5472-guidance')
+        ->set('filingId', (string) $filing->id)
+        ->assertSet('formData.1a', $entity->name)
+        ->assertSet('formData.1b', $entity->ein_or_tax_id);
+});
+
 it('renders form 5472 guidance and saves supplemental data', function () {
     $user = User::factory()->create();
     $usa = Jurisdiction::factory()->usa()->create();

@@ -3,6 +3,7 @@
 use App\Finance\Services\UsTaxReportingService;
 use App\Http\Requests\StoreFilingFormResponseRequest;
 use App\Models\Currency;
+use App\Models\Entity;
 use App\Models\Filing;
 use App\Services\FormSchemaLoader;
 use Livewire\Component;
@@ -174,6 +175,36 @@ new class extends Component
                 $this->formData[$key] = $this->formData[$key] ?? $defaultValue;
             }
         }
+
+        $this->hydrateReportingCorporation($filing);
+    }
+
+    private function hydrateReportingCorporation(Filing $filing): void
+    {
+        $reportingName = $this->formData['1a'] ?? null;
+        $reportingEin = $this->formData['1b'] ?? null;
+
+        if (($reportingName !== null && $reportingName !== '') || ($reportingEin !== null && $reportingEin !== '')) {
+            return;
+        }
+
+        $entity = Entity::query()
+            ->where('user_id', auth()->id())
+            ->whereHas('jurisdiction', fn ($query) => $query->where('iso_code', 'USA'))
+            ->orderBy('created_at')
+            ->first();
+
+        if (! $entity) {
+            return;
+        }
+
+        $this->formData['1a'] = $entity->name;
+
+        if ($entity->ein_or_tax_id) {
+            $this->formData['1b'] = $entity->ein_or_tax_id;
+        }
+
+        $this->persistFormData($filing);
     }
 
     /**
