@@ -6,10 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Finance\StoreAssetRequest;
 use App\Http\Requests\Finance\UpdateAssetRequest;
 use App\Http\Resources\AssetResource;
-use App\Http\Resources\AssetValuationResource;
 use App\Models\Asset;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class AssetController extends Controller
 {
@@ -19,7 +17,7 @@ class AssetController extends Controller
     public function index(): JsonResponse
     {
         $assets = $this->filterByUser(Asset::query())
-            ->with(['jurisdiction', 'entity', 'acquisitionCurrency', 'valuations'])
+            ->with(['jurisdiction', 'entity', 'acquisitionCurrency'])
             ->paginate(15);
 
         return AssetResource::collection($assets)->response();
@@ -33,7 +31,7 @@ class AssetController extends Controller
         $asset = Asset::create($request->validated());
 
         return response()->json(
-            new AssetResource($asset->load(['jurisdiction', 'entity', 'acquisitionCurrency', 'valuations'])),
+            new AssetResource($asset->load(['jurisdiction', 'entity', 'acquisitionCurrency'])),
             201
         );
     }
@@ -46,7 +44,7 @@ class AssetController extends Controller
         $this->ensureUserOwnsAsset($asset);
 
         return response()->json(
-            new AssetResource($asset->load(['jurisdiction', 'entity', 'acquisitionCurrency', 'valuations']))
+            new AssetResource($asset->load(['jurisdiction', 'entity', 'acquisitionCurrency']))
         );
     }
 
@@ -60,7 +58,7 @@ class AssetController extends Controller
         $asset->update($request->validated());
 
         return response()->json(
-            new AssetResource($asset->load(['jurisdiction', 'entity', 'acquisitionCurrency', 'valuations']))
+            new AssetResource($asset->load(['jurisdiction', 'entity', 'acquisitionCurrency']))
         );
     }
 
@@ -74,18 +72,6 @@ class AssetController extends Controller
         $asset->delete();
 
         return response()->json(status: 204);
-    }
-
-    /**
-     * Get all valuations for an asset.
-     */
-    public function valuations(Asset $asset): AnonymousResourceCollection
-    {
-        $this->ensureUserOwnsAsset($asset);
-
-        $valuations = $asset->valuations()->paginate(15);
-
-        return AssetValuationResource::collection($valuations);
     }
 
     /**

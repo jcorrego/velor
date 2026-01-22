@@ -79,14 +79,6 @@ class Currency extends Model
     }
 
     /**
-     * Get all asset valuations in this currency.
-     */
-    public function assetValuations(): HasMany
-    {
-        return $this->hasMany(AssetValuation::class);
-    }
-
-    /**
      * Get all year-end values recorded in this currency.
      */
     public function yearEndValues(): HasMany

@@ -69,14 +69,6 @@ class Asset extends Model
     }
 
     /**
-     * Get all valuations for this asset.
-     */
-    public function valuations(): HasMany
-    {
-        return $this->hasMany(AssetValuation::class);
-    }
-
-    /**
      * Get year-end values for this asset.
      */
     public function yearEndValues(): HasMany

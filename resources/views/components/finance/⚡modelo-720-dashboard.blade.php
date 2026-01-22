@@ -138,7 +138,7 @@ new class extends Component
         </div>
 
         <div class="rounded-xl border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300">
-            <strong>{{ __('Note') }}:</strong> {{ __('Totals use the latest valuation (or acquisition cost) and are converted to EUR.') }}
+            <strong>{{ __('Note') }}:</strong> {{ __('Totals use year-end values and are converted to EUR.') }}
         </div>
     @endif
 </div>

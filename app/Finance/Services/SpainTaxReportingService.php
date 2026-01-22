@@ -4,15 +4,14 @@ namespace App\Finance\Services;
 
 use App\Enums\Finance\TaxFormCode;
 use App\Enums\Finance\TransactionType;
-use App\Models\Account;
-use App\Models\Asset;
 use App\Models\CategoryTaxMapping;
 use App\Models\Currency;
 use App\Models\Entity;
 use App\Models\Jurisdiction;
+use App\Models\TaxYear;
 use App\Models\Transaction;
 use App\Models\User;
-use Carbon\Carbon;
+use App\Models\YearEndValue;
 
 class SpainTaxReportingService
 {
@@ -82,51 +81,43 @@ class SpainTaxReportingService
             ->where('iso_code', 'ESP')
             ->firstOrFail();
 
-        $foreignAccountIds = Account::query()
-            ->whereIn('entity_id', $entityIds)
-            ->whereHas('entity', fn ($query) => $query->where('jurisdiction_id', '!=', $spain->id))
+        $foreignEntityIds = Entity::query()
+            ->where('user_id', $user->id)
+            ->where('jurisdiction_id', '!=', $spain->id)
             ->pluck('id');
 
-        $accountTransactions = Transaction::query()
-            ->whereIn('account_id', $foreignAccountIds)
-            ->whereYear('transaction_date', $taxYear)
-            ->whereIn('type', [
-                TransactionType::Income->value,
-                TransactionType::Expense->value,
-                TransactionType::Fee->value,
-            ])
-            ->with('originalCurrency')
+        $taxYearIds = TaxYear::query()
+            ->where('year', $taxYear)
+            ->pluck('id');
+
+        $yearEndValues = YearEndValue::query()
+            ->whereIn('entity_id', $foreignEntityIds)
+            ->whereIn('tax_year_id', $taxYearIds)
+            ->with('currency')
             ->get();
 
-        $bankAccountsTotal = $this->sumTransactionsToCurrency($accountTransactions, $eurCurrency);
-
-        $yearEnd = Carbon::create($taxYear, 12, 31);
-        $foreignAssets = Asset::query()
-            ->whereIn('entity_id', $entityIds)
-            ->where('jurisdiction_id', '!=', $spain->id)
-            ->with(['acquisitionCurrency', 'valuations'])
-            ->get();
-
+        $bankAccountsTotal = 0.0;
         $realEstateTotal = 0.0;
-        foreach ($foreignAssets as $asset) {
-            $valuation = $asset->valuations
-                ->where('valuation_date', '<=', $yearEnd)
-                ->sortByDesc('valuation_date')
-                ->first();
 
-            $amount = $valuation?->amount ?? $asset->acquisition_cost;
-            $date = $valuation?->valuation_date ?? $asset->acquisition_date;
-
-            if (! $amount || ! $date || ! $asset->acquisitionCurrency) {
+        foreach ($yearEndValues as $value) {
+            if (! $value->currency) {
                 continue;
             }
 
-            $realEstateTotal += $this->fxRateService->convert(
-                (float) $amount,
-                $asset->acquisitionCurrency,
+            $converted = $this->fxRateService->convert(
+                (float) $value->amount,
+                $value->currency,
                 $eurCurrency,
-                $date
+                $value->as_of_date
             );
+
+            if ($value->account_id) {
+                $bankAccountsTotal += $converted;
+            }
+
+            if ($value->asset_id) {
+                $realEstateTotal += $converted;
+            }
         }
 
         $threshold = (float) config('finance.modelo_720_threshold', 50000.00);
