@@ -19,9 +19,7 @@ class YearEndValue extends Model
         'tax_year_id',
         'account_id',
         'asset_id',
-        'currency_id',
         'amount',
-        'as_of_date',
     ];
 
     /**
@@ -31,7 +29,6 @@ class YearEndValue extends Model
     {
         return [
             'amount' => 'decimal:2',
-            'as_of_date' => 'date',
         ];
     }
 
@@ -65,13 +62,5 @@ class YearEndValue extends Model
     public function asset(): BelongsTo
     {
         return $this->belongsTo(Asset::class);
-    }
-
-    /**
-     * Get the currency for this value.
-     */
-    public function currency(): BelongsTo
-    {
-        return $this->belongsTo(Currency::class);
     }
 }

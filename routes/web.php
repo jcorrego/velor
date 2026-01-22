@@ -38,10 +38,6 @@ Route::view('finance/mappings', 'finance.mappings')
     ->middleware(['auth', 'verified'])
     ->name('finance.mappings');
 
-Route::view('finance/year-end-values', 'finance.year-end-values')
-    ->middleware(['auth', 'verified'])
-    ->name('finance.year-end-values');
-
 Route::get('finance/import', function () {
     $accounts = \App\Models\Account::query()
         ->whereHas('entity', fn ($query) => $query->where('user_id', auth()->id()))

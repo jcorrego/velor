@@ -12,6 +12,7 @@ use App\Models\TaxYear;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Models\YearEndValue;
+use Carbon\Carbon;
 
 class SpainTaxReportingService
 {
@@ -93,22 +94,26 @@ class SpainTaxReportingService
         $yearEndValues = YearEndValue::query()
             ->whereIn('entity_id', $foreignEntityIds)
             ->whereIn('tax_year_id', $taxYearIds)
-            ->with('currency')
+            ->with(['account.currency', 'asset.acquisitionCurrency', 'taxYear'])
             ->get();
 
         $bankAccountsTotal = 0.0;
         $realEstateTotal = 0.0;
 
         foreach ($yearEndValues as $value) {
-            if (! $value->currency) {
+            $currency = $value->account?->currency ?? $value->asset?->acquisitionCurrency;
+
+            if (! $currency || ! $value->taxYear) {
                 continue;
             }
 
+            $asOfDate = Carbon::create($value->taxYear->year, 12, 31);
+
             $converted = $this->fxRateService->convert(
                 (float) $value->amount,
-                $value->currency,
+                $currency,
                 $eurCurrency,
-                $value->as_of_date
+                $asOfDate
             );
 
             if ($value->account_id) {

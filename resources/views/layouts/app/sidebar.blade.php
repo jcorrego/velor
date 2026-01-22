@@ -60,14 +60,11 @@
                     <flux:sidebar.item icon="currency-dollar" :href="route('finance.accounts')" :current="request()->routeIs('finance.accounts')" wire:navigate>
                         {{ __('Accounts') }}
                     </flux:sidebar.item>
-                    <flux:sidebar.item icon="document-text" :href="route('finance.transactions')" :current="request()->routeIs('finance.transactions')" wire:navigate>
-                        {{ __('Transactions') }}
-                    </flux:sidebar.item>
                     <flux:sidebar.item icon="home" :href="route('finance.assets')" :current="request()->routeIs('finance.assets')" wire:navigate>
                         {{ __('Assets') }}
                     </flux:sidebar.item>
-                    <flux:sidebar.item icon="document-text" :href="route('finance.year-end-values')" :current="request()->routeIs('finance.year-end-values')" wire:navigate>
-                        {{ __('Year-End Values') }}
+                    <flux:sidebar.item icon="document-text" :href="route('finance.transactions')" :current="request()->routeIs('finance.transactions')" wire:navigate>
+                        {{ __('Transactions') }}
                     </flux:sidebar.item>
                 </flux:sidebar.group>
             </flux:sidebar.nav>

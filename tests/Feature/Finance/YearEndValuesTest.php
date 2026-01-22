@@ -10,7 +10,7 @@ use App\Models\User;
 use App\Models\YearEndValue;
 use Livewire\Livewire;
 
-it('creates a year-end value for an account', function () {
+it('updates year-end values for an account from account management', function () {
     $user = User::factory()->create();
     $jurisdiction = Jurisdiction::factory()->create();
     $entity = Entity::factory()->for($user)->create([
@@ -20,22 +20,16 @@ it('creates a year-end value for an account', function () {
         'jurisdiction_id' => $jurisdiction->id,
         'year' => 2024,
     ]);
-    $currency = Currency::factory()->euro()->create();
     $account = Account::factory()->for($entity)->create([
-        'currency_id' => $currency->id,
+        'currency_id' => Currency::factory()->euro()->create()->id,
     ]);
 
     $this->actingAs($user);
 
-    Livewire::test('finance.year-end-values')
-        ->set('entity_id', (string) $entity->id)
-        ->set('tax_year_id', (string) $taxYear->id)
-        ->set('valueType', 'account')
-        ->set('account_id', (string) $account->id)
-        ->set('currency_id', (string) $currency->id)
-        ->set('amount', '1000')
-        ->set('as_of_date', '2024-12-31')
-        ->call('save')
+    Livewire::test('finance.account-management')
+        ->call('openYearEndValues', $account->id)
+        ->set('yearEndValues.'.$taxYear->id, '1000')
+        ->call('saveYearEndValues')
         ->assertHasNoErrors();
 
     expect(YearEndValue::query()
@@ -45,7 +39,7 @@ it('creates a year-end value for an account', function () {
         ->exists())->toBeTrue();
 });
 
-it('prevents duplicate year-end values for the same account and tax year', function () {
+it('removes year-end values when cleared from account management', function () {
     $user = User::factory()->create();
     $jurisdiction = Jurisdiction::factory()->create();
     $entity = Entity::factory()->for($user)->create([
@@ -55,35 +49,32 @@ it('prevents duplicate year-end values for the same account and tax year', funct
         'jurisdiction_id' => $jurisdiction->id,
         'year' => 2024,
     ]);
-    $currency = Currency::factory()->euro()->create();
     $account = Account::factory()->for($entity)->create([
-        'currency_id' => $currency->id,
+        'currency_id' => Currency::factory()->euro()->create()->id,
     ]);
 
     YearEndValue::create([
         'entity_id' => $entity->id,
         'tax_year_id' => $taxYear->id,
         'account_id' => $account->id,
-        'currency_id' => $currency->id,
-        'amount' => 1500,
-        'as_of_date' => '2024-12-31',
+        'amount' => 1000,
     ]);
 
     $this->actingAs($user);
 
-    Livewire::test('finance.year-end-values')
-        ->set('entity_id', (string) $entity->id)
-        ->set('tax_year_id', (string) $taxYear->id)
-        ->set('valueType', 'account')
-        ->set('account_id', (string) $account->id)
-        ->set('currency_id', (string) $currency->id)
-        ->set('amount', '1500')
-        ->set('as_of_date', '2024-12-31')
-        ->call('save')
-        ->assertHasErrors(['account_id' => 'unique']);
+    Livewire::test('finance.account-management')
+        ->call('openYearEndValues', $account->id)
+        ->set('yearEndValues.'.$taxYear->id, '')
+        ->call('saveYearEndValues')
+        ->assertHasNoErrors();
+
+    expect(YearEndValue::query()
+        ->where('account_id', $account->id)
+        ->where('tax_year_id', $taxYear->id)
+        ->exists())->toBeFalse();
 });
 
-it('calculates total assets for the selected entity and tax year', function () {
+it('updates year-end values for an asset from asset management', function () {
     $user = User::factory()->create();
     $jurisdiction = Jurisdiction::factory()->create();
     $entity = Entity::factory()->for($user)->create([
@@ -94,36 +85,21 @@ it('calculates total assets for the selected entity and tax year', function () {
         'year' => 2024,
     ]);
     $currency = Currency::factory()->euro()->create();
-    $account = Account::factory()->for($entity)->create([
-        'currency_id' => $currency->id,
-    ]);
     $asset = Asset::factory()->for($entity)->create([
         'jurisdiction_id' => $jurisdiction->id,
         'acquisition_currency_id' => $currency->id,
     ]);
 
-    YearEndValue::create([
-        'entity_id' => $entity->id,
-        'tax_year_id' => $taxYear->id,
-        'account_id' => $account->id,
-        'currency_id' => $currency->id,
-        'amount' => 1000,
-        'as_of_date' => '2024-12-31',
-    ]);
-
-    YearEndValue::create([
-        'entity_id' => $entity->id,
-        'tax_year_id' => $taxYear->id,
-        'asset_id' => $asset->id,
-        'currency_id' => $currency->id,
-        'amount' => 2000,
-        'as_of_date' => '2024-12-31',
-    ]);
-
     $this->actingAs($user);
 
-    Livewire::test('finance.year-end-values')
-        ->set('entity_id', (string) $entity->id)
-        ->set('tax_year_id', (string) $taxYear->id)
-        ->assertSet('totalAssets', 3000.0);
+    Livewire::test('finance.asset-management')
+        ->call('openYearEndValues', $asset->id)
+        ->set('yearEndValues.'.$taxYear->id, '2500')
+        ->call('saveYearEndValues')
+        ->assertHasNoErrors();
+
+    expect(YearEndValue::query()
+        ->where('asset_id', $asset->id)
+        ->where('tax_year_id', $taxYear->id)
+        ->exists())->toBeTrue();
 });

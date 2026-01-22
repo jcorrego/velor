@@ -121,18 +121,14 @@ test('getModelo720Summary aggregates foreign assets by category and threshold st
         'entity_id' => $foreignEntity->id,
         'tax_year_id' => $taxYear->id,
         'account_id' => $account->id,
-        'currency_id' => $eur->id,
         'amount' => 15000.00,
-        'as_of_date' => '2024-12-31',
     ]);
 
     YearEndValue::create([
         'entity_id' => $foreignEntity->id,
         'tax_year_id' => $taxYear->id,
         'asset_id' => $asset->id,
-        'currency_id' => $eur->id,
         'amount' => 70000.00,
-        'as_of_date' => '2024-12-31',
     ]);
 
     $service = app(SpainTaxReportingService::class);

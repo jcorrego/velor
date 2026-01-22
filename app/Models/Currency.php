@@ -78,21 +78,12 @@ class Currency extends Model
         return $this->hasMany(Transaction::class, 'converted_currency_id');
     }
 
-    /**
-     * Get all year-end values recorded in this currency.
-     */
-    public function yearEndValues(): HasMany
-    {
-        return $this->hasMany(YearEndValue::class);
-    }
-
     public function isInUse(): bool
     {
         return $this->accounts()->exists()
             || $this->assets()->exists()
             || $this->originalTransactions()->exists()
             || $this->convertedTransactions()->exists()
-            || $this->yearEndValues()->exists()
             || $this->fxRatesFrom()->exists()
             || $this->fxRatesTo()->exists();
     }

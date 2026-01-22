@@ -17,9 +17,7 @@ return new class extends Migration
             $table->foreignId('tax_year_id')->constrained('tax_years');
             $table->foreignId('account_id')->nullable()->constrained('accounts');
             $table->foreignId('asset_id')->nullable()->constrained('assets');
-            $table->foreignId('currency_id')->constrained('currencies');
             $table->decimal('amount', 20, 2);
-            $table->date('as_of_date');
             $table->timestamps();
 
             $table->unique(['entity_id', 'tax_year_id', 'account_id']);
