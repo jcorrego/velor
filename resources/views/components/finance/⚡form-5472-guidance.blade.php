@@ -293,7 +293,11 @@ new class extends Component
     @else
         <div class="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
             <div class="flex flex-wrap items-center justify-between gap-2">
-                <flux:heading size="md">{{ $schemaTitle ?? __('Form 5472') }}</flux:heading>
+                <flux:heading size="md" class="flex flex-col gap-2">
+                  <div>{{ $schemaTitle ?? __('Form 5472') }}</div>
+                  <flux:text>Visit IRS <flux:link href="https://www.irs.gov/forms-pubs/about-form-5472">documentation</flux:link> for more information.</flux:text>
+                </flux:heading>
+                
                 <flux:badge size="sm" color="zinc">{{ $filing->taxYear->year }}</flux:badge>
             </div>
             <flux:subheading class="mt-1">{{ __('Supplemental data is saved per filing and tax year.') }}</flux:subheading>
