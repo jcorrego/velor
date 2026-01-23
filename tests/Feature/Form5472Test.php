@@ -47,7 +47,7 @@ it('auto-fills reporting corporation name and EIN from first USA entity', functi
         ->create();
 
     Livewire::actingAs($user)
-        ->test('finance.form-5472-guidance')
+        ->test('finance.form-5472')
         ->set('filingId', (string) $filing->id)
         ->assertSet('formData.1a', $entity->name)
         ->assertSet('formData.1b', $entity->ein_or_tax_id);
@@ -75,7 +75,7 @@ it('renders form 5472 data entry and saves supplemental data', function () {
         ->create();
 
     Livewire::actingAs($user)
-        ->test('finance.form-5472-guidance')
+        ->test('finance.form-5472')
         ->set('filingId', (string) $filing->id)
         ->assertSee('Owner Contributions')
         ->set('formData.reporting_corp_name', 'JCO Services LLC')
@@ -153,7 +153,7 @@ it('renders calculated fields for mapped line items', function () {
     ]);
 
     Livewire::actingAs($user)
-        ->test('finance.form-5472-guidance')
+        ->test('finance.form-5472')
         ->set('filingId', (string) $filing->id)
         ->assertSee('$350.00')
         ->assertSee('Calculated from 2 transactions across 2 categories.');

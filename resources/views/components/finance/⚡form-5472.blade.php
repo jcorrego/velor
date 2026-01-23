@@ -303,7 +303,7 @@ new class extends Component
 
 <div class="space-y-6">
     <div>
-        <flux:heading size="lg">{{ __('Form 5472 Data') }}</flux:heading>
+        <flux:heading size="lg">{{ __('Form 5472') }}</flux:heading>
         <flux:subheading>{{ __('Capture supplemental Form 5472 details.') }}</flux:subheading>
     </div>
 

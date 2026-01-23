@@ -85,11 +85,8 @@
 
             <flux:sidebar.nav>
                 <flux:sidebar.group :heading="__('Reports')" class="grid">
-                    <flux:sidebar.item icon="document-text" :href="route('finance.us-tax.owner-flow')" :current="request()->routeIs('finance.us-tax.owner-flow')" wire:navigate>
-                        {{ __('Owner Flow (5472)') }}
-                    </flux:sidebar.item>
                     <flux:sidebar.item icon="document-text" :href="route('finance.us-tax.form-5472')" :current="request()->routeIs('finance.us-tax.form-5472')" wire:navigate>
-                        {{ __('Form 5472 Guidance') }}
+                        {{ __('Form 5472') }}
                     </flux:sidebar.item>
                     <flux:sidebar.item icon="document-text" :href="route('finance.us-tax.form-4562')" :current="request()->routeIs('finance.us-tax.form-4562')" wire:navigate>
                         {{ __('Form 4562') }}

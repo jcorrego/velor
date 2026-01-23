@@ -5,18 +5,44 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-test('authenticated users can access owner-flow report page', function () {
+test('authenticated users can access form 5472 page', function () {
     $user = User::factory()->create();
+    $usa = \App\Models\Jurisdiction::where('iso_code', 'USA')->first()
+        ?? \App\Models\Jurisdiction::factory()->create(['iso_code' => 'USA', 'name' => 'United States']);
 
-    $response = $this->actingAs($user)->get(route('finance.us-tax.owner-flow'));
+    \App\Models\Currency::firstOrCreate(
+        ['code' => 'USD'],
+        ['name' => 'US Dollar', 'symbol' => '$', 'is_active' => true]
+    );
+
+    $taxYear = \App\Models\TaxYear::factory()->create([
+        'jurisdiction_id' => $usa->id,
+        'year' => 2025,
+    ]);
+
+    $filingType = \App\Models\FilingType::factory()->create([
+        'jurisdiction_id' => $usa->id,
+        'code' => '5472',
+        'name' => 'Form 5472',
+    ]);
+
+    \App\Models\Filing::factory()->create([
+        'user_id' => $user->id,
+        'tax_year_id' => $taxYear->id,
+        'filing_type_id' => $filingType->id,
+        'status' => \App\FilingStatus::Planning,
+    ]);
+
+    $response = $this->actingAs($user)->get(route('finance.us-tax.form-5472'));
 
     $response->assertSuccessful()
-        ->assertSee('Owner-Flow Summary')
-        ->assertSeeLivewire('finance.owner-flow-report');
+        ->assertSee('Form 5472')
+        ->assertSee('Owner Contributions')
+        ->assertSeeLivewire('finance.form-5472');
 });
 
-test('guests cannot access owner-flow report page', function () {
-    $response = $this->get(route('finance.us-tax.owner-flow'));
+test('guests cannot access form 5472 page', function () {
+    $response = $this->get(route('finance.us-tax.form-5472'));
 
     $response->assertRedirect();
 });
@@ -28,7 +54,7 @@ test('authenticated users can access form 4562 page', function () {
 
     $response->assertSuccessful()
         ->assertSee('Form 4562 Guidance & Data')
-        ->assertSeeLivewire('finance.form-4562-guidance');
+        ->assertSeeLivewire('finance.form-4562');
 });
 
 test('form 4562 shows message when no filings exist', function () {
