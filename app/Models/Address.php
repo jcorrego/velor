@@ -40,4 +40,12 @@ class Address extends Model
     {
         return $this->hasMany(Asset::class);
     }
+
+    /**
+     * Get entities linked to this address.
+     */
+    public function entities(): HasMany
+    {
+        return $this->hasMany(Entity::class);
+    }
 }

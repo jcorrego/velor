@@ -6,6 +6,7 @@ use App\Livewire\Management\Entities;
 use App\Livewire\Management\Filings;
 use App\Livewire\Management\Profiles;
 use App\Livewire\Management\ResidencyPeriods;
+use App\Models\Address;
 use App\Models\Entity;
 use App\Models\Filing;
 use App\Models\FilingType;
@@ -75,6 +76,49 @@ test('user can create an entity from the management ui', function () {
     expect($entity)->not->toBeNull()
         ->and($entity->jurisdiction_id)->toBe($jurisdiction->id)
         ->and($entity->type)->toBe(EntityType::LLC);
+});
+
+test('user can associate an existing address when creating an entity', function () {
+    $user = User::factory()->create();
+    $jurisdiction = Jurisdiction::factory()->colombia()->create();
+    $address = Address::factory()->create(['user_id' => $user->id]);
+
+    Livewire::actingAs($user)
+        ->test(Entities::class)
+        ->set('jurisdiction_id', $jurisdiction->id)
+        ->set('type', EntityType::LLC->value)
+        ->set('name', 'Velor Holdings LLC')
+        ->set('address_id', $address->id)
+        ->call('save');
+
+    $entity = Entity::query()->where('user_id', $user->id)->first();
+
+    expect($entity)->not->toBeNull()
+        ->and($entity->address_id)->toBe($address->id);
+});
+
+test('user can create a new address from the entity form', function () {
+    $user = User::factory()->create();
+    $jurisdiction = Jurisdiction::factory()->colombia()->create();
+
+    Livewire::actingAs($user)
+        ->test(Entities::class)
+        ->set('address_line_1', '123 Main St')
+        ->set('address_line_2', 'Unit 4B')
+        ->set('address_city', 'Miami')
+        ->set('address_state', 'FL')
+        ->set('address_postal_code', '33101')
+        ->set('address_country', 'USA')
+        ->call('saveAddress')
+        ->set('jurisdiction_id', $jurisdiction->id)
+        ->set('type', EntityType::LLC->value)
+        ->set('name', 'Velor Holdings LLC')
+        ->call('save');
+
+    $entity = Entity::query()->where('user_id', $user->id)->first();
+
+    expect($entity)->not->toBeNull()
+        ->and($entity->address_id)->not->toBeNull();
 });
 
 test('user can update a filing status from the management ui', function () {

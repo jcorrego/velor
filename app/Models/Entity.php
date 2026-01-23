@@ -21,6 +21,7 @@ class Entity extends Model
     protected $fillable = [
         'user_id',
         'jurisdiction_id',
+        'address_id',
         'type',
         'name',
         'ein_or_tax_id',
@@ -53,6 +54,14 @@ class Entity extends Model
     public function jurisdiction(): BelongsTo
     {
         return $this->belongsTo(Jurisdiction::class);
+    }
+
+    /**
+     * Get the address for this entity.
+     */
+    public function address(): BelongsTo
+    {
+        return $this->belongsTo(Address::class);
     }
 
     /**

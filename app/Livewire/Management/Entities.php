@@ -5,6 +5,7 @@ namespace App\Livewire\Management;
 use App\EntityType;
 use App\Http\Requests\StoreEntityRequest;
 use App\Http\Requests\UpdateEntityRequest;
+use App\Models\Address;
 use App\Models\Entity;
 use App\Models\Jurisdiction;
 use Illuminate\View\View;
@@ -22,6 +23,20 @@ class Entities extends Component
 
     public string $ein_or_tax_id = '';
 
+    public ?int $address_id = null;
+
+    public string $address_country = '';
+
+    public string $address_state = '';
+
+    public string $address_city = '';
+
+    public string $address_postal_code = '';
+
+    public string $address_line_1 = '';
+
+    public string $address_line_2 = '';
+
     public function mount(): void
     {
         $this->type = EntityType::Individual->value;
@@ -36,6 +51,7 @@ class Entities extends Component
 
         $this->editingId = $entity->id;
         $this->jurisdiction_id = $entity->jurisdiction_id;
+        $this->address_id = $entity->address_id;
         $this->type = $entity->type->value;
         $this->name = $entity->name;
         $this->ein_or_tax_id = $entity->ein_or_tax_id ?? '';
@@ -64,6 +80,39 @@ class Entities extends Component
         $this->dispatch('entity-saved');
     }
 
+    public function openAddressModal(): void
+    {
+        $this->dispatch('modal-show', name: 'entity-address-create');
+    }
+
+    public function closeAddressModal(): void
+    {
+        $this->resetAddressForm();
+        $this->resetValidation();
+        $this->dispatch('modal-close', name: 'entity-address-create');
+    }
+
+    public function saveAddress(): void
+    {
+        $this->validate($this->addressRules());
+
+        $address = Address::create([
+            'user_id' => auth()->id(),
+            'country' => $this->address_country,
+            'state' => $this->address_state,
+            'city' => $this->address_city,
+            'postal_code' => $this->address_postal_code,
+            'address_line_1' => $this->address_line_1,
+            'address_line_2' => $this->address_line_2 !== '' ? $this->address_line_2 : null,
+        ]);
+
+        $this->address_id = $address->id;
+
+        $this->resetAddressForm();
+        $this->resetValidation();
+        $this->dispatch('modal-close', name: 'entity-address-create');
+    }
+
     public function cancelEdit(): void
     {
         $this->resetForm();
@@ -74,8 +123,12 @@ class Entities extends Component
         return view('livewire.management.entities', [
             'entities' => Entity::query()
                 ->where('user_id', auth()->id())
-                ->with('jurisdiction')
+                ->with(['jurisdiction', 'address'])
                 ->orderBy('name')
+                ->get(),
+            'addresses' => Address::query()
+                ->where('user_id', auth()->id())
+                ->orderByDesc('created_at')
                 ->get(),
             'jurisdictions' => Jurisdiction::query()
                 ->orderBy('name')
@@ -94,6 +147,7 @@ class Entities extends Component
         return [
             'user_id' => auth()->id(),
             'jurisdiction_id' => $this->jurisdiction_id,
+            'address_id' => $this->address_id ?: null,
             'type' => $this->type,
             'name' => $this->name,
             'ein_or_tax_id' => $this->ein_or_tax_id !== '' ? $this->ein_or_tax_id : null,
@@ -131,8 +185,35 @@ class Entities extends Component
     {
         $this->editingId = null;
         $this->jurisdiction_id = null;
+        $this->address_id = null;
         $this->type = EntityType::Individual->value;
         $this->name = '';
         $this->ein_or_tax_id = '';
+        $this->resetAddressForm();
+    }
+
+    /**
+     * @return array<string, array<int, string>>
+     */
+    private function addressRules(): array
+    {
+        return [
+            'address_country' => ['required', 'string', 'max:255'],
+            'address_state' => ['required', 'string', 'max:255'],
+            'address_city' => ['required', 'string', 'max:255'],
+            'address_postal_code' => ['required', 'string', 'max:255'],
+            'address_line_1' => ['required', 'string', 'max:255'],
+            'address_line_2' => ['nullable', 'string', 'max:255'],
+        ];
+    }
+
+    private function resetAddressForm(): void
+    {
+        $this->address_country = '';
+        $this->address_state = '';
+        $this->address_city = '';
+        $this->address_postal_code = '';
+        $this->address_line_1 = '';
+        $this->address_line_2 = '';
     }
 }

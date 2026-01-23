@@ -4,7 +4,7 @@
 TBD - created by archiving change update-asset-addresses. Update Purpose after archive.
 ## Requirements
 ### Requirement: Address Management
-The system SHALL allow users to create, edit, and manage reusable addresses for use across assets.
+The system SHALL allow users to create, edit, and manage reusable addresses for use across assets and entities.
 
 - Each address MUST store: country, state/province, city, postal/zip code, address line 1, and optional address line 2.
 - Addresses MUST be scoped to the owning user.

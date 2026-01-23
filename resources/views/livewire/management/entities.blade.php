@@ -44,6 +44,23 @@
                     <flux:input wire:model="name" :label="__('Entity name')" type="text" />
                     <flux:input wire:model="ein_or_tax_id" :label="__('EIN or tax ID (optional)')" type="text" />
 
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium text-zinc-700 dark:text-zinc-200" for="entity-address">{{ __('Address (optional)') }}</label>
+                        <select
+                            id="entity-address"
+                            wire:model="address_id"
+                            class="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-zinc-400 focus:outline-none dark:border-zinc-700 dark:bg-zinc-900"
+                        >
+                            <option value="">{{ __('No address') }}</option>
+                            @foreach ($addresses as $address)
+                                <option value="{{ $address->id }}">{{ $address->address_line_1 }}, {{ $address->city }}</option>
+                            @endforeach
+                        </select>
+                        <flux:button variant="ghost" size="sm" type="button" wire:click="openAddressModal">
+                            {{ __('Add new address') }}
+                        </flux:button>
+                    </div>
+
                     <div class="flex items-center gap-3">
                         <flux:button variant="primary" type="submit">
                             {{ $editingId ? __('Update entity') : __('Save entity') }}
@@ -76,6 +93,7 @@
                                     <th class="px-4 py-3">{{ __('Name') }}</th>
                                     <th class="px-4 py-3">{{ __('Type') }}</th>
                                     <th class="px-4 py-3">{{ __('Jurisdiction') }}</th>
+                                    <th class="px-4 py-3">{{ __('Address') }}</th>
                                     <th class="px-4 py-3"></th>
                                 </tr>
                             </thead>
@@ -90,6 +108,13 @@
                                         </td>
                                         <td class="px-4 py-3 text-zinc-700 dark:text-zinc-200">
                                             {{ $entity->jurisdiction->name }} ({{ $entity->jurisdiction->iso_code }})
+                                        </td>
+                                        <td class="px-4 py-3 text-zinc-700 dark:text-zinc-200">
+                                            @if ($entity->address)
+                                                {{ $entity->address->address_line_1 }}, {{ $entity->address->city }}
+                                            @else
+                                                <span class="text-zinc-400">{{ __('No address') }}</span>
+                                            @endif
                                         </td>
                                         <td class="px-4 py-3 text-right">
                                             <button
@@ -108,5 +133,30 @@
                 @endif
             </section>
         </div>
+
+        <flux:modal name="entity-address-create" focusable class="max-w-2xl">
+            <form wire:submit="saveAddress" class="space-y-6">
+                <div>
+                    <flux:heading size="lg">{{ __('Add address') }}</flux:heading>
+                    <flux:subheading>{{ __('Save a reusable address for this entity.') }}</flux:subheading>
+                </div>
+
+                <div class="grid gap-3 md:grid-cols-2">
+                    <flux:input wire:model="address_line_1" label="{{ __('Address Line 1') }}" type="text" />
+                    <flux:input wire:model="address_line_2" label="{{ __('Address Line 2') }}" type="text" />
+                    <flux:input wire:model="address_city" label="{{ __('City') }}" type="text" />
+                    <flux:input wire:model="address_state" label="{{ __('State / Province') }}" type="text" />
+                    <flux:input wire:model="address_postal_code" label="{{ __('Postal / ZIP Code') }}" type="text" />
+                    <flux:input wire:model="address_country" label="{{ __('Country') }}" type="text" />
+                </div>
+
+                <div class="flex justify-end gap-2">
+                    <flux:modal.close>
+                        <flux:button variant="filled" type="button" wire:click="closeAddressModal">{{ __('Cancel') }}</flux:button>
+                    </flux:modal.close>
+                    <flux:button variant="primary" type="submit">{{ __('Save Address') }}</flux:button>
+                </div>
+            </form>
+        </flux:modal>
     </div>
 </div>

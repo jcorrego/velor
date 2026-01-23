@@ -40,8 +40,6 @@ new class extends Component
     #[Validate('nullable|exists:addresses,id')]
     public $address_id = '';
 
-    public bool $showAddressForm = false;
-
     #[Validate('nullable|string|max:255')]
     public $address_country = '';
 
@@ -129,22 +127,6 @@ new class extends Component
             }
         }
 
-        if ($this->showAddressForm) {
-            $this->validate($this->addressRules());
-
-            $address = Address::create([
-                'user_id' => auth()->id(),
-                'country' => $this->address_country,
-                'state' => $this->address_state,
-                'city' => $this->address_city,
-                'postal_code' => $this->address_postal_code,
-                'address_line_1' => $this->address_line_1,
-                'address_line_2' => $this->address_line_2 ?: null,
-            ]);
-
-            $data['address_id'] = $address->id;
-        }
-
         if ($this->editingId) {
             $asset = Asset::findOrFail($this->editingId);
             
@@ -169,7 +151,6 @@ new class extends Component
             'acquisition_cost',
             'address_id',
             'editingId',
-            'showAddressForm',
             'address_country',
             'address_state',
             'address_city',
@@ -198,7 +179,6 @@ new class extends Component
         $this->acquisition_date = $asset->acquisition_date->format('Y-m-d');
         $this->acquisition_cost = $asset->acquisition_cost;
         $this->address_id = $asset->address_id ? (string) $asset->address_id : '';
-        $this->showAddressForm = false;
     }
 
     public function cancel()
@@ -212,7 +192,6 @@ new class extends Component
             'acquisition_cost',
             'address_id',
             'editingId',
-            'showAddressForm',
             'address_country',
             'address_state',
             'address_city',
@@ -235,6 +214,44 @@ new class extends Component
         $this->loadData();
         
         session()->flash('message', 'Asset deleted successfully.');
+    }
+
+    public function openAddressModal(): void
+    {
+        $this->dispatch('modal-show', name: 'asset-address-create');
+    }
+
+    public function closeAddressModal(): void
+    {
+        $this->resetAddressForm();
+        $this->resetValidation();
+        $this->dispatch('modal-close', name: 'asset-address-create');
+    }
+
+    public function saveAddress(): void
+    {
+        $this->validate($this->addressRules());
+
+        $address = Address::create([
+            'user_id' => auth()->id(),
+            'country' => $this->address_country,
+            'state' => $this->address_state,
+            'city' => $this->address_city,
+            'postal_code' => $this->address_postal_code,
+            'address_line_1' => $this->address_line_1,
+            'address_line_2' => $this->address_line_2 ?: null,
+        ]);
+
+        $this->address_id = (string) $address->id;
+
+        $this->addresses = Address::query()
+            ->where('user_id', auth()->id())
+            ->orderByDesc('created_at')
+            ->get();
+
+        $this->resetAddressForm();
+        $this->resetValidation();
+        $this->dispatch('modal-close', name: 'asset-address-create');
     }
 
     public function openYearEndValues(int $assetId): void
@@ -363,6 +380,18 @@ new class extends Component
             'address_line_2' => ['nullable', 'string', 'max:255'],
         ];
     }
+
+    protected function resetAddressForm(): void
+    {
+        $this->reset([
+            'address_country',
+            'address_state',
+            'address_city',
+            'address_postal_code',
+            'address_line_1',
+            'address_line_2',
+        ]);
+    }
 };
 ?>
 
@@ -422,21 +451,10 @@ new class extends Component
                         <option value="{{ $address->id }}">{{ $address->address_line_1 }}, {{ $address->city }}</option>
                     @endforeach
                 </flux:select>
-                <flux:button type="button" variant="ghost" size="sm" wire:click="$toggle('showAddressForm')">
-                    {{ $showAddressForm ? __('Cancel new address') : __('Add new address') }}
+                <flux:button type="button" variant="ghost" size="sm" wire:click="openAddressModal">
+                    {{ __('Add new address') }}
                 </flux:button>
             </div>
-
-            @if($showAddressForm)
-                <div class="grid gap-3 md:grid-cols-2">
-                    <flux:input wire:model="address_line_1" label="{{ __('Address Line 1') }}" type="text" />
-                    <flux:input wire:model="address_line_2" label="{{ __('Address Line 2') }}" type="text" />
-                    <flux:input wire:model="address_city" label="{{ __('City') }}" type="text" />
-                    <flux:input wire:model="address_state" label="{{ __('State / Province') }}" type="text" />
-                    <flux:input wire:model="address_postal_code" label="{{ __('Postal / ZIP Code') }}" type="text" />
-                    <flux:input wire:model="address_country" label="{{ __('Country') }}" type="text" />
-                </div>
-            @endif
 
                 <div class="flex items-center gap-3">
                     <flux:button type="submit" variant="primary">
@@ -555,6 +573,31 @@ new class extends Component
                 <flux:button variant="filled" wire:click="closeYearEndValues">{{ __('Cancel') }}</flux:button>
             </flux:modal.close>
             <flux:button variant="primary" type="submit">{{ __('Save Values') }}</flux:button>
+        </div>
+    </form>
+</flux:modal>
+
+<flux:modal name="asset-address-create" focusable class="max-w-2xl">
+    <form wire:submit="saveAddress" class="space-y-6">
+        <div>
+            <flux:heading size="lg">{{ __('Add address') }}</flux:heading>
+            <flux:subheading>{{ __('Save a reusable address for this asset.') }}</flux:subheading>
+        </div>
+
+        <div class="grid gap-3 md:grid-cols-2">
+            <flux:input wire:model="address_line_1" label="{{ __('Address Line 1') }}" type="text" />
+            <flux:input wire:model="address_line_2" label="{{ __('Address Line 2') }}" type="text" />
+            <flux:input wire:model="address_city" label="{{ __('City') }}" type="text" />
+            <flux:input wire:model="address_state" label="{{ __('State / Province') }}" type="text" />
+            <flux:input wire:model="address_postal_code" label="{{ __('Postal / ZIP Code') }}" type="text" />
+            <flux:input wire:model="address_country" label="{{ __('Country') }}" type="text" />
+        </div>
+
+        <div class="flex justify-end gap-2">
+            <flux:modal.close>
+                <flux:button variant="filled" type="button" wire:click="closeAddressModal">{{ __('Cancel') }}</flux:button>
+            </flux:modal.close>
+            <flux:button variant="primary" type="submit">{{ __('Save Address') }}</flux:button>
         </div>
     </form>
 </flux:modal>
