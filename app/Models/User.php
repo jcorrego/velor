@@ -71,4 +71,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(UserProfile::class);
     }
+
+    /**
+     * Get all addresses for the user.
+     */
+    public function addresses(): HasMany
+    {
+        return $this->hasMany(Address::class);
+    }
 }

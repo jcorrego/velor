@@ -29,6 +29,9 @@
                     <flux:sidebar.item icon="building-office-2" :href="route('management.entities')" :current="request()->routeIs('management.entities')" wire:navigate>
                         {{ __('Entities') }}
                     </flux:sidebar.item>
+                    <flux:sidebar.item icon="map-pin" :href="route('management.addresses')" :current="request()->routeIs('management.addresses')" wire:navigate>
+                        {{ __('Addresses') }}
+                    </flux:sidebar.item>
                 </flux:sidebar.group>
             </flux:sidebar.nav>
 

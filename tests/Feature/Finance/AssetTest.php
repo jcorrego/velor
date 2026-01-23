@@ -2,9 +2,9 @@
 
 use App\Enums\Finance\AssetType;
 use App\Enums\Finance\OwnershipStructure;
+use App\Models\Address;
 use App\Models\Asset;
 use App\Models\Entity;
-use App\Models\Jurisdiction;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -28,13 +28,13 @@ test('list assets with pagination', function () {
 test('create residential asset', function () {
     $user = User::factory()->create();
     $entity = Entity::factory()->create(['user_id' => $user->id]);
-    $jurisdiction = Jurisdiction::factory()->create();
+    $address = Address::factory()->create(['user_id' => $user->id]);
 
     $data = [
         'name' => 'Residential Property Downtown',
         'type' => AssetType::Residential->value,
-        'jurisdiction_id' => $jurisdiction->id,
         'entity_id' => $entity->id,
+        'address_id' => $address->id,
         'ownership_structure' => OwnershipStructure::Direct->value,
         'acquisition_date' => '2020-01-01',
         'acquisition_cost' => 250000.00,
@@ -44,18 +44,17 @@ test('create residential asset', function () {
 
     $response->assertStatus(201)
         ->assertJsonPath('name', 'Residential Property Downtown')
-        ->assertJsonPath('type', AssetType::Residential->value);
+        ->assertJsonPath('type', AssetType::Residential->value)
+        ->assertJsonPath('address_id', $address->id);
 });
 
 test('validation fails with invalid asset type', function () {
     $user = User::factory()->create();
     $entity = Entity::factory()->create(['user_id' => $user->id]);
-    $jurisdiction = Jurisdiction::factory()->create();
 
     $data = [
         'name' => 'Test Asset',
         'type' => 'invalid_asset_type',
-        'jurisdiction_id' => $jurisdiction->id,
         'entity_id' => $entity->id,
         'acquisition_date' => '2020-01-01',
         'acquisition_cost' => 100000.00,
@@ -70,12 +69,10 @@ test('validation fails with invalid asset type', function () {
 test('create vehicle asset', function () {
     $user = User::factory()->create();
     $entity = Entity::factory()->create(['user_id' => $user->id]);
-    $jurisdiction = Jurisdiction::factory()->create();
 
     $data = [
         'name' => 'Peugot 5008',
         'type' => AssetType::Vehicle->value,
-        'jurisdiction_id' => $jurisdiction->id,
         'entity_id' => $entity->id,
         'ownership_structure' => OwnershipStructure::Direct->value,
         'acquisition_date' => '2021-03-15',

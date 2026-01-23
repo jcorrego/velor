@@ -2,10 +2,10 @@
 
 use App\Enums\Finance\AssetType;
 use App\Enums\Finance\OwnershipStructure;
+use App\Models\Address;
 use App\Models\Asset;
 use App\Models\Currency;
 use App\Models\Entity;
-use App\Models\Jurisdiction;
 use App\Models\TaxYear;
 use App\Models\YearEndValue;
 use Livewire\Component;
@@ -14,8 +14,8 @@ use Livewire\Attributes\Validate;
 new class extends Component
 {
     public $assets;
+    public $addresses;
     public $entities;
-    public $jurisdictions;
     
     public $editingId = null;
     
@@ -24,9 +24,6 @@ new class extends Component
     
     #[Validate('required')]
     public $type = '';
-    
-    #[Validate('required|exists:jurisdictions,id')]
-    public $jurisdiction_id = '';
     
     #[Validate('required|exists:entities,id')]
     public $entity_id = '';
@@ -39,6 +36,29 @@ new class extends Component
     
     #[Validate('required|numeric|min:0')]
     public $acquisition_cost = '';
+
+    #[Validate('nullable|exists:addresses,id')]
+    public $address_id = '';
+
+    public bool $showAddressForm = false;
+
+    #[Validate('nullable|string|max:255')]
+    public $address_country = '';
+
+    #[Validate('nullable|string|max:255')]
+    public $address_state = '';
+
+    #[Validate('nullable|string|max:255')]
+    public $address_city = '';
+
+    #[Validate('nullable|string|max:255')]
+    public $address_postal_code = '';
+
+    #[Validate('nullable|string|max:255')]
+    public $address_line_1 = '';
+
+    #[Validate('nullable|string|max:255')]
+    public $address_line_2 = '';
 
     public $yearEndAssetId = null;
     public $yearEndAssetName = '';
@@ -58,10 +78,13 @@ new class extends Component
     public function loadData()
     {
         $this->entities = Entity::where('user_id', auth()->id())->get();
-        $this->jurisdictions = Jurisdiction::all();
+        $this->addresses = Address::query()
+            ->where('user_id', auth()->id())
+            ->orderByDesc('created_at')
+            ->get();
         $this->assets = Asset::query()
             ->whereHas('entity', fn($q) => $q->where('user_id', auth()->id()))
-            ->with(['entity.jurisdiction', 'jurisdiction', 'yearEndValues.taxYear'])
+            ->with(['address', 'entity.jurisdiction', 'yearEndValues.taxYear'])
             ->latest()
             ->get();
 
@@ -89,12 +112,38 @@ new class extends Component
         $data = [
             'name' => $this->name,
             'type' => $this->type,
-            'jurisdiction_id' => $this->jurisdiction_id,
             'entity_id' => $this->entity_id,
             'ownership_structure' => $this->ownership_structure,
             'acquisition_date' => $this->acquisition_date,
             'acquisition_cost' => $this->acquisition_cost,
+            'address_id' => $this->address_id ?: null,
         ];
+
+        if ($data['address_id']) {
+            $address = Address::query()
+                ->where('user_id', auth()->id())
+                ->find($data['address_id']);
+
+            if (! $address) {
+                abort(403);
+            }
+        }
+
+        if ($this->showAddressForm) {
+            $this->validate($this->addressRules());
+
+            $address = Address::create([
+                'user_id' => auth()->id(),
+                'country' => $this->address_country,
+                'state' => $this->address_state,
+                'city' => $this->address_city,
+                'postal_code' => $this->address_postal_code,
+                'address_line_1' => $this->address_line_1,
+                'address_line_2' => $this->address_line_2 ?: null,
+            ]);
+
+            $data['address_id'] = $address->id;
+        }
 
         if ($this->editingId) {
             $asset = Asset::findOrFail($this->editingId);
@@ -111,8 +160,23 @@ new class extends Component
             Asset::create($data);
         }
 
-        $this->reset(['name', 'type', 'jurisdiction_id', 'entity_id', 'ownership_structure', 
-                 'acquisition_date', 'acquisition_cost', 'editingId']);
+        $this->reset([
+            'name',
+            'type',
+            'entity_id',
+            'ownership_structure',
+            'acquisition_date',
+            'acquisition_cost',
+            'address_id',
+            'editingId',
+            'showAddressForm',
+            'address_country',
+            'address_state',
+            'address_city',
+            'address_postal_code',
+            'address_line_1',
+            'address_line_2',
+        ]);
         $this->loadData();
         
         session()->flash('message', $this->editingId ? 'Asset updated successfully.' : 'Asset created successfully.');
@@ -129,17 +193,33 @@ new class extends Component
         $this->editingId = $asset->id;
         $this->name = $asset->name;
         $this->type = $asset->type->value;
-        $this->jurisdiction_id = $asset->jurisdiction_id;
         $this->entity_id = $asset->entity_id;
         $this->ownership_structure = $asset->ownership_structure->value;
         $this->acquisition_date = $asset->acquisition_date->format('Y-m-d');
         $this->acquisition_cost = $asset->acquisition_cost;
+        $this->address_id = $asset->address_id ? (string) $asset->address_id : '';
+        $this->showAddressForm = false;
     }
 
     public function cancel()
     {
-        $this->reset(['name', 'type', 'jurisdiction_id', 'entity_id', 'ownership_structure', 
-                     'acquisition_date', 'acquisition_cost', 'editingId']);
+        $this->reset([
+            'name',
+            'type',
+            'entity_id',
+            'ownership_structure',
+            'acquisition_date',
+            'acquisition_cost',
+            'address_id',
+            'editingId',
+            'showAddressForm',
+            'address_country',
+            'address_state',
+            'address_city',
+            'address_postal_code',
+            'address_line_1',
+            'address_line_2',
+        ]);
         $this->resetValidation();
     }
 
@@ -268,6 +348,21 @@ new class extends Component
             'yearEndValues.*' => ['nullable', 'numeric', 'min:0'],
         ];
     }
+
+    /**
+     * @return array<string, array<int, string>>
+     */
+    protected function addressRules(): array
+    {
+        return [
+            'address_country' => ['required', 'string', 'max:255'],
+            'address_state' => ['required', 'string', 'max:255'],
+            'address_city' => ['required', 'string', 'max:255'],
+            'address_postal_code' => ['required', 'string', 'max:255'],
+            'address_line_1' => ['required', 'string', 'max:255'],
+            'address_line_2' => ['nullable', 'string', 'max:255'],
+        ];
+    }
 };
 ?>
 
@@ -299,11 +394,16 @@ new class extends Component
                 @endforeach
             </flux:select>
 
-            <flux:select wire:model="jurisdiction_id" label="{{ __('Jurisdiction') }}" placeholder="{{ __('Select jurisdiction') }}">
-                @foreach($jurisdictions as $jurisdiction)
-                    <option value="{{ $jurisdiction->id }}">{{ $jurisdiction->name }}</option>
-                @endforeach
-            </flux:select>
+            @if($entity_id)
+                @php
+                    $selectedEntity = $entities->firstWhere('id', (int) $entity_id);
+                @endphp
+                @if($selectedEntity)
+                    <div class="rounded-lg border border-dashed border-zinc-200 px-3 py-2 text-sm text-zinc-600 dark:border-zinc-700 dark:text-zinc-300">
+                        {{ __('Jurisdiction') }}: {{ $selectedEntity->jurisdiction->name }} ({{ $selectedEntity->jurisdiction->iso_code }})
+                    </div>
+                @endif
+            @endif
 
             <flux:select wire:model="ownership_structure" label="{{ __('Ownership Structure') }}" placeholder="{{ __('Select structure') }}">
                 @foreach(OwnershipStructure::cases() as $structure)
@@ -314,6 +414,29 @@ new class extends Component
             <flux:input wire:model="acquisition_date" label="{{ __('Acquisition Date') }}" type="date" :disabled="!!$editingId" />
 
             <flux:input wire:model="acquisition_cost" label="{{ __('Acquisition Cost') }}" type="number" step="0.01" :disabled="!!$editingId" />
+
+            <div class="space-y-2">
+                <flux:select wire:model="address_id" label="{{ __('Address (Optional)') }}" placeholder="{{ __('Select address') }}">
+                    <option value="">{{ __('No address') }}</option>
+                    @foreach($addresses as $address)
+                        <option value="{{ $address->id }}">{{ $address->address_line_1 }}, {{ $address->city }}</option>
+                    @endforeach
+                </flux:select>
+                <flux:button type="button" variant="ghost" size="sm" wire:click="$toggle('showAddressForm')">
+                    {{ $showAddressForm ? __('Cancel new address') : __('Add new address') }}
+                </flux:button>
+            </div>
+
+            @if($showAddressForm)
+                <div class="grid gap-3 md:grid-cols-2">
+                    <flux:input wire:model="address_line_1" label="{{ __('Address Line 1') }}" type="text" />
+                    <flux:input wire:model="address_line_2" label="{{ __('Address Line 2') }}" type="text" />
+                    <flux:input wire:model="address_city" label="{{ __('City') }}" type="text" />
+                    <flux:input wire:model="address_state" label="{{ __('State / Province') }}" type="text" />
+                    <flux:input wire:model="address_postal_code" label="{{ __('Postal / ZIP Code') }}" type="text" />
+                    <flux:input wire:model="address_country" label="{{ __('Country') }}" type="text" />
+                </div>
+            @endif
 
                 <div class="flex items-center gap-3">
                     <flux:button type="submit" variant="primary">
@@ -348,7 +471,7 @@ new class extends Component
                                 <div class="mt-1 flex items-center gap-4 text-sm text-zinc-600 dark:text-zinc-400">
                                     <span>{{ $asset->entity->name }}</span>
                                     <span>•</span>
-                                    <span>{{ $asset->jurisdiction->name }}</span>
+                                    <span>{{ $asset->entity->jurisdiction->name }}</span>
                                     <span>•</span>
                                     <span>{{ $asset->ownership_structure->label() }}</span>
                                     @if($asset->latest_year_end_value)
@@ -364,6 +487,10 @@ new class extends Component
                                     <span>Acquired: {{ $asset->acquisition_date->format('M Y') }}</span>
                                     <span class="mx-2">•</span>
                                     <span>Cost: {{ $asset->display_currency_symbol }}{{ number_format($asset->acquisition_cost, 2) }}</span>
+                                    @if($asset->address)
+                                        <span class="mx-2">•</span>
+                                        <span>{{ $asset->address->address_line_1 }}, {{ $asset->address->city }}</span>
+                                    @endif
                                 </div>
                             </div>
                             <div class="flex items-center gap-2">
