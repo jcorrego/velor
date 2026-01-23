@@ -795,7 +795,7 @@ test('getForm5472YearEndTotals returns year-end totals by entity for the filing 
     ]);
 
     $service = app(UsTaxReportingService::class);
-    $totals = $service->getForm5472YearEndTotals($user, $usaTaxYear);
+    $totals = $service->getForm5472YearEndTotals($user, 2024);
 
     expect($totals['total'])->toBe(25000.00);
 
