@@ -22,6 +22,7 @@ class AddressSeeder extends Seeder
                 'city' => 'Madrid',
                 'postal_code' => '28023',
                 'address_line_1' => 'Calle Rio Adaja 5',
+                'address_line_2' => '',
             ],
             [
                 'country' => 'United States',
@@ -29,6 +30,7 @@ class AddressSeeder extends Seeder
                 'city' => 'Sheridan',
                 'postal_code' => '82801',
                 'address_line_1' => '30 North Gould Street',
+                'address_line_2' => '',
             ],
             [
                 'country' => 'Colombia',
@@ -51,7 +53,7 @@ class AddressSeeder extends Seeder
                     'country' => $address['country'],
                     'state' => $address['state'],
                     'city' => $address['city'],
-                    'address_line_2' => null,
+                    'address_line_2' => $address['address_line_2'],
                 ]
             );
         }

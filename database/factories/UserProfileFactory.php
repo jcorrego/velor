@@ -35,8 +35,8 @@ class UserProfileFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'jurisdiction_id' => Jurisdiction::where('iso_code', 'ESP')->first()?->id ?? Jurisdiction::factory()->spain(),
-            'name' => 'Juan Carlos Correa',
-            'tax_id' => 'X1234567Y',
+            'name' => 'Juan Carlos Orrego Diaz',
+            'tax_id' => '>3148946K',
             'default_currency' => 'EUR',
         ]);
     }
@@ -48,8 +48,8 @@ class UserProfileFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'jurisdiction_id' => Jurisdiction::where('iso_code', 'USA')->first()?->id ?? Jurisdiction::factory()->usa(),
-            'name' => 'John Correa',
-            'tax_id' => '123-45-6789',
+            'name' => 'Juan Carlos Orrego',
+            'tax_id' => '990953684',
             'default_currency' => 'USD',
         ]);
     }
@@ -61,8 +61,8 @@ class UserProfileFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'jurisdiction_id' => Jurisdiction::where('iso_code', 'COL')->first()?->id ?? Jurisdiction::factory()->colombia(),
-            'name' => 'Juan Carlos Correa',
-            'tax_id' => '987654321',
+            'name' => 'Juan Carlos Orrego Diaz',
+            'tax_id' => '79979760',
             'default_currency' => 'COP',
         ]);
     }

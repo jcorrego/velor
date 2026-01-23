@@ -16,8 +16,8 @@ class CurrencySeeder extends Seeder
             ['code' => 'EUR', 'name' => 'Euro', 'symbol' => '€', 'is_active' => true],
             ['code' => 'USD', 'name' => 'US Dollar', 'symbol' => '$', 'is_active' => true],
             ['code' => 'COP', 'name' => 'Colombian Peso', 'symbol' => '$', 'is_active' => true],
-            ['code' => 'GBP', 'name' => 'British Pound', 'symbol' => '£', 'is_active' => true],
-            ['code' => 'JPY', 'name' => 'Japanese Yen', 'symbol' => '¥', 'is_active' => true],
+            ['code' => 'GBP', 'name' => 'British Pound', 'symbol' => '£', 'is_active' => false],
+            ['code' => 'JPY', 'name' => 'Japanese Yen', 'symbol' => '¥', 'is_active' => false],
         ];
 
         foreach ($currencies as $currency) {

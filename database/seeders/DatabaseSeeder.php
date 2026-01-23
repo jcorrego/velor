@@ -42,6 +42,11 @@ class DatabaseSeeder extends Seeder
             'jurisdiction_id' => $spain->id,
             'start_date' => '2025-06-24',
         ]);
+        \App\Models\ResidencyPeriod::factory()->current()->fiscalResidence()->create([
+            'user_id' => $user->id,
+            'jurisdiction_id' => $colombia->id,
+            'start_date' => '1978-11-13',
+        ]);
 
         // Create entities
         $usEntity = \App\Models\Entity::factory()->llc()->create([
@@ -68,7 +73,10 @@ class DatabaseSeeder extends Seeder
             ->bancoSantander()
             ->checking()
             ->active()
-            ->create();
+            ->create([
+              'opening_date' => '2025-07-01',
+              'closing_date' => null,
+            ]);
 
         $usAccount = \App\Models\Account::factory()
             ->for($usEntity)
