@@ -44,6 +44,11 @@ class UpdateEntityRequest extends FormRequest
                 'integer',
                 'exists:jurisdictions,id',
             ],
+            'address_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('addresses', 'id')->where('user_id', $this->input('user_id') ?? auth()->id()),
+            ],
             'type' => [
                 'required',
                 'string',
@@ -74,6 +79,7 @@ class UpdateEntityRequest extends FormRequest
             'user_id.exists' => 'The selected user does not exist.',
             'jurisdiction_id.required' => 'The jurisdiction is required.',
             'jurisdiction_id.exists' => 'The selected jurisdiction does not exist.',
+            'address_id.exists' => 'The selected address does not exist.',
             'type.required' => 'The entity type is required.',
             'type.in' => 'The selected entity type is invalid.',
             'name.required' => 'The entity name is required.',

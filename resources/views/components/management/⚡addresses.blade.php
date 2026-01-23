@@ -117,7 +117,7 @@ new class extends Component
 <div class="flex flex-col gap-6">
     <div>
         <flux:heading size="xl">{{ __('Addresses') }}</flux:heading>
-        <flux:subheading>{{ __('Manage reusable addresses for assets.') }}</flux:subheading>
+        <flux:subheading>{{ __('Manage reusable addresses for assets and entities.') }}</flux:subheading>
     </div>
 
     <div class="grid gap-6 lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)]">
