@@ -6,9 +6,12 @@ use App\Models\Account;
 use App\Models\Asset;
 use App\Models\CategoryTaxMapping;
 use App\Models\Entity;
+use App\Models\Jurisdiction;
+use App\Models\TaxYear;
 use App\Models\Transaction;
 use App\Models\TransactionCategory;
 use App\Models\User;
+use App\Models\YearEndValue;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -741,4 +744,127 @@ test('getForm1120Summary excludes unmapped categories', function () {
     expect($summary['line_items'])->toHaveKey('line_1')
         ->and($summary['line_items'])->toHaveCount(1)
         ->and($summary['total'])->toBe(1800.00);
+});
+
+test('getForm5472YearEndTotals returns year-end totals by entity for the filing jurisdiction', function () {
+    $user = User::factory()->create();
+    $usa = Jurisdiction::factory()->usa()->create();
+    $colombia = Jurisdiction::factory()->colombia()->create();
+    $usaTaxYear = TaxYear::factory()->create(['jurisdiction_id' => $usa->id, 'year' => 2024]);
+    $colombiaTaxYear = TaxYear::factory()->create(['jurisdiction_id' => $colombia->id, 'year' => 2024]);
+
+    $usaEntityOne = Entity::factory()->create(['user_id' => $user->id, 'jurisdiction_id' => $usa->id, 'name' => 'Alpha LLC']);
+    $usaEntityTwo = Entity::factory()->create(['user_id' => $user->id, 'jurisdiction_id' => $usa->id, 'name' => 'Beta LLC']);
+    $colombiaEntity = Entity::factory()->create(['user_id' => $user->id, 'jurisdiction_id' => $colombia->id]);
+
+    $usaAccountOne = Account::factory()->create(['entity_id' => $usaEntityOne->id]);
+    $usaAssetOne = Asset::factory()->create(['entity_id' => $usaEntityOne->id]);
+    $usaAccountTwo = Account::factory()->create(['entity_id' => $usaEntityTwo->id]);
+    $colombiaAccount = Account::factory()->create(['entity_id' => $colombiaEntity->id]);
+
+    YearEndValue::factory()->create([
+        'entity_id' => $usaEntityOne->id,
+        'tax_year_id' => $usaTaxYear->id,
+        'account_id' => $usaAccountOne->id,
+        'asset_id' => null,
+        'amount' => 12000.00,
+    ]);
+
+    YearEndValue::factory()->forAsset()->create([
+        'entity_id' => $usaEntityOne->id,
+        'tax_year_id' => $usaTaxYear->id,
+        'account_id' => null,
+        'asset_id' => $usaAssetOne->id,
+        'amount' => 8000.00,
+    ]);
+
+    YearEndValue::factory()->create([
+        'entity_id' => $usaEntityTwo->id,
+        'tax_year_id' => $usaTaxYear->id,
+        'account_id' => $usaAccountTwo->id,
+        'asset_id' => null,
+        'amount' => 5000.00,
+    ]);
+
+    YearEndValue::factory()->create([
+        'entity_id' => $colombiaEntity->id,
+        'tax_year_id' => $colombiaTaxYear->id,
+        'account_id' => $colombiaAccount->id,
+        'asset_id' => null,
+        'amount' => 9999.00,
+    ]);
+
+    $service = app(UsTaxReportingService::class);
+    $totals = $service->getForm5472YearEndTotals($user, 2024);
+
+    expect($totals['total'])->toBe(25000.00);
+
+    $alphaTotals = collect($totals['entities'])->firstWhere('entity_id', $usaEntityOne->id);
+    $betaTotals = collect($totals['entities'])->firstWhere('entity_id', $usaEntityTwo->id);
+
+    expect($totals['entities'])->toHaveCount(2)
+        ->and($alphaTotals['accounts_total'])->toBe(12000.00)
+        ->and($alphaTotals['assets_total'])->toBe(8000.00)
+        ->and($alphaTotals['total'])->toBe(20000.00)
+        ->and($betaTotals['accounts_total'])->toBe(5000.00)
+        ->and($betaTotals['assets_total'])->toBe(0.00)
+        ->and($betaTotals['total'])->toBe(5000.00);
+});
+
+test('getForm5472YearEndTotals returns zero total and empty entities when user has no entities in jurisdiction', function () {
+    $user = User::factory()->create();
+    $usa = Jurisdiction::factory()->usa()->create();
+    $colombia = Jurisdiction::factory()->colombia()->create();
+    $usaTaxYear = TaxYear::factory()->create(['jurisdiction_id' => $usa->id, 'year' => 2024]);
+    $colombiaTaxYear = TaxYear::factory()->create(['jurisdiction_id' => $colombia->id, 'year' => 2024]);
+
+    // Create entities in a different jurisdiction (Colombia)
+    $colombiaEntity = Entity::factory()->create(['user_id' => $user->id, 'jurisdiction_id' => $colombia->id]);
+    $colombiaAccount = Account::factory()->create(['entity_id' => $colombiaEntity->id]);
+
+    YearEndValue::factory()->create([
+        'entity_id' => $colombiaEntity->id,
+        'tax_year_id' => $colombiaTaxYear->id,
+        'account_id' => $colombiaAccount->id,
+        'asset_id' => null,
+        'amount' => 9999.00,
+    ]);
+
+    $service = app(UsTaxReportingService::class);
+    $totals = $service->getForm5472YearEndTotals($user, $usaTaxYear->year);
+
+    expect($totals['total'])->toBe(0.0)
+        ->and($totals['entities'])->toBeArray()
+        ->and($totals['entities'])->toBeEmpty();
+});
+
+test('getForm5472YearEndTotals returns entities with zero totals when no YearEndValues exist', function () {
+    $user = User::factory()->create();
+    $usa = Jurisdiction::factory()->usa()->create();
+    $usaTaxYear = TaxYear::factory()->create(['jurisdiction_id' => $usa->id, 'year' => 2024]);
+
+    // Create entities in the USA jurisdiction
+    $usaEntityOne = Entity::factory()->create(['user_id' => $user->id, 'jurisdiction_id' => $usa->id, 'name' => 'Alpha LLC']);
+    $usaEntityTwo = Entity::factory()->create(['user_id' => $user->id, 'jurisdiction_id' => $usa->id, 'name' => 'Beta LLC']);
+
+    // Create accounts and assets but no YearEndValues
+    Account::factory()->create(['entity_id' => $usaEntityOne->id]);
+    Asset::factory()->create(['entity_id' => $usaEntityOne->id]);
+    Account::factory()->create(['entity_id' => $usaEntityTwo->id]);
+
+    $service = app(UsTaxReportingService::class);
+    $totals = $service->getForm5472YearEndTotals($user, $usaTaxYear->year);
+
+    expect($totals['total'])->toBe(0.0)
+        ->and($totals['entities'])->toHaveCount(2);
+
+    $alphaTotals = collect($totals['entities'])->firstWhere('entity_id', $usaEntityOne->id);
+    $betaTotals = collect($totals['entities'])->firstWhere('entity_id', $usaEntityTwo->id);
+
+    expect($alphaTotals['accounts_total'])->toBe(0.0)
+        ->and($alphaTotals['assets_total'])->toBe(0.0)
+        ->and($alphaTotals['total'])->toBe(0.0)
+        ->and($betaTotals['accounts_total'])->toBe(0.0)
+        ->and($betaTotals['assets_total'])->toBe(0.0)
+        ->and($betaTotals['total'])->toBe(0.0);
 });
