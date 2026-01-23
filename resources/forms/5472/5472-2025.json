@@ -48,7 +48,7 @@
         {
           "key": "1c",
           "label": "1c. Total assets",
-          "type": "number",
+          "type": "currency",
           "required": true,
           "help": "Total assets of the reporting corporation.",
           "class": "md:col-span-3"
@@ -72,7 +72,7 @@
         {
           "key": "1f",
           "label": "1f. Total value of gross payments made or received reported on this Form 5472. See instructions.",
-          "type": "number",
+          "type": "currency",
           "required": false,
           "help": "Enter the total value of gross payments made or received as reported on this Form 5472.",
           "class": "md:col-span-4"
@@ -88,7 +88,7 @@
         {
           "key": "1h",
           "label": "1h. Total value of gross payments made or received reported on all Forms 5472. See instructions. ",
-          "type": "number",
+          "type": "currency",
           "required": false,
           "help": "Enter the total value of gross payments made or received as reported on all Forms 5472.",
           "class": "md:col-span-4"
@@ -247,7 +247,7 @@
         },
         {
           "key": "35",
-          "label": "Other amounts paid (see instructions) ",
+          "label": "35. Other amounts paid (see instructions) ",
           "type": "calculated",
           "required": false,
           "help": "",
