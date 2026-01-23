@@ -12,7 +12,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('assets', function (Blueprint $table) {
-            $table->dropConstrainedForeignId('jurisdiction_id');
             $table->foreignId('address_id')->nullable()->constrained('addresses')->nullOnDelete();
         });
     }
@@ -24,7 +23,6 @@ return new class extends Migration
     {
         Schema::table('assets', function (Blueprint $table) {
             $table->dropConstrainedForeignId('address_id');
-            $table->foreignId('jurisdiction_id')->constrained('jurisdictions');
         });
     }
 };

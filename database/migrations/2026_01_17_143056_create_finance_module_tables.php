@@ -52,7 +52,6 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('type');
-            $table->foreignId('jurisdiction_id')->constrained('jurisdictions');
             $table->foreignId('entity_id')->constrained('entities');
             $table->string('ownership_structure');
             $table->date('acquisition_date');
