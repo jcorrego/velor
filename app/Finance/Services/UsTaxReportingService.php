@@ -204,11 +204,28 @@ class UsTaxReportingService
      *
      * @return array{total: float, entities: array<int, array{entity_id: int, entity_name: string, accounts_total: float, assets_total: float, total: float}>}
      */
-    public function getForm5472YearEndTotals(User $user, TaxYear $taxYear): array
+    public function getForm5472YearEndTotals(User $user, int $taxYear): array
     {
+        // Query the US jurisdiction's tax year
+        $usaJurisdiction = \App\Models\Jurisdiction::query()
+            ->where('iso_code', 'USA')
+            ->firstOrFail();
+
+        $taxYearModel = TaxYear::query()
+            ->where('jurisdiction_id', $usaJurisdiction->id)
+            ->where('year', $taxYear)
+            ->first();
+
+        if (!$taxYearModel) {
+            return [
+                'total' => 0.0,
+                'entities' => [],
+            ];
+        }
+
         $entities = Entity::query()
             ->where('user_id', $user->id)
-            ->where('jurisdiction_id', $taxYear->jurisdiction_id)
+            ->where('jurisdiction_id', $taxYearModel->jurisdiction_id)
             ->orderBy('name')
             ->get(['id', 'name']);
 
@@ -221,7 +238,7 @@ class UsTaxReportingService
 
         $totals = YearEndValue::query()
             ->whereIn('entity_id', $entities->pluck('id'))
-            ->where('tax_year_id', $taxYear->id)
+            ->where('tax_year_id', $taxYearModel->id)
             ->selectRaw('entity_id, SUM(CASE WHEN account_id IS NOT NULL THEN amount ELSE 0 END) as accounts_total')
             ->selectRaw('SUM(CASE WHEN asset_id IS NOT NULL THEN amount ELSE 0 END) as assets_total')
             ->groupBy('entity_id')

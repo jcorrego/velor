@@ -133,7 +133,7 @@ new class extends Component
             );
             $yearEndTotals = app(UsTaxReportingService::class)->getForm5472YearEndTotals(
                 auth()->user(),
-                $filing->taxYear
+                $filing->taxYear->year
             );
         }
 
