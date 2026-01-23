@@ -7,6 +7,7 @@ use App\Models\Asset;
 use App\Models\CategoryTaxMapping;
 use App\Models\Currency;
 use App\Models\Entity;
+use App\Models\Jurisdiction;
 use App\Models\TaxYear;
 use App\Models\Transaction;
 use App\Models\User;
@@ -207,7 +208,7 @@ class UsTaxReportingService
     public function getForm5472YearEndTotals(User $user, int $taxYear): array
     {
         // Query the US jurisdiction's tax year
-        $usaJurisdiction = \App\Models\Jurisdiction::query()
+        $usaJurisdiction = Jurisdiction::query()
             ->where('iso_code', 'USA')
             ->firstOrFail();
 
