@@ -74,8 +74,8 @@ class DatabaseSeeder extends Seeder
             ->checking()
             ->active()
             ->create([
-              'opening_date' => '2025-07-01',
-              'closing_date' => null,
+                'opening_date' => '2025-07-01',
+                'closing_date' => null,
             ]);
 
         $usAccount = \App\Models\Account::factory()
@@ -189,7 +189,7 @@ class DatabaseSeeder extends Seeder
             ->where('country', 'Spain')
             ->first();
 
-            $colombiaAddress = \App\Models\Address::query()
+        $colombiaAddress = \App\Models\Address::query()
             ->where('country', 'Colombia')
             ->first();
 
@@ -231,6 +231,17 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'amount' => 206841.00,
+            ]
+        );
+
+        \App\Models\YearEndValue::firstOrCreate(
+            [
+                'entity_id' => $usEntity->id,
+                'account_id' => $usAccount->id,
+                'tax_year_id' => $taxYearUSA->id,
+            ],
+            [
+                'amount' => 14647.49,
             ]
         );
 
