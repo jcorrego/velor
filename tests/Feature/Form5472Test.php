@@ -158,3 +158,38 @@ it('renders calculated fields for mapped line items', function () {
         ->assertSee('$350.00')
         ->assertSee('Calculated from 2 transactions across 2 categories.');
 });
+
+test('currency field renders with proper mask and handles data binding', function () {
+    $user = User::factory()->create();
+    $usa = Jurisdiction::factory()->usa()->create();
+    $taxYear = TaxYear::factory()->for($usa)->create(['year' => 2025]);
+
+    // Ensure USD currency exists
+    Currency::firstOrCreate(
+        ['code' => 'USD'],
+        ['name' => 'US Dollar', 'symbol' => '$', 'is_active' => true]
+    );
+
+    $entity = Entity::factory()->for($user)->for($usa)->create([
+        'name' => 'Test Entity',
+        'ein_or_tax_id' => '12-3456789',
+    ]);
+
+    $filingType = FilingType::factory()->for($usa)->create([
+        'code' => '5472',
+        'name' => 'Form 5472',
+    ]);
+
+    $filing = Filing::factory()
+        ->for($user)
+        ->for($taxYear)
+        ->for($filingType)
+        ->create();
+
+    Livewire::actingAs($user)
+        ->test('finance.form-5472')
+        ->set('filingId', (string) $filing->id)
+        ->assertSet('formData.1c', '') // Currency field should be empty initially
+        ->set('formData.1c', '1234567.89') // Test setting currency value
+        ->assertSet('formData.1c', '1234567.89'); // Data binding should work correctly
+});

@@ -476,7 +476,7 @@ new class extends Component
                                                 @if ($fieldType === 'calculated')
                                                     @php
                                                         $calculated = $calculatedFields[$fieldKey] ?? null;
-                                                        $calculatedValue = $calculated['formatted'] ?? '$0.00';
+                                                        $calculatedValue = $calculated['value'] ?? '0.00';
                                                         $transactionsCount = $calculated['transaction_count'] ?? 0;
                                                         $categoriesCount = $calculated['category_count'] ?? 0;
                                                         $calculatedInfo = __('Calculated from :transactions transactions across :categories categories.', [
@@ -484,7 +484,10 @@ new class extends Component
                                                             'categories' => $categoriesCount,
                                                         ]);
                                                     @endphp
-                                                    <flux:input type="text" readonly value="{{ $calculatedValue }}" />
+                                                    <flux:input.group>
+                                                        <flux:input.group.prefix>$</flux:input.group.prefix>
+                                                        <flux:input type="text" x-mask:dynamic="$money($input)" readonly value="{{ $calculatedValue }}" />
+                                                    </flux:input.group>
                                                     <flux:description class="mt-0!">
                                                         @if ($fieldHelp)
                                                             {!! $fieldHelp !!}
@@ -509,6 +512,16 @@ new class extends Component
                                                             </option>
                                                         @endforeach
                                                     </flux:select>
+                                                @elseif ($fieldType === 'currency')
+                                                    <flux:input.group>
+                                                        <flux:input.group.prefix>$</flux:input.group.prefix>
+                                                        <flux:input
+                                                            wire:model.live.debounce.500ms="formData.{{ $fieldKey }}"
+                                                            type="text"
+                                                            x-mask:dynamic="$money($input)"
+                                                        />
+                                                    </flux:input.group>
+                                                    
                                                 @else
                                                     @if ($fieldMask)
                                                         <flux:input
