@@ -810,3 +810,60 @@ test('getForm5472YearEndTotals returns year-end totals by entity for the filing 
         ->and($betaTotals['assets_total'])->toBe(0.00)
         ->and($betaTotals['total'])->toBe(5000.00);
 });
+
+test('getForm5472YearEndTotals returns zero total and empty entities when user has no entities in jurisdiction', function () {
+    $user = User::factory()->create();
+    $usa = Jurisdiction::factory()->usa()->create();
+    $colombia = Jurisdiction::factory()->colombia()->create();
+    $usaTaxYear = TaxYear::factory()->create(['jurisdiction_id' => $usa->id, 'year' => 2024]);
+
+    // Create entities in a different jurisdiction (Colombia)
+    $colombiaEntity = Entity::factory()->create(['user_id' => $user->id, 'jurisdiction_id' => $colombia->id]);
+    $colombiaAccount = Account::factory()->create(['entity_id' => $colombiaEntity->id]);
+
+    YearEndValue::factory()->create([
+        'entity_id' => $colombiaEntity->id,
+        'tax_year_id' => TaxYear::factory()->create(['jurisdiction_id' => $colombia->id, 'year' => 2024]),
+        'account_id' => $colombiaAccount->id,
+        'asset_id' => null,
+        'amount' => 9999.00,
+    ]);
+
+    $service = app(UsTaxReportingService::class);
+    $totals = $service->getForm5472YearEndTotals($user, $usaTaxYear);
+
+    expect($totals['total'])->toBe(0.0)
+        ->and($totals['entities'])->toBeArray()
+        ->and($totals['entities'])->toBeEmpty();
+});
+
+test('getForm5472YearEndTotals returns entities with zero totals when no YearEndValues exist', function () {
+    $user = User::factory()->create();
+    $usa = Jurisdiction::factory()->usa()->create();
+    $usaTaxYear = TaxYear::factory()->create(['jurisdiction_id' => $usa->id, 'year' => 2024]);
+
+    // Create entities in the USA jurisdiction
+    $usaEntityOne = Entity::factory()->create(['user_id' => $user->id, 'jurisdiction_id' => $usa->id, 'name' => 'Alpha LLC']);
+    $usaEntityTwo = Entity::factory()->create(['user_id' => $user->id, 'jurisdiction_id' => $usa->id, 'name' => 'Beta LLC']);
+
+    // Create accounts and assets but no YearEndValues
+    Account::factory()->create(['entity_id' => $usaEntityOne->id]);
+    Asset::factory()->create(['entity_id' => $usaEntityOne->id]);
+    Account::factory()->create(['entity_id' => $usaEntityTwo->id]);
+
+    $service = app(UsTaxReportingService::class);
+    $totals = $service->getForm5472YearEndTotals($user, $usaTaxYear);
+
+    expect($totals['total'])->toBe(0.0)
+        ->and($totals['entities'])->toHaveCount(2);
+
+    $alphaTotals = collect($totals['entities'])->firstWhere('entity_id', $usaEntityOne->id);
+    $betaTotals = collect($totals['entities'])->firstWhere('entity_id', $usaEntityTwo->id);
+
+    expect($alphaTotals['accounts_total'])->toBe(0.0)
+        ->and($alphaTotals['assets_total'])->toBe(0.0)
+        ->and($alphaTotals['total'])->toBe(0.0)
+        ->and($betaTotals['accounts_total'])->toBe(0.0)
+        ->and($betaTotals['assets_total'])->toBe(0.0)
+        ->and($betaTotals['total'])->toBe(0.0);
+});
