@@ -171,6 +171,45 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Peugeot 5008',
             ]);
 
+        $this->call(AddressSeeder::class);
+
+        $usAddress = \App\Models\Address::query()
+            ->where('country', 'United States')
+            ->first();
+
+        $spainAddress = \App\Models\Address::query()
+            ->where('country', 'Spain')
+            ->first();
+
+            $colombiaAddress = \App\Models\Address::query()
+            ->where('country', 'Colombia')
+            ->first();
+
+        if ($usAddress) {
+            $usAsset->address()->associate($usAddress);
+            $usAsset->save();
+
+            $usEntity->address()->associate($usAddress);
+            $usEntity->save();
+        }
+
+        if ($spainAddress) {
+            $spainAsset->address()->associate($spainAddress);
+            $spainAsset->save();
+
+            $spainEntity->address()->associate($spainAddress);
+            $spainEntity->save();
+        }
+        if ($colombiaAddress) {
+            $colombiaAssetOne->address()->associate($colombiaAddress);
+            $colombiaAssetOne->save();
+            $colombiaAssetTwo->address()->associate($colombiaAddress);
+            $colombiaAssetTwo->save();
+
+            $colombiaEntity->address()->associate($colombiaAddress);
+            $colombiaEntity->save();
+        }
+
         // Create tax years for 2025
         $taxYearSpain = \App\Models\TaxYear::create(['jurisdiction_id' => $spain->id, 'year' => 2025]);
         $taxYearUSA = \App\Models\TaxYear::create(['jurisdiction_id' => $usa->id, 'year' => 2025]);
