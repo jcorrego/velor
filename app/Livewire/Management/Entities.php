@@ -123,7 +123,12 @@ class Entities extends Component
         return view('livewire.management.entities', [
             'entities' => Entity::query()
                 ->where('user_id', auth()->id())
-                ->with(['jurisdiction', 'address'])
+                ->with([
+                    'jurisdiction',
+                    'address',
+                    'accounts' => fn ($query) => $query->orderBy('name'),
+                    'assets' => fn ($query) => $query->orderBy('name'),
+                ])
                 ->orderBy('name')
                 ->get(),
             'addresses' => Address::query()

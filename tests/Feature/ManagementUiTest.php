@@ -6,7 +6,9 @@ use App\Livewire\Management\Entities;
 use App\Livewire\Management\Filings;
 use App\Livewire\Management\Profiles;
 use App\Livewire\Management\ResidencyPeriods;
+use App\Models\Account;
 use App\Models\Address;
+use App\Models\Asset;
 use App\Models\Entity;
 use App\Models\Filing;
 use App\Models\FilingType;
@@ -119,6 +121,28 @@ test('user can create a new address from the entity form', function () {
 
     expect($entity)->not->toBeNull()
         ->and($entity->address_id)->not->toBeNull();
+});
+
+test('entities list shows accounts and assets', function () {
+    $user = User::factory()->create();
+    $jurisdiction = Jurisdiction::factory()->usa()->create();
+    $entity = Entity::factory()->create([
+        'user_id' => $user->id,
+        'jurisdiction_id' => $jurisdiction->id,
+    ]);
+
+    $account = Account::factory()->create([
+        'entity_id' => $entity->id,
+    ]);
+
+    $asset = Asset::factory()->create([
+        'entity_id' => $entity->id,
+    ]);
+
+    Livewire::actingAs($user)
+        ->test(Entities::class)
+        ->assertSee($account->name)
+        ->assertSee($asset->name);
 });
 
 test('user can update a filing status from the management ui', function () {

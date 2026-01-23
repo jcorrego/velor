@@ -56,6 +56,8 @@ it('defines model relationships', function (string $modelClass, string $relation
     [Entity::class, 'user', BelongsTo::class, User::class],
     [Entity::class, 'jurisdiction', BelongsTo::class, Jurisdiction::class],
     [Entity::class, 'address', BelongsTo::class, Address::class],
+    [Entity::class, 'accounts', HasMany::class, Account::class],
+    [Entity::class, 'assets', HasMany::class, Asset::class],
     [FilingType::class, 'jurisdiction', BelongsTo::class, Jurisdiction::class],
     [FilingType::class, 'filings', HasMany::class, Filing::class],
     [TaxYear::class, 'jurisdiction', BelongsTo::class, Jurisdiction::class],

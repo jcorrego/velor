@@ -65,6 +65,22 @@ class Entity extends Model
     }
 
     /**
+     * Get the accounts for this entity.
+     */
+    public function accounts(): HasMany
+    {
+        return $this->hasMany(Account::class);
+    }
+
+    /**
+     * Get the assets for this entity.
+     */
+    public function assets(): HasMany
+    {
+        return $this->hasMany(Asset::class);
+    }
+
+    /**
      * Get the documents linked to this entity.
      */
     public function documents(): MorphToMany

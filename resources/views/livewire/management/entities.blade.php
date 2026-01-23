@@ -94,6 +94,8 @@
                                     <th class="px-4 py-3">{{ __('Type') }}</th>
                                     <th class="px-4 py-3">{{ __('Jurisdiction') }}</th>
                                     <th class="px-4 py-3">{{ __('Address') }}</th>
+                                    <th class="px-4 py-3">{{ __('Accounts') }}</th>
+                                    <th class="px-4 py-3">{{ __('Assets') }}</th>
                                     <th class="px-4 py-3"></th>
                                 </tr>
                             </thead>
@@ -114,6 +116,28 @@
                                                 {{ $entity->address->address_line_1 }}, {{ $entity->address->city }}
                                             @else
                                                 <span class="text-zinc-400">{{ __('No address') }}</span>
+                                            @endif
+                                        </td>
+                                        <td class="px-4 py-3 text-zinc-700 dark:text-zinc-200">
+                                            @if ($entity->accounts->isEmpty())
+                                                <span class="text-zinc-400">{{ __('No accounts') }}</span>
+                                            @else
+                                                <div class="flex flex-wrap gap-2">
+                                                    @foreach ($entity->accounts as $account)
+                                                        <flux:badge size="sm" color="zinc">{{ $account->name }}</flux:badge>
+                                                    @endforeach
+                                                </div>
+                                            @endif
+                                        </td>
+                                        <td class="px-4 py-3 text-zinc-700 dark:text-zinc-200">
+                                            @if ($entity->assets->isEmpty())
+                                                <span class="text-zinc-400">{{ __('No assets') }}</span>
+                                            @else
+                                                <div class="flex flex-wrap gap-2">
+                                                    @foreach ($entity->assets as $asset)
+                                                        <flux:badge size="sm" color="zinc">{{ $asset->name }}</flux:badge>
+                                                    @endforeach
+                                                </div>
                                             @endif
                                         </td>
                                         <td class="px-4 py-3 text-right">
