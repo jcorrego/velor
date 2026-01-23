@@ -38,7 +38,7 @@ class StoreAssetRequest extends FormRequest
             'entity_id' => [
                 'required',
                 'integer',
-                'exists:entities,id',
+                Rule::exists('entities', 'id')->where('user_id', auth()->id()),
             ],
             'address_id' => [
                 'nullable',
