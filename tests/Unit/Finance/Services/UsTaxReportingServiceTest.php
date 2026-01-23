@@ -816,6 +816,7 @@ test('getForm5472YearEndTotals returns zero total and empty entities when user h
     $usa = Jurisdiction::factory()->usa()->create();
     $colombia = Jurisdiction::factory()->colombia()->create();
     $usaTaxYear = TaxYear::factory()->create(['jurisdiction_id' => $usa->id, 'year' => 2024]);
+    $colombiaTaxYear = TaxYear::factory()->create(['jurisdiction_id' => $colombia->id, 'year' => 2024]);
 
     // Create entities in a different jurisdiction (Colombia)
     $colombiaEntity = Entity::factory()->create(['user_id' => $user->id, 'jurisdiction_id' => $colombia->id]);
@@ -823,7 +824,7 @@ test('getForm5472YearEndTotals returns zero total and empty entities when user h
 
     YearEndValue::factory()->create([
         'entity_id' => $colombiaEntity->id,
-        'tax_year_id' => TaxYear::factory()->create(['jurisdiction_id' => $colombia->id, 'year' => 2024]),
+        'tax_year_id' => $colombiaTaxYear->id,
         'account_id' => $colombiaAccount->id,
         'asset_id' => null,
         'amount' => 9999.00,
