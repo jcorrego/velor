@@ -124,11 +124,16 @@ new class extends Component
 
         $filing = $this->currentFiling();
         $summary = ['contributions' => 0, 'draws' => 0, 'related_party_totals' => 0];
+        $yearEndTotals = ['total' => 0, 'entities' => []];
 
         if ($filing) {
             $summary = app(UsTaxReportingService::class)->getOwnerFlowSummary(
                 auth()->user(),
                 $filing->taxYear->year
+            );
+            $yearEndTotals = app(UsTaxReportingService::class)->getForm5472YearEndTotals(
+                auth()->user(),
+                $filing->taxYear
             );
         }
 
@@ -139,6 +144,7 @@ new class extends Component
             'schemaTitle' => $this->schemaTitle,
             'calculatedFields' => $this->calculatedFields,
             'summary' => $summary,
+            'yearEndTotals' => $yearEndTotals,
         ];
     }
 
@@ -327,7 +333,7 @@ new class extends Component
             {{ __('No Form 5472 filings found. Create a Form 5472 filing in your tax year filings to get started.') }}
         </div>
     @else
-        <div class="grid gap-4 md:grid-cols-3">
+        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             <div class="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
                 <div class="text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400">{{ __('Owner Contributions') }}</div>
                 <div class="mt-2 text-2xl font-semibold text-green-600 dark:text-green-400">
@@ -355,6 +361,29 @@ new class extends Component
                 </div>
                 <div class="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
                     {{ __('Status') }}: {{ ucfirst(str_replace('_', ' ', $filing->status->value)) }}
+                </div>
+            </div>
+
+            <div class="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
+                <div class="text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400">{{ __('Year-End Assets + Accounts') }}</div>
+                <div class="mt-2 text-2xl font-semibold text-zinc-900 dark:text-zinc-100">
+                    ${{ number_format($yearEndTotals['total'] ?? 0, 2) }} USD
+                </div>
+                <div class="mt-3 space-y-2 text-xs text-zinc-500 dark:text-zinc-400">
+                    @forelse ($yearEndTotals['entities'] ?? [] as $entityTotal)
+                        <div class="flex flex-col gap-1">
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="font-medium text-zinc-700 dark:text-zinc-200">{{ $entityTotal['entity_name'] }}</span>
+                                <span>${{ number_format($entityTotal['total'] ?? 0, 2) }}</span>
+                            </div>
+                            <div class="flex items-center justify-between gap-2 text-[11px]">
+                                <span>{{ __('Accounts') }}: ${{ number_format($entityTotal['accounts_total'] ?? 0, 2) }}</span>
+                                <span>{{ __('Assets') }}: ${{ number_format($entityTotal['assets_total'] ?? 0, 2) }}</span>
+                            </div>
+                        </div>
+                    @empty
+                        <div>{{ __('No year-end values recorded for this jurisdiction.') }}</div>
+                    @endforelse
                 </div>
             </div>
         </div>

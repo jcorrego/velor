@@ -7,8 +7,10 @@ use App\Models\Asset;
 use App\Models\CategoryTaxMapping;
 use App\Models\Currency;
 use App\Models\Entity;
+use App\Models\TaxYear;
 use App\Models\Transaction;
 use App\Models\User;
+use App\Models\YearEndValue;
 
 class UsTaxReportingService
 {
@@ -195,6 +197,55 @@ class UsTaxReportingService
     public function getForm1120Summary(User $user, int $taxYear): array
     {
         return $this->getMappedFormSummary($user, $taxYear, 'form_1120');
+    }
+
+    /**
+     * Get year-end totals for Form 5472 by entity in the filing jurisdiction.
+     *
+     * @return array{total: float, entities: array<int, array{entity_id: int, entity_name: string, accounts_total: float, assets_total: float, total: float}>}
+     */
+    public function getForm5472YearEndTotals(User $user, TaxYear $taxYear): array
+    {
+        $entities = Entity::query()
+            ->where('user_id', $user->id)
+            ->where('jurisdiction_id', $taxYear->jurisdiction_id)
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        if ($entities->isEmpty()) {
+            return [
+                'total' => 0.0,
+                'entities' => [],
+            ];
+        }
+
+        $totals = YearEndValue::query()
+            ->whereIn('entity_id', $entities->pluck('id'))
+            ->where('tax_year_id', $taxYear->id)
+            ->selectRaw('entity_id, SUM(CASE WHEN account_id IS NOT NULL THEN amount ELSE 0 END) as accounts_total')
+            ->selectRaw('SUM(CASE WHEN asset_id IS NOT NULL THEN amount ELSE 0 END) as assets_total')
+            ->groupBy('entity_id')
+            ->get()
+            ->keyBy('entity_id');
+
+        $entityTotals = $entities->map(function (Entity $entity) use ($totals): array {
+            $entityTotal = $totals->get($entity->id);
+            $accountsTotal = (float) ($entityTotal?->accounts_total ?? 0);
+            $assetsTotal = (float) ($entityTotal?->assets_total ?? 0);
+
+            return [
+                'entity_id' => $entity->id,
+                'entity_name' => $entity->name,
+                'accounts_total' => $accountsTotal,
+                'assets_total' => $assetsTotal,
+                'total' => $accountsTotal + $assetsTotal,
+            ];
+        })->values()->all();
+
+        return [
+            'total' => array_sum(array_column($entityTotals, 'total')),
+            'entities' => $entityTotals,
+        ];
     }
 
     /**
