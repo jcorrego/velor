@@ -140,10 +140,11 @@ class DatabaseSeeder extends Seeder
             ->llc()
             ->create([
                 'name' => 'Summerbreeze Apartment',
+                'acquisition_date' => '2023-12-28',
                 'acquisition_cost' => 285000.00,
             ]);
 
-        \App\Models\Asset::factory()
+        $colombiaAssetOne = \App\Models\Asset::factory()
             ->for($colombiaEntity)
             ->inColombia()
             ->residential()
@@ -152,7 +153,7 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Apto Arrecifes de la Abadia',
             ]);
 
-        \App\Models\Asset::factory()
+        $colombiaAssetTwo = \App\Models\Asset::factory()
             ->for($colombiaEntity)
             ->inColombia()
             ->residential()
@@ -161,7 +162,7 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Apto Bogota Luis Carlos',
             ]);
 
-        \App\Models\Asset::factory()
+        $spainAsset = \App\Models\Asset::factory()
             ->for($spainEntity)
             ->inSpain()
             ->vehicle()
@@ -183,6 +184,39 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'amount' => 206841.00,
+            ]
+        );
+
+        \App\Models\YearEndValue::firstOrCreate(
+            [
+                'entity_id' => $colombiaEntity->id,
+                'asset_id' => $colombiaAssetOne->id,
+                'tax_year_id' => $taxYearColombia->id,
+            ],
+            [
+                'amount' => $colombiaAssetOne->acquisition_cost,
+            ]
+        );
+
+        \App\Models\YearEndValue::firstOrCreate(
+            [
+                'entity_id' => $colombiaEntity->id,
+                'asset_id' => $colombiaAssetTwo->id,
+                'tax_year_id' => $taxYearColombia->id,
+            ],
+            [
+                'amount' => $colombiaAssetTwo->acquisition_cost,
+            ]
+        );
+
+        \App\Models\YearEndValue::firstOrCreate(
+            [
+                'entity_id' => $spainEntity->id,
+                'asset_id' => $spainAsset->id,
+                'tax_year_id' => $taxYearSpain->id,
+            ],
+            [
+                'amount' => $spainAsset->acquisition_cost,
             ]
         );
 

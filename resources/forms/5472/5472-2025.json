@@ -47,7 +47,7 @@
         },
         {
           "key": "1c",
-          "label": "Total assets",
+          "label": "1c. Total assets",
           "type": "number",
           "required": true,
           "help": "Total assets of the reporting corporation.",
@@ -55,7 +55,7 @@
         },
         {
           "key": "1d",
-          "label": "Principal business activity",
+          "label": "1d. Principal business activity",
           "type": "text",
           "required": false,
           "help": "Describe the primary business activity during the tax year.",
@@ -63,7 +63,7 @@
         },
         {
           "key": "1e",
-          "label": "Principal business activity code",
+          "label": "1e. Principal business activity code",
           "type": "number",
           "required": false,
           "help": "Enter the six-digit code that best describes the principal business activity.",
@@ -71,7 +71,7 @@
         },
         {
           "key": "1f",
-          "label": "Total value of gross payments made or received reported on this Form 5472. See instructions.",
+          "label": "1f. Total value of gross payments made or received reported on this Form 5472. See instructions.",
           "type": "number",
           "required": false,
           "help": "Enter the total value of gross payments made or received as reported on this Form 5472.",
@@ -79,7 +79,7 @@
         },
         {
           "key": "1g",
-          "label": "Total number of Forms 5472 filed for the tax year",
+          "label": "1g. Total number of Forms 5472 filed for the tax year",
           "type": "number",
           "required": false,
           "help": "Enter the total number of Forms 5472 filed for the tax year.",
@@ -87,7 +87,7 @@
         },
         {
           "key": "1h",
-          "label": "Total value of gross payments made or received reported on all Forms 5472. See instructions. ",
+          "label": "1h. Total value of gross payments made or received reported on all Forms 5472. See instructions. ",
           "type": "number",
           "required": false,
           "help": "Enter the total value of gross payments made or received as reported on all Forms 5472.",
@@ -95,7 +95,7 @@
         },
         {
           "key": "1i",
-          "label": "Check here if this is a consolidated filing of Form 5472 ",
+          "label": "1i. Check here if this is a consolidated filing of Form 5472 ",
           "type": "boolean",
           "required": false,
           "help": "Check this box if filing Form 5472 on behalf of multiple entities.",
@@ -103,7 +103,7 @@
         },
         {
           "key": "1j",
-          "label": "Check here if this is the initial year for which the U.S. reporting corporation is filing a Form 5472",
+          "label": "1j. Check here if this is the initial year for which the U.S. reporting corporation is filing a Form 5472",
           "type": "boolean",
           "required": false,
           "help": "Check this box if this is the first year the reporting corporation is filing Form 5472.",
@@ -111,7 +111,7 @@
         },
         {
           "key": "1k",
-          "label": "Total number of Parts VIII attached to Form 5472",
+          "label": "1k. Total number of Parts VIII attached to Form 5472",
           "type": "number",
           "required": false,
           "help": "Enter the total number of Parts VIII attached to Form 5472.",
@@ -119,35 +119,35 @@
         },
         {
           "key": "1l",
-          "label": "Country of incorporation",
+          "label": "1l. Country of incorporation",
           "type": "text",
           "required": false,
           "help": "Country where the entity was formed."
         },
         {
           "key": "1m",
-          "label": "Date of incorporation",
+          "label": "1m. Date of incorporation",
           "type": "date",
           "required": true,
           "help": "Date when the entity was formed."
         },
         {
           "key": "1n",
-          "label": "Country(ies) under whose laws the reporting corporation files an income tax return as a resident",
+          "label": "1n. Country(ies) under whose laws the reporting corporation files an income tax return as a resident",
           "type": "text",
           "required": false,
           "help": "Country where the entity files an income tax return as a resident."
         },
         {
           "key": "1o",
-          "label": "Principal country(ies) where business is conducted",
+          "label": "1o. Principal country(ies) where business is conducted",
           "type": "text",
           "required": false,
           "help": "Country where the entity conducts its primary business activities."
         },
         {
           "key": "2",
-          "label": "Check here if, at any time during the tax year, any foreign person owned, directly or indirectly, at least 50% of (a) the total voting power of all classes of the stock of the reporting corporation entitled to vote, or (b) the total value of all classes of stock of the reporting corporation ",
+          "label": "2. Check here if, at any time during the tax year, any foreign person owned, directly or indirectly, at least 50% of (a) the total voting power of all classes of the stock of the reporting corporation entitled to vote, or (b) the total value of all classes of stock of the reporting corporation ",
           "type": "boolean",
           "required": true,
           "help": "Check this box if any foreign person owned at least 50% of the reporting corporation during the tax year.",
@@ -155,7 +155,7 @@
         },
         {
           "key": "3",
-          "label": "Check here if the reporting corporation is a foreign-owned domestic disregarded entity (foreign-owned U.S. DE) treated as a corporation for purposes of section 6038A. See instructions ",
+          "label": "3. Check here if the reporting corporation is a foreign-owned domestic disregarded entity (foreign-owned U.S. DE) treated as a corporation for purposes of section 6038A. See instructions ",
           "type": "boolean",
           "required": true,
           "help": "Check this box if you are a <a target=\"_blank\" href=\"https://www.irs.gov/instructions/i5472#en_US_202501_publink100058495\">foreign-owned U.S. DE.</a>",
