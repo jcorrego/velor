@@ -831,7 +831,7 @@ test('getForm5472YearEndTotals returns zero total and empty entities when user h
     ]);
 
     $service = app(UsTaxReportingService::class);
-    $totals = $service->getForm5472YearEndTotals($user, $usaTaxYear);
+    $totals = $service->getForm5472YearEndTotals($user, $usaTaxYear->year);
 
     expect($totals['total'])->toBe(0.0)
         ->and($totals['entities'])->toBeArray()
@@ -853,7 +853,7 @@ test('getForm5472YearEndTotals returns entities with zero totals when no YearEnd
     Account::factory()->create(['entity_id' => $usaEntityTwo->id]);
 
     $service = app(UsTaxReportingService::class);
-    $totals = $service->getForm5472YearEndTotals($user, $usaTaxYear);
+    $totals = $service->getForm5472YearEndTotals($user, $usaTaxYear->year);
 
     expect($totals['total'])->toBe(0.0)
         ->and($totals['entities'])->toHaveCount(2);
