@@ -17,6 +17,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::livewire('manage/currencies', Currencies::class)->name('management.currencies');
     Route::livewire('manage/residency-periods', ResidencyPeriods::class)->name('management.residency-periods');
     Route::livewire('manage/entities', Entities::class)->name('management.entities');
+    Route::livewire('manage/addresses', 'management.addresses')->name('management.addresses');
     Route::livewire('manage/tax-years', TaxYears::class)->name('management.tax-years');
     Route::livewire('manage/documents', 'management.documents')->name('management.documents');
     Route::livewire('manage/filings', Filings::class)->name('management.filings');

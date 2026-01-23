@@ -17,7 +17,7 @@ class AssetController extends Controller
     public function index(): JsonResponse
     {
         $assets = $this->filterByUser(Asset::query())
-            ->with(['jurisdiction', 'entity'])
+            ->with(['entity.jurisdiction', 'address'])
             ->paginate(15);
 
         return AssetResource::collection($assets)->response();
@@ -31,7 +31,7 @@ class AssetController extends Controller
         $asset = Asset::create($request->validated());
 
         return response()->json(
-            new AssetResource($asset->load(['jurisdiction', 'entity'])),
+            new AssetResource($asset->load(['entity.jurisdiction', 'address'])),
             201
         );
     }
@@ -44,7 +44,7 @@ class AssetController extends Controller
         $this->ensureUserOwnsAsset($asset);
 
         return response()->json(
-            new AssetResource($asset->load(['jurisdiction', 'entity']))
+            new AssetResource($asset->load(['entity.jurisdiction', 'address']))
         );
     }
 
@@ -58,7 +58,7 @@ class AssetController extends Controller
         $asset->update($request->validated());
 
         return response()->json(
-            new AssetResource($asset->load(['jurisdiction', 'entity']))
+            new AssetResource($asset->load(['entity.jurisdiction', 'address']))
         );
     }
 

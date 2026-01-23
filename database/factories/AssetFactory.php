@@ -25,7 +25,6 @@ class AssetFactory extends Factory
         return [
             'name' => $this->faker->words(4, true),
             'type' => $this->faker->randomElement(AssetType::cases()),
-            'jurisdiction_id' => Jurisdiction::factory(),
             'entity_id' => Entity::factory(),
             'ownership_structure' => $this->faker->randomElement(OwnershipStructure::cases()),
             'acquisition_date' => $acquisitionDate,
@@ -75,7 +74,8 @@ class AssetFactory extends Factory
             ?? Jurisdiction::factory()->create(['iso_code' => 'ESP', 'name' => 'Spain']);
 
         return $this->state(fn (array $attributes) => [
-            'jurisdiction_id' => $spainJurisdiction->id,
+            'entity_id' => $attributes['entity_id']
+                ?? Entity::factory()->create(['jurisdiction_id' => $spainJurisdiction->id])->id,
         ]);
     }
 
@@ -85,7 +85,8 @@ class AssetFactory extends Factory
             ?? Jurisdiction::factory()->create(['iso_code' => 'COL', 'name' => 'Colombia']);
 
         return $this->state(fn (array $attributes) => [
-            'jurisdiction_id' => $colombiaJurisdiction->id,
+            'entity_id' => $attributes['entity_id']
+                ?? Entity::factory()->create(['jurisdiction_id' => $colombiaJurisdiction->id])->id,
         ]);
     }
 
@@ -95,7 +96,8 @@ class AssetFactory extends Factory
             ?? Jurisdiction::factory()->create(['iso_code' => 'USA', 'name' => 'United States']);
 
         return $this->state(fn (array $attributes) => [
-            'jurisdiction_id' => $usaJurisdiction->id,
+            'entity_id' => $attributes['entity_id']
+                ?? Entity::factory()->create(['jurisdiction_id' => $usaJurisdiction->id])->id,
         ]);
     }
 

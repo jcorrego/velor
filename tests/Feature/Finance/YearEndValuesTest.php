@@ -84,9 +84,7 @@ it('updates year-end values for an asset from asset management', function () {
         'jurisdiction_id' => $jurisdiction->id,
         'year' => 2024,
     ]);
-    $asset = Asset::factory()->for($entity)->create([
-        'jurisdiction_id' => $jurisdiction->id,
-    ]);
+    $asset = Asset::factory()->for($entity)->create();
 
     $this->actingAs($user);
 

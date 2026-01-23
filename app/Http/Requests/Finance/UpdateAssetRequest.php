@@ -40,6 +40,11 @@ class UpdateAssetRequest extends FormRequest
                 'string',
                 Rule::in(array_map(fn ($case) => $case->value, OwnershipStructure::cases())),
             ],
+            'address_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('addresses', 'id')->where('user_id', auth()->id()),
+            ],
         ];
     }
 
@@ -55,6 +60,7 @@ class UpdateAssetRequest extends FormRequest
             'name.max' => 'The asset name must not exceed 255 characters.',
             'type.in' => 'The selected asset type is invalid.',
             'ownership_structure.in' => 'The selected ownership structure is invalid.',
+            'address_id.exists' => 'The selected address does not exist.',
         ];
     }
 }

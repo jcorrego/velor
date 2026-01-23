@@ -35,15 +35,15 @@ class StoreAssetRequest extends FormRequest
                 'string',
                 Rule::in(array_map(fn ($case) => $case->value, AssetType::cases())),
             ],
-            'jurisdiction_id' => [
-                'required',
-                'integer',
-                'exists:jurisdictions,id',
-            ],
             'entity_id' => [
                 'required',
                 'integer',
-                'exists:entities,id',
+                Rule::exists('entities', 'id')->where('user_id', auth()->id()),
+            ],
+            'address_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('addresses', 'id')->where('user_id', auth()->id()),
             ],
             'ownership_structure' => [
                 'required',
@@ -75,10 +75,9 @@ class StoreAssetRequest extends FormRequest
             'name.max' => 'The asset name must not exceed 255 characters.',
             'type.required' => 'The asset type is required.',
             'type.in' => 'The selected asset type is invalid.',
-            'jurisdiction_id.required' => 'The jurisdiction is required.',
-            'jurisdiction_id.exists' => 'The selected jurisdiction does not exist.',
             'entity_id.required' => 'The entity is required.',
             'entity_id.exists' => 'The selected entity does not exist.',
+            'address_id.exists' => 'The selected address does not exist.',
             'ownership_structure.required' => 'The ownership structure is required.',
             'ownership_structure.in' => 'The selected ownership structure is invalid.',
             'acquisition_date.required' => 'The acquisition date is required.',

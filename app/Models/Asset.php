@@ -20,8 +20,8 @@ class Asset extends Model
     protected $fillable = [
         'name',
         'type',
-        'jurisdiction_id',
         'entity_id',
+        'address_id',
         'ownership_structure',
         'acquisition_date',
         'acquisition_cost',
@@ -41,19 +41,19 @@ class Asset extends Model
     }
 
     /**
-     * Get the jurisdiction where this asset is located.
-     */
-    public function jurisdiction(): BelongsTo
-    {
-        return $this->belongsTo(Jurisdiction::class);
-    }
-
-    /**
      * Get the entity that owns this asset.
      */
     public function entity(): BelongsTo
     {
         return $this->belongsTo(Entity::class);
+    }
+
+    /**
+     * Get the address for this asset.
+     */
+    public function address(): BelongsTo
+    {
+        return $this->belongsTo(Address::class);
     }
 
     /**

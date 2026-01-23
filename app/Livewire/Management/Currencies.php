@@ -103,7 +103,6 @@ class Currencies extends Component
         $currencies = Currency::query()
             ->withCount([
                 'accounts',
-                'assets',
                 'originalTransactions',
                 'convertedTransactions',
                 'fxRatesFrom',
@@ -113,7 +112,6 @@ class Currencies extends Component
             ->get()
             ->each(function (Currency $currency): void {
                 $inUseCount = $currency->accounts_count
-                    + $currency->assets_count
                     + $currency->original_transactions_count
                     + $currency->converted_transactions_count
                     + $currency->fx_rates_from_count

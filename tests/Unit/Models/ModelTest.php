@@ -9,6 +9,7 @@ use App\Enums\Finance\TaxFormCode;
 use App\Enums\Finance\TransactionType;
 use App\FilingStatus;
 use App\Models\Account;
+use App\Models\Address;
 use App\Models\Asset;
 use App\Models\CategoryTaxMapping;
 use App\Models\Currency;
@@ -34,8 +35,10 @@ it('defines model relationships', function (string $modelClass, string $relation
     expect($relation)->toBeInstanceOf($relationClass)
         ->and($relation->getRelated())->toBeInstanceOf($relatedClass);
 })->with([
-    [Asset::class, 'jurisdiction', BelongsTo::class, Jurisdiction::class],
     [Asset::class, 'entity', BelongsTo::class, Entity::class],
+    [Asset::class, 'address', BelongsTo::class, Address::class],
+    [Address::class, 'user', BelongsTo::class, User::class],
+    [Address::class, 'assets', HasMany::class, Asset::class],
     [Filing::class, 'user', BelongsTo::class, User::class],
     [Filing::class, 'taxYear', BelongsTo::class, TaxYear::class],
     [Filing::class, 'filingType', BelongsTo::class, FilingType::class],
@@ -70,6 +73,7 @@ it('defines model relationships', function (string $modelClass, string $relation
     [UserProfile::class, 'user', BelongsTo::class, User::class],
     [UserProfile::class, 'jurisdiction', BelongsTo::class, Jurisdiction::class],
     [User::class, 'profiles', HasMany::class, UserProfile::class],
+    [User::class, 'addresses', HasMany::class, Address::class],
     [ResidencyPeriod::class, 'user', BelongsTo::class, User::class],
     [ResidencyPeriod::class, 'jurisdiction', BelongsTo::class, Jurisdiction::class],
     [CategoryTaxMapping::class, 'transactionCategory', BelongsTo::class, TransactionCategory::class],

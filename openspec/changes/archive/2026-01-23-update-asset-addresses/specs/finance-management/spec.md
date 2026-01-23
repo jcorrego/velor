@@ -1,4 +1,4 @@
-## MODIFIED Requirements
+## ADDED Requirements
 ### Requirement: Asset Management
 The system SHALL track assets with ownership and acquisition details, deriving jurisdiction from the owning entity, and supporting optional address association.
 
