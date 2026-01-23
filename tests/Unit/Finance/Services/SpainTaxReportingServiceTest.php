@@ -112,7 +112,6 @@ test('getModelo720Summary aggregates foreign assets by category and threshold st
 
     $asset = \App\Models\Asset::factory()->create([
         'entity_id' => $foreignEntity->id,
-        'jurisdiction_id' => $usa->id,
         'acquisition_date' => '2023-06-01',
         'acquisition_cost' => 60000.00,
     ]);

@@ -50,8 +50,8 @@ new class extends Component
             // Get all US rental properties
             $assets = Asset::query()
                 ->whereHas('entity', fn ($query) => $query->where('user_id', auth()->id()))
-                ->whereHas('jurisdiction', fn ($query) => $query->where('iso_code', 'USA'))
-                ->with(['entity', 'jurisdiction'])
+                ->whereHas('entity.jurisdiction', fn ($query) => $query->where('iso_code', 'USA'))
+                ->with(['entity.jurisdiction'])
                 ->orderBy('name')
                 ->get();
 
