@@ -4,30 +4,41 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Build & Development Commands
 
+This project uses Laravel Sail for Docker-based development. Use `sail` or `./vendor/bin/sail`.
+
 ```bash
-# Development (runs Laravel server, queue, logs, and Vite concurrently)
-composer run dev
+# Start containers
+sail up -d
+
+# Stop containers
+sail down
+
+# Run artisan commands
+sail artisan <command>
 
 # Build assets for production
-npm run build
+sail npm run build
 
 # Run all tests with linting
-composer run test
+sail composer test
 
 # Run tests only (without lint)
-php artisan test --compact
+sail artisan test --compact
 
 # Run specific test file
-php artisan test --compact tests/Feature/ExampleTest.php
+sail artisan test --compact tests/Feature/ExampleTest.php
 
 # Run specific test by name
-php artisan test --compact --filter=testName
+sail artisan test --compact --filter=testName
 
 # Format code (run before finalizing changes)
-vendor/bin/pint --dirty
+sail pint --dirty
 
-# Setup project (fresh install)
-composer run setup
+# Run composer commands
+sail composer <command>
+
+# Run npm commands
+sail npm <command>
 ```
 
 ## Architecture Overview
